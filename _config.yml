@@ -39,8 +39,11 @@ exclude:
   - .github/
   - README.md
   - _dn-data-origin.sh
-#   - node_modules
-#   - vendor/bundle/
-#   - vendor/cache/
-#   - vendor/gems/
-#   - vendor/ruby/
+  # for helaili/jekyll-action@2.3.1
+  - package.json
+  - src
+  - node_modules
+  - vendor/bundle
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
