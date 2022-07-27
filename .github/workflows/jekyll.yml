@@ -1,0 +1,31 @@
+name: Jekyll site CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Cache
+        uses: actions/cache@v3.0.2
+        with:
+          path: vendor/bundle
+          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile') }}
+          restore-keys: ${{ runner.os }}-gems-
+
+      - name: Jekyll Actions
+        # You may pin to the exact commit or the version.
+        # uses: https://github.com/helaili/jekyll-action
+        uses: helaili/jekyll-action@2.3.1
+        with:
+          # The GITHUB_TOKEN secret
+          token: ${{ secrets.GITHUB_TOKEN }}
+          # The target branch name the site gets pushed to
+          target_branch: gh-pages
+          # pre_build_commands: "bash _dn-data-origin.sh"
