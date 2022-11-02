@@ -28,4 +28,4 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           # The target branch name the site gets pushed to
           target_branch: gh-pages
-          # pre_build_commands: "bash _dn-data-origin.sh"
+          # pre_build_commands: "bash get-data-origin.sh"
