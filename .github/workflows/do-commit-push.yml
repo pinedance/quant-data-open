@@ -16,7 +16,7 @@ jobs:
         fetch-depth: 0 # otherwise, you will failed to push refs to dest repo
     - name: Create local changes
       run: |
-        bash get-data-orign.sh
+        bash get-data-origin.sh
     - name: Commit & Push changes
       uses: actions-js/push@master
       with:
