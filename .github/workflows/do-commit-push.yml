@@ -3,7 +3,7 @@ name: Do Commit and Push
 on:
   schedule:
   # - cron: "0 0 1,15 * *"
-  - cron: "15 * * * *"
+  - cron: "*/10 * * * *"
 
 jobs:
   build:
