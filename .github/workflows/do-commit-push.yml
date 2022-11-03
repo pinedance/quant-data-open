@@ -2,8 +2,8 @@ name: Do Commit and Push
 
 on:
   schedule:
-    # - cron: "0 0 1,21 * *"
-    - cron: "*/20 * * * *"
+    - cron: "0 0 1,11,21 * *"
+#     - cron: "*/20 * * * *"
 
 
 jobs:
