@@ -38,7 +38,7 @@ exclude:
   - Gemfile.lock
   - .github/
   - README.md
-  - get-data-origin.sh
+  - run_*.*
   # for helaili/jekyll-action@2.3.1
   - package.json
   - src
