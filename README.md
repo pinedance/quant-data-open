@@ -25,13 +25,13 @@ Github Actions을 이용하여 자동화 함
 [e-나라지표](http://www.index.go.kr)
 * [수출입동향](http://www.index.go.kr/potal/main/EachDtlPageDetail.do?idx_cd=1066)
 
-[국가통계포털](https://kosis.kr/)
+[국가통계포털 kosis](https://kosis.kr/)
 
 [한국거래소 KRX](http://www.krx.co.kr)
 * [정보데이터 시스템](http://data.krx.co.kr/)
 * [보도자료](http://open.krx.co.kr/contents/OPN/05/05000000/OPN05000000.jsp): 신규상장 정보 등
 
-[산업통산자원부]
+산업통산자원부
 * [수출입 동향](https://www.motie.go.kr/search/search.do?site=main&kwd=%EC%9B%94+%EC%88%98%EC%B6%9C%EC%9E%85+%EB%8F%99%ED%96%A5&category=c2&reSrchFlag=&currentPage=1&detailSearch=&srchFd=%24param.srchFd&sort=r&date=%24param.date&start-date=&end-date=&preCondi=%24param.preCondi&rowPerPage=10&fdTot=%24param.fdTot&fdTitle=%24param.fdTitle&fdContent=%24param.fdContent&fdFile=%24param.fdFile&fdNotice=%24param.fdNotice&ppkFlag=weekly&searchOption=allword&searchRange=fdTot&searchOptionAnd=&searchOptionOr=)
 * [산업통계 분석시스템 ISTANS](https://www.istans.or.kr/mainMenu.do): [경기종합지수](https://www.istans.or.kr/su/newSuTab.do?scode=S99)
 * [무역통계 k-stat](https://stat.kita.net/stat/kts/sum/SumImpExpTotalList.screen)
