@@ -19,6 +19,12 @@ jobs:
       with:
         persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal token
         fetch-depth: 0 # otherwise, you will failed to push refs to dest repo
+    # https://github.com/ruby/setup-ruby
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.0' # Not needed with a .ruby-version file
+        bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+    - run: bundle install
     - name: Create local changes
       run: |
         bash run_all.sh
