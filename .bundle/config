@@ -1,0 +1,4 @@
+---
+BUNDLE_PATH: "/home/runner/work/quant-data-open/quant-data-open/vendor/bundle"
+BUNDLE_DEPLOYMENT: "true"
+BUNDLE_JOBS: "4"
