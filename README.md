@@ -11,7 +11,12 @@ Github Actions을 이용하여 자동화 함
 
 ## 제공하고 있는 데이터
 
-상장 주식 목록 [table](https://pinedance.github.io/quant-data-open/dist/CompanyList.html), [json](https://pinedance.github.io/quant-data-open/dist/CompanyList.json)
+상장 주식 목록
+* 전체 [table](https://pinedance.github.io/quant-data-open/dist/CompanyList.html), [json](https://pinedance.github.io/quant-data-open/dist/CompanyList.json)
+
+국내 ETF 가격(종가)
+* 전체 [table](https://pinedance.github.io/quant-data-open/dist/KRX/etf-price.html)
+* 일부 [table](https://pinedance.github.io/quant-data-open/dist/KRX/etf-price-selected.html)
 
 경기종합지수
 * 동행지수 [table](https://pinedance.github.io/quant-data-open/dist/CompositeIndex/CoincidenceIndex.html), [json](https://pinedance.github.io/quant-data-open/dist/CompositeIndex/CoincidenceIndex.json)
@@ -19,6 +24,7 @@ Github Actions을 이용하여 자동화 함
 * 선행지수 [table](https://pinedance.github.io/quant-data-open/dist/CompositeIndex/LeadingIndex.html), [json](https://pinedance.github.io/quant-data-open/dist/CompositeIndex/LeadingIndex.json)
 * 선행지수 순환변동치 [table](https://pinedance.github.io/quant-data-open/dist/CompositeIndex/LeadingIndexCyclicalComponent.html), [json](https://pinedance.github.io/quant-data-open/dist/CompositeIndex/LeadingIndexCyclicalComponent.json)
 
+---
 
 ## 공공 데이터
 
