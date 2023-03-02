@@ -6,7 +6,9 @@ on:
   pull_request:
     branches: [main]
   workflow_run:
-    workflows: ["Get Commit and Push"]
+    workflows: 
+      - "Get Commit and Push"
+      - "Get Commit and Push2"
     types:
       - completed
     

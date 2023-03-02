@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "quant-data-open"
+version = "0.1.0"
+description = ""
+authors = ["Junho <pinedance@gmail.com>"]
+readme = "README.md"
+packages = [
+    {include = "*.py", from="python_modules"}
+]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+pandas = "^1.5.3"
+finance-datareader = "^0.9.50"
+tqdm = "^4.64.1"
+bs4 = "^0.0.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

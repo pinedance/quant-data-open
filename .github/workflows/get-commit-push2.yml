@@ -1,0 +1,37 @@
+name: Get Commit and Push2
+
+on:
+  schedule:
+#  pm23:30 월-금 -> UTC pm2:30
+    - cron: "30 2 * * 1-5"
+#     - cron: "*/20 * * * *"
+  workflow_dispatch:
+    inputs:
+      tags:
+        description: 'Activate Manually'
+        required: true
+        type: boolean
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+      with:
+        persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal token
+        fetch-depth: 0 # otherwise, you will failed to push refs to dest repo
+    - uses: actions/setup-python@v4
+      with:
+        python-version: 3.8
+    - uses: abatilo/actions-poetry@v2.3.0
+    - name: install
+      run: poetry install
+    - name: run code
+      run: |
+        poetry run python run_get_krx_etf_price.py
+    - name: Commit & Push changes
+      uses: actions-js/push@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: master
+        message: get new data & update
