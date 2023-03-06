@@ -2,8 +2,8 @@ name: Get Commit and Push2
 
 on:
   schedule:
-#  pm23:30 월-금 -> UTC pm2:30
-    - cron: "30 2 * * 1-5"
+#  pm16:30 월-금 -> UTC pm7:30
+    - cron: "30 7 * * 1-5"
 #     - cron: "*/20 * * * *"
   workflow_dispatch:
     inputs:
