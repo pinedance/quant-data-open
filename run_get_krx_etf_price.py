@@ -35,7 +35,7 @@ etf_data_raw = [
 
 # %%
 etf_data = pd.concat(etf_data_raw, axis=1)
-etf_data.columns = etf_tickers
+etf_data.columns = [ "A{}".format(ticker) for ticker in etf_tickers ]
 
 # %%
 html_table = etf_data.to_html()
