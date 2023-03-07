@@ -9,7 +9,7 @@ import FinanceDataReader as fdr
 from cons import etf_tickers
 
 # %%
-days_offset = pd.Timedelta(380, unit="days")
+days_offset = pd.Timedelta(400, unit="days")
 day_end = pd.Timestamp.today().date()
 day_start = day_end - days_offset
 print(day_start, day_end)
