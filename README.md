@@ -9,6 +9,17 @@ Github Actions을 이용하여 자동화 함
 
 ---
 
+## 사용법
+
+국내 ETF 정보는 양이 많아 정해진 ticker만 불러온다. ticker는 아래 google sheet로 컨트롤 한다. 
+
+* 시트 주소 : [KOREA_ETF_TIKCERS_FOR_DATA](https://docs.google.com/spreadsheets/d/1UqlIF8aXCsRhGYPHttIgtgVDNbyUJOtOmEsM4u3q5H0/)
+* 시트 이름 : TICKERS_REQ
+
+ticker 목록을 수정하고 데이터를 바로 보고 싶을 때는 [github action](https://github.com/pinedance/quant-data-open/actions/workflows/get-commit-push2.yml)에서 수동 실행 시킨다. 
+
+---
+
 ## 제공하고 있는 데이터
 
 상장 주식 목록
