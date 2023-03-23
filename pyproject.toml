@@ -17,6 +17,7 @@ bs4 = "^0.0.1"
 
 [tool.poetry.group.dev.dependencies]
 jupyter = "^1.0.0"
+autopep8 = "^2.0.2"
 
 [build-system]
 requires = ["poetry-core"]
