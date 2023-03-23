@@ -6,7 +6,7 @@ from os import path
 import pandas as pd
 from tqdm import tqdm
 import FinanceDataReader as fdr
-from cons import etf_tickers
+from cons import config_tickers_req
 
 # %%
 days_offset = pd.Timedelta(400, unit="days")
@@ -24,6 +24,13 @@ print(day_start, day_end)
 # stock_list = pd.read_html(URL["stock_list"])[0]
 # etf_list = stock_list[stock_list["GROUP"] == id_group]
 
+# %%
+tickers_req_url = "https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}".format(
+    **config_tickers_req)
+tickers_req_df = pd.read_csv(tickers_req_url)
+etf_tickers = list(tickers_req_df["TICKER"].astype("str"))
+print(etf_tickers)
+
 # %%time
 # etf_data_raw = [
 #     fdr.DataReader(ticker[1:], day_start, day_end)['Close'] for idx, ticker, name, group in etf_list.itertuples()
@@ -35,8 +42,8 @@ etf_data_raw = [
 
 # %%
 etf_data = pd.concat(etf_data_raw, axis=1)
-etf_data.columns = [ "A{}".format(ticker) for ticker in etf_tickers ]
-#etf_data.dtypes
+etf_data.columns = ["A{}".format(ticker) for ticker in etf_tickers]
+# etf_data.dtypes
 etf_data = etf_data.astype('float64')
 
 # %%
