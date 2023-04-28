@@ -37,7 +37,7 @@ print(etf_tickers)
 # ]
 
 etf_data_raw = [
-    fdr.DataReader(ticker, day_start, day_end)['Close'] for ticker in etf_tickers
+    fdr.DataReader(ticker, day_start, day_end)['Adj Close'] for ticker in etf_tickers
 ]
 
 # %%
@@ -54,27 +54,3 @@ rst_path = path.join("dist", "YH", "etf-price-selected.html")
 # rst_path = path.join("dist", "KRX", "etf-price.html")
 with open(rst_path, "w", encoding="utf-8") as fl:
     fl.write(html_table)
-
-# %%
-####################################################################################################
-# Adjusted Close Price
-
-# # %%
-# etf_data_raw = [
-#     fdr.DataReader(ticker, day_start, day_end)['Adj Close'] for ticker in etf_tickers
-# ]
-
-# # %%
-# etf_data = pd.concat(etf_data_raw, axis=1)
-# etf_data.columns = ["A{}".format(ticker) for ticker in etf_tickers]
-# # etf_data.dtypes
-# etf_data = etf_data.astype('float64')
-
-# # %%
-# html_table = etf_data.to_html(na_rep='')
-
-# # %%
-# rst_path = path.join("dist", "YH", "etf-price-selected.html")
-# # rst_path = path.join("dist", "KRX", "etf-price.html")
-# with open(rst_path, "w", encoding="utf-8") as fl:
-#     fl.write(html_table)
