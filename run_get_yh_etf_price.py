@@ -50,7 +50,7 @@ etf_data = etf_data.astype('float64')
 html_table = etf_data.to_html(na_rep='')
 
 # %%
-rst_path = path.join("dist", "YH", "etf-price-selected.html")
+rst_path = path.join("dist", "YH", "etf-adjusted-price-selected.html")
 # rst_path = path.join("dist", "KRX", "etf-price.html")
 with open(rst_path, "w", encoding="utf-8") as fl:
     fl.write(html_table)
