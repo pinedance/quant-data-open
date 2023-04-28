@@ -31,6 +31,7 @@ jobs:
     - name: run code
       run: |
         poetry run python run_get_krx_etf_price.py
+        poetry run python run_get_yh_etf_price.py
     - name: Commit & Push changes
       uses: actions-js/push@master
       with:
