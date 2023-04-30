@@ -7,8 +7,8 @@ on:
     branches: [main]
   workflow_run:
     workflows: 
-      - "Get Commit and Push"
-      - "Get Commit and Push2"
+      - "Update Company List"
+      - "Update ETF Prices"
     types:
       - completed
     

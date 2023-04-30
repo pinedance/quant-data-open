@@ -1,8 +1,9 @@
-name: Get Commit and Push
+name: Update ETF Prices
 
 on:
   schedule:
-    - cron: "0 0 1,11,21 * *"
+#  pm16:30 월-금 -> UTC pm7:30
+    - cron: "30 7 * * 1-5"
 #     - cron: "*/20 * * * *"
   workflow_dispatch:
     inputs:
@@ -19,15 +20,18 @@ jobs:
       with:
         persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal token
         fetch-depth: 0 # otherwise, you will failed to push refs to dest repo
-    # https://github.com/ruby/setup-ruby
-    - uses: ruby/setup-ruby@v1
+    - uses: actions/setup-python@v4
       with:
-        ruby-version: '2.7' # Not needed with a .ruby-version file
-        bundler-cache: true # runs 'bundle install' and caches installed gems automatically
-    - run: bundle install
-    - name: Create local changes
+        python-version: 3.8
+    - uses: abatilo/actions-poetry@v2.3.0
+    - name: install
+      run: poetry install
+    - name: update
+      run: poetry update
+    - name: run code
       run: |
-        bash run_all.sh
+        poetry run python run_get_krx_etf_price.py
+        poetry run python run_get_yh_etf_price.py
     - name: Commit & Push changes
       uses: actions-js/push@master
       with:
