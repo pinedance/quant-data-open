@@ -24,11 +24,18 @@ url: "" # the base hostname & protocol for your site, e.g. http://example.com
 # twitter_username: jekyllrb
 # github_username:  jekyll
 
+encoding: utf-8
+
 # Build settings
 markdown: kramdown
 theme: minima
 plugins:
   - jekyll-feed
+
+kramdown:
+  # Turn Off smart quotes because of json files
+  # https://uhded.com/how-to-turn-off-smart-quotes-jekyll
+  smart_quotes: ["apos", "apos", "quot", "quot"]
 
 # Exclude from processing.
 # The following items will not be processed, by default. Create a custom list
