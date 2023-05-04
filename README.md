@@ -68,3 +68,16 @@ ticker 목록을 수정하고 데이터를 바로 보고 싶을 때는 [github a
 * [WiseIndex](https://www.wiseindex.com/Index/Index#/WMI500)
 
 [네이버 금융](https://finance.naver.com/sise/etf.naver)
+
+---
+
+## 기술 기록
+
+jekyll을 통해 json file을 변환할 때 아래와 같은 문제가 발생하였다. 각각 다음과 같이 해결하였다. 
+
+* build 결과 파일 확장자 문제 ( filename.json.md → filename.json.html )
+  - page header에 `permalink: "/filename.json"` 추가
+* build 결과 파일에 html `<p>` tag가 추가되는 문제
+  - `layouts/json.html`에 `{{ content | remove: "<p>" | remove: "</p>" }}` 추가
+* build 결과 파일에 따옴표 문제 (`“ .. ”`)
+  - kramdown의 smart quotes 기능 끄기 : `_config.yml`에 `smart_quotes: ["apos", "apos", "quot", "quot"]` 추가
