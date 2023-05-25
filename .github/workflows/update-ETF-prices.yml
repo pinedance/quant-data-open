@@ -2,8 +2,9 @@ name: Update ETF Prices
 
 on:
   schedule:
-#  pm16:30 월-금 -> UTC pm7:30
-    - cron: "30 7 * * 1-5"
+#  KOR - 9H = UTC
+#  KOR 07:30 월-금 -> UTC 22:30 
+    - cron: "30 22 * * *"
 #     - cron: "*/20 * * * *"
   workflow_dispatch:
     inputs:
