@@ -16,13 +16,6 @@ print(day_start, day_end)
 
 # fdr.DataReader("005930", day_start, day_end)
 
-# %%
-# URL = dict(
-#     stock_list="https://pinedance.github.io/quant-data-open/dist/CompanyList.html"
-# )
-# id_group = 770
-# stock_list = pd.read_html(URL["stock_list"])[0]
-# etf_list = stock_list[stock_list["GROUP"] == id_group]
 
 # %%
 tickers_req_url = "https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}".format(
@@ -51,6 +44,5 @@ html_table = etf_data.to_html(na_rep='')
 
 # %%
 rst_path = path.join("dist", "YH", "etf-adjusted-price-selected.html")
-# rst_path = path.join("dist", "KRX", "etf-price.html")
 with open(rst_path, "w", encoding="utf-8") as fl:
     fl.write(html_table)

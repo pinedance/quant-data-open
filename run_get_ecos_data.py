@@ -75,12 +75,12 @@ df_Q = df_Q.astype('float64')
 
 # %%
 html_table = df_M.to_html(na_rep='')
-rst_path = os.path.join("dist", "ECOS", "economic_data_monthly.html")
+rst_path = os.path.join("dist", "ECOS", "economic-data-monthly.html")
 with open(rst_path, "w", encoding="utf-8") as fl:
     fl.write(html_table)
 
 # %%
 html_table = df_Q.to_html(na_rep='')
-rst_path = os.path.join("dist", "ECOS", "economic_data_quarterly.html")
+rst_path = os.path.join("dist", "ECOS", "economic-data-quarterly.html")
 with open(rst_path, "w", encoding="utf-8") as fl:
     fl.write(html_table)

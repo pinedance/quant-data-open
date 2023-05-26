@@ -20,8 +20,6 @@ print(req_df.head())
 html_table = req_df.to_html(na_rep='')
 
 # %%
-rst_path = path.join("dist", "M", "average_daily_exports_kr.html")
-# rst_path = path.join("dist", "KRX", "etf-price.html")
+rst_path = path.join("dist", "M", "average-daily-exports-kr.html")
 with open(rst_path, "w", encoding="utf-8") as fl:
     fl.write(html_table)
-
