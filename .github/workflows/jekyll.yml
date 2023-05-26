@@ -7,8 +7,8 @@ on:
     branches: [main]
   workflow_run:
     workflows: 
-      - "Update Company List"
-      - "Update ETF Prices"
+      - "Update data monthly"
+      - "Update data daily"
     types:
       - completed
     

@@ -47,6 +47,8 @@ exclude:
   - poetry.lock
   - .github/
   - .venv/
+  - .env
+  - .tool-versions
   - README.md
   - python_modules
   - run_*.*
