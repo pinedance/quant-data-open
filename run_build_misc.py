@@ -50,7 +50,6 @@ print(rst)
 
 # %%
 rst_path = path.join("_data", "misc.json")
-# rst_path = path.join("dist", "KRX", "etf-price.html")
 with open(rst_path, "w", encoding="utf-8") as fl:
     json.dump(rst, fl, ensure_ascii=False)
 
