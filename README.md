@@ -20,9 +20,9 @@
 * 일부 [table](https://pinedance.github.io/quant-data-open/dist/KRX/etf-price-selected.html)
 
 해외 ETF 가격(종가, 약 1.5년치)
-* 일부 [table](https://pinedance.github.io/quant-data-open/dist/YH/etf-price-selected.html)
+* 일부 [table](https://pinedance.github.io/quant-data-open/dist/YH/etf-adjusted-price-selected.html)
 
-[각종 경기 지표(월간)](https://pinedance.github.io/quant-data-open/dist/ECOS/economic_data_monthly.html)
+[각종 경기 지표(월간)](https://pinedance.github.io/quant-data-open/dist/ECOS/economic-data-monthly.html)
 * 국고채|잔액, 환율|달러, 통화량|M2, KOSDAQ|거래대금, KOSDAQ|종가, KOSPI|거래대금, KOSPI|종가, 경기종합지수|동행지수순환변동치, 경기종합지수|선행지수순환변동치, 제조업|가동률, 제조업|재고율, 설비투자지수, 수출|금액지수, 수출|물량지수, 순상품교역조건지수, 기업경기실사지수|수출전망, 기업경기실사지수|업황전망, 기업경기실사지수|가동률전망, 경제심리지수, 실업률, 고용률, 소비자물가지수, 생산자물가지수, 
 
 [각종 경기 지표(분기)](https://pinedance.github.io/quant-data-open/dist/ECOS/economic-data-quarterly.html)
