@@ -6,7 +6,7 @@ from os import path
 import pandas as pd
 from tqdm import tqdm
 import FinanceDataReader as fdr
-from cons import config_tickers_req_yh as config_tickers_req
+from cons import config_gsheet_tickers_req_yh as config_tickers_req
 
 # %%
 days_offset = pd.Timedelta(400, unit="days")

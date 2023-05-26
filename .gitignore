@@ -1,5 +1,7 @@
 # Custom
 poetry.lock
+_test*.py
+.tool-versions
 
 # Ruby
 _site

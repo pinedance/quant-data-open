@@ -1,4 +1,4 @@
-name: Update ETF Prices
+name: Update data daily
 
 on:
   schedule:

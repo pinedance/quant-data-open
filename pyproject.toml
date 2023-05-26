@@ -14,6 +14,8 @@ pandas = "^1.5.3"
 finance-datareader = "^0.9.50"
 tqdm = "^4.64.1"
 bs4 = "^0.0.1"
+publicdatareader = "^1.0.21"
+python-dotenv = "^1.0.0"
 
 [tool.poetry.group.dev.dependencies]
 jupyter = "^1.0.0"

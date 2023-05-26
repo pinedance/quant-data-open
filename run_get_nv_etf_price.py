@@ -6,7 +6,7 @@ import pandas as pd
 from tqdm import tqdm
 import requests
 from bs4 import BeautifulSoup
-from cons import config_tickers_req_krx as config_tickers_req
+from cons import config_gsheet_tickers_req_krx as config_tickers_req
 
 # %%
 days = 400
