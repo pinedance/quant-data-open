@@ -2,7 +2,7 @@ name: Update data monthly
 
 on:
   schedule:
-    - cron: "0 0 1,11,21 * *"
+    - cron: "0 0 5,15,25 * *"
 #     - cron: "*/20 * * * *"
   workflow_dispatch:
     inputs:
