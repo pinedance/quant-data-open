@@ -3,7 +3,7 @@ name: Update data daily
 on:
   schedule:
 #  KOR - 9H = UTC
-#  KOR 07:30 월-금 -> UTC 22:30 
+#  Seoup 07:30 월-금 -> UTC 22:30 
     - cron: "30 22 * * *"
 #     - cron: "*/20 * * * *"
   workflow_dispatch:
@@ -30,11 +30,14 @@ jobs:
     - name: update
       run: poetry update
     - name: run code
+      env:
+        ECOS_KEY: ${{ secrets.ECOS_KEY }}
       run: |
         poetry run python run_get_krx_etf_price.py
         poetry run python run_get_nv_etf_price.py
         poetry run python run_get_yh_etf_price.py
         poetry run python run_build_misc.py
+        poetry run python run_get_ecos_data_daily.py
     - name: Commit & Push changes
       uses: actions-js/push@master
       with:
