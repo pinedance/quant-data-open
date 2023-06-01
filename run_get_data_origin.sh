@@ -4,5 +4,6 @@ DATA_PATH="_data"
 
 # company list 
 COM_LIST_URL="http://comp.fnguide.com/XML/Market/CompanyList.txt"
-curl -A "${AGENT}" -L "${COM_LIST_URL}" -o "${DATA_PATH}/${TODAY}_CompanyList.json"
+curl -A "${AGENT}" -L "${COM_LIST_URL}" -o "${DATA_PATH}/companylist.json"
+# curl -A "${AGENT}" -L "${COM_LIST_URL}" -o "${DATA_PATH}/${TODAY}_CompanyList.json"
 # cp "${DATA_PATH}/${TODAY}_CompanyList.json" "${DATA_PATH}/companylist.json"
