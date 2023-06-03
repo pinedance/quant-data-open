@@ -37,7 +37,7 @@ jobs:
         poetry run python run_get_nv_etf_price.py
         poetry run python run_get_yh_etf_price.py
         poetry run python run_build_misc.py
-        poetry run run_get_nv_data_daily.py
+        poetry run python  run_get_nv_data_daily.py
         poetry run python run_get_ecos_data_daily.py
     - name: Commit & Push changes
       uses: actions-js/push@master
