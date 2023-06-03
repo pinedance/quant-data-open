@@ -40,6 +40,26 @@
 
 ---
 
+---
+
+## 실시간 경기 지표
+
+### 시장 모니터링
+
+채권
+* [금리|미국국채10년](https://m.stock.naver.com/marketindex/bond/US10YT=RR)
+* [금리|한국국채10년](https://m.stock.naver.com/marketindex/bond/KR10YT=RR)
+
+주식
+* [주식|S&P500](https://m.stock.naver.com/worldstock/index/.INX/total), [주식|NASDAQ100](https://m.stock.naver.com/worldstock/index/.NDX/total)
+* [KOSPI](https://m.stock.naver.com/domestic/index/KOSPI/total), [KOSDAQ](https://m.stock.naver.com/domestic/index/KOSDAQ/total)
+* [VIX](https://m.stock.naver.com/worldstock/index/.VIX/total)
+
+기타
+* [골드|원](https://m.stock.naver.com/marketindex/metals/CMDT_GD)
+* [원유|WTI](https://m.stock.naver.com/marketindex/energy/CLcv1)
+* [환율|달러](https://m.stock.naver.com/marketindex/exchange/FX_USDKRW)
+
 ## 데이터 볼 수 있는 곳
 
 ### 공공데이터
