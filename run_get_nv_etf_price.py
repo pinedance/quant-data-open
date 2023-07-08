@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 from cons import config_gsheet_tickers_req_krx as config_tickers_req
 
 # %%
-days = 400
+days = 450
 days_offset = pd.Timedelta(days, unit="days")
 day_end = pd.Timestamp.today().date()
 day_start = day_end - days_offset
