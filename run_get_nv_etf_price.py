@@ -20,7 +20,7 @@ print(day_start, day_end)
 tickers_req_url = "https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}".format(
     **config_tickers_req)
 tickers_req_df = pd.read_csv(tickers_req_url)
-etf_tickers = list(tickers_req_df["TICKER"].astype("str"))
+etf_tickers = list( sorted ( tickers_req_df["TICKER"].astype("str") ) )
 print(etf_tickers)
 
 #%%
