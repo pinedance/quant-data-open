@@ -7,9 +7,10 @@ import pandas as pd
 from tqdm import tqdm
 import FinanceDataReader as fdr
 from cons import config_gsheet_tickers_req_krx as config_tickers_req
+from cons import delta_days
 
 # %%
-days = 450
+days = delta_days
 days_offset = pd.Timedelta(days, unit="days")
 day_end = pd.Timestamp.today().date()
 day_start = day_end - days_offset

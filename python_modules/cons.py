@@ -1,3 +1,5 @@
+delta_days = 800
+
 # From KRX
 config_gsheet_tickers_req_krx = {
     "sheet_id": '1UqlIF8aXCsRhGYPHttIgtgVDNbyUJOtOmEsM4u3q5H0',
