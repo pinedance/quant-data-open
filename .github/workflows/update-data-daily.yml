@@ -25,21 +25,27 @@ jobs:
       with:
         python-version: 3.8
     - uses: abatilo/actions-poetry@v2.3.0
-    - name: install
+    - name: poetry install
       run: poetry install
-    - name: update
+    - name: poetry update
       run: poetry update
     - name: Get Company List
       run: |
         bash run_get_data_origin.sh
-    - name: Run Python Code1
+    - name: Get ETF Price 01
       run: |
         poetry run python run_get_krx_etf_price.py
         poetry run python run_get_nv_etf_price.py
+    - name: Get ETF Price 02
+      run: |
         poetry run python run_get_yh_etf_price.py
-        poetry run python run_build_misc.py
+    - name: Get Etc Data
+      run: |
         poetry run python run_get_nv_data_daily.py
-    - name: Run Python Code2
+    - name: Build Misc Data
+      run: |
+        poetry run python run_build_misc.py
+    - name: Get Data From ECOS
       env:
         ECOS_KEY: ${{ secrets.ECOS_KEY }}
       run: |

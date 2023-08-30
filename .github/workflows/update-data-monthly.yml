@@ -26,11 +26,11 @@ jobs:
       with:
         python-version: 3.8
     - uses: abatilo/actions-poetry@v2.3.0
-    - name: install
+    - name: poetry install
       run: poetry install
-    - name: update
+    - name: poetry update
       run: poetry update
-    - name: run code
+    - name: Get Data From ECOS
       env:
         ECOS_KEY: ${{ secrets.ECOS_KEY }}
       run: |

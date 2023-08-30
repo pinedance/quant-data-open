@@ -32,7 +32,7 @@ print(etf_tickers)
 # ]
 
 etf_data_raw = [
-    fdr.DataReader(ticker, day_start, day_end)['Adj Close'] for ticker in etf_tickers
+    fdr.DataReader(ticker.strip(), day_start, day_end)['Adj Close'] for ticker in etf_tickers
 ]
 
 # %%

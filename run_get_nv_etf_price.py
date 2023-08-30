@@ -45,7 +45,7 @@ def get_price(ticker, days):
 
 #%%
 etf_data_raw = [
-    get_price(ticker, days)['Close'] for ticker in etf_tickers
+    get_price(ticker.strip(), days)['Close'] for ticker in etf_tickers
 ]
 
 # %%
