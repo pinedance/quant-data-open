@@ -35,9 +35,6 @@ jobs:
         ECOS_KEY: ${{ secrets.ECOS_KEY }}
       run: |
         poetry run python run_get_ecos_data_monthly.py
-    - name: Get Company List
-      run: |
-        bash run_get_data_origin.sh
     - name: Commit & Push changes
       uses: actions-js/push@master
       with:
