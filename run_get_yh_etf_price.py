@@ -42,7 +42,7 @@ etf_data.columns = ["{}".format(ticker) for ticker in etf_tickers]
 etf_data = etf_data.astype('float64')
 
 # %%
-html_table = etf_data.to_html(na_rep='')
+html_table = etf_data.dropna(axis=0).to_html(na_rep='')
 
 # %%
 rst_path = path.join("dist", "YH", "etf-adjusted-price-selected.html")
