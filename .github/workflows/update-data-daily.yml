@@ -40,9 +40,12 @@ jobs:
     - name: Get ETF Price 02
       run: |
         poetry run python run_get_yh_etf_price.py
-    - name: Get Etc Data
+    - name: Get Etc Data 01
       run: |
         poetry run python run_get_nv_data_daily.py
+    - name: Get Etc Data 02
+      run: |
+        poetry run python run_get_yh_data_daily.py
     - name: Build Misc Data
       run: |
         poetry run python run_build_misc.py
