@@ -12,6 +12,12 @@ config_gsheet_tickers_req_yh = {
     "sheet_name": 'TICKERS_REQ'
 }
 
+# From Yahoo Finance
+config_gsheet_tickers_req_yh2 = {
+    "sheet_id": '1rG145KyiClJYEFjUlMnLv4emMNZrx5QM8jUuLXEUVdI',
+    "sheet_name": 'TICKERS_REQ'
+}
+
 # KR일평균수출액
 # https://docs.google.com/spreadsheets/d/177UKIW05FImgOxOtaTeRBP-av_wFb5jCQIPkpkXpMJ8
 config_gsheet_average_daily_exports_kr = {
