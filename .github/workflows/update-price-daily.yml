@@ -1,10 +1,12 @@
-name: Update data daily
+name: Update price daily
 
 on:
   schedule:
 #  KOR - 9H = UTC
-#  Seoul 09:30 월-금 -> UTC 00:30 
-    - cron: "30 0 * * *"
+#  Seoul 06:40 월-금 -> UTC 21:40 
+    - cron: "40 21 * * *"
+#  Seoul 09:10 월-금 -> UTC 00:10 
+    - cron: "10 0 * * *"
   workflow_dispatch:
     inputs:
       tags:
@@ -31,20 +33,13 @@ jobs:
     - name: Get Company List
       run: |
         bash run_get_data_origin.sh
-    - name: Get Etc Data 01
+    - name: Get ETF Price KR
       run: |
-        poetry run python run_get_nv_data_daily.py
-    - name: Get Etc Data 02
+        poetry run python run_get_krx_etf_price.py
+        poetry run python run_get_nv_etf_price.py
+    - name: Get ETF Price US
       run: |
-        poetry run python run_get_yh_data_daily.py
-    - name: Build Misc Data
-      run: |
-        poetry run python run_build_misc.py
-    - name: Get Data From ECOS
-      env:
-        ECOS_KEY: ${{ secrets.ECOS_KEY }}
-      run: |
-        poetry run python run_get_ecos_data_daily.py
+        poetry run python run_get_yh_etf_price.py
     - name: Commit & Push changes
       uses: actions-js/push@master
       with:
