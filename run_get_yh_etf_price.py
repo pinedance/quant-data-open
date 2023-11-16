@@ -23,7 +23,7 @@ print(day_start, day_end)
 tickers_req_url = "https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}".format(
     **config_tickers_req)
 tickers_req_df = pd.read_csv(tickers_req_url)
-etf_tickers = list( sorted( set( tickers_req_df["TICKER"].astype("str") ) ) )
+etf_tickers = list(sorted(set(tickers_req_df["TICKER"].astype("str"))))
 print(etf_tickers)
 
 # %%time
@@ -32,7 +32,8 @@ print(etf_tickers)
 # ]
 
 etf_data_raw = [
-    fdr.DataReader(ticker.strip(), day_start)['Adj Close'] for ticker in etf_tickers
+    # fdr.DataReader(ticker.strip(), day_start)['Adj Close'] for ticker in etf_tickers
+    fdr.DataReader(ticker.strip(), day_start)['Close'] for ticker in etf_tickers
 ]
 
 # %%
