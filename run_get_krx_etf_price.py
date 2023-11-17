@@ -5,7 +5,7 @@
 from os import path
 import pandas as pd
 from tqdm import tqdm
-import FinanceDataReader as fdr
+from tools import fin_data
 from cons import config_gsheet_tickers_req_krx as config_tickers_req
 from cons import delta_days
 
@@ -16,22 +16,16 @@ day_end = pd.Timestamp.today().date()
 day_start = day_end - days_offset
 print(day_start, day_end)
 
-# fdr.DataReader("005930", day_start, day_end)
-
 # %%
 tickers_req_url = "https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}".format(
     **config_tickers_req)
 tickers_req_df = pd.read_csv(tickers_req_url)
-etf_tickers = list( sorted ( tickers_req_df["TICKER"].astype("str") ) )
+etf_tickers = list(sorted(tickers_req_df["TICKER"].astype("str")))
 print(etf_tickers)
 
 # %%time
-# etf_data_raw = [
-#     fdr.DataReader(ticker[1:], day_start, day_end)['Close'] for idx, ticker, name, group in etf_list.itertuples()
-# ]
-
 etf_data_raw = [
-    fdr.DataReader(ticker.strip(), day_start, day_end)['Close'] for ticker in etf_tickers
+    fin_data(ticker.strip(), day_start, day_end) for ticker in etf_tickers
 ]
 
 # %%
