@@ -5,7 +5,7 @@
 from os import path
 import pandas as pd
 import json
-import FinanceDataReader as fdr
+from tools import fin_data
 
 # %%
 YEARS = 5
@@ -16,10 +16,10 @@ day_start = day_end - pd.DateOffset(months=(YEARS * 12 + 1))
 print(day_start, day_end)
 
 # %%
-us_data = fdr.DataReader("SPY", day_start, day_end)['Close']
+us_data = fin_data("SPY", day_start, day_end)
 
 # %%
-kr_data = fdr.DataReader("069500", day_start, day_end)['Close']
+kr_data = fin_data("069500", day_start, day_end)
 
 # %%
 
