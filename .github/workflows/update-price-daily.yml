@@ -26,6 +26,10 @@ jobs:
       with:
         python-version: 3.8
     - uses: abatilo/actions-poetry@v2.3.0
+    - name: install system dependency
+      run: |
+        sudo apt-get update
+        sudo apt-get install libxml2-dev libxslt-dev -y
     - name: poetry install
       run: poetry install
     - name: poetry update
