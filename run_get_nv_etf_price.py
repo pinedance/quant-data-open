@@ -20,11 +20,15 @@ print(day_start, day_end)
 tickers_req_url = "https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}".format(
     **config_tickers_req)
 tickers_req_df = pd.read_csv(tickers_req_url)
-etf_tickers = list( sorted ( tickers_req_df["TICKER"].astype("str") ) )
+etf_tickers = list(sorted(
+    ["{:06d}".format(tk) for tk in list(tickers_req_df["TICKER"])]
+))
 print(etf_tickers)
 
-#%%
+# %%
 # 네이버 금융에서 종목 가격정보와 거래량을 가져오는 함수: get_price
+
+
 def get_price(ticker, days):
     # count=3000에서 3000은 과거 3,000 영업일간의 데이터를 의미. 사용자가 조절 가능
     url = f"https://fchart.stock.naver.com/sise.nhn?symbol={ticker}&timeframe=day&count={days}&requestType=0"
@@ -43,7 +47,8 @@ def get_price(ticker, days):
 
     return df_inf.drop('Date', axis=1).astype(float)
 
-#%%
+
+# %%
 etf_data_raw = [
     get_price(ticker.strip(), days)['Close'] for ticker in etf_tickers
 ]
