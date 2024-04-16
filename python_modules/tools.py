@@ -1,5 +1,6 @@
 import requests
 import FinanceDataReader as fdr
+import yfinance as yf
 
 month2quarter_dict = {
     '01': 'Q1', '02': 'Q1', '03': 'Q1', '04': 'Q2', '05': 'Q2', '06': 'Q2',
@@ -23,7 +24,15 @@ def get_json(url, keys=["result"]):
     return rst
 
 
-def fin_data(*arg):
-    d = fdr.DataReader(*arg)
-    rst = d['Adj Close'] if 'Adj Close' in d.index else d['Close']
+def fin_data(*arg, src="krx"):
+    if src == "yahoo":
+        d = yf.download(*arg)
+    else:
+        d = fdr.DataReader(*arg)
+    if 'Adj Close' in d.columns:
+        print("Catching 'Adj Close'")
+        rst = d['Adj Close']
+    else:
+        print("Catching 'Close'")
+        rst = d['Close']
     return rst
