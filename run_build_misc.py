@@ -16,7 +16,7 @@ day_start = day_end - pd.DateOffset(months=(YEARS * 12 + 1))
 print(day_start, day_end)
 
 # %%
-us_data = fin_data("SPY", day_start, day_end)
+us_data = fin_data("SPY", day_start, day_end, src="yahoo")
 
 # %%
 kr_data = fin_data("069500", day_start, day_end)

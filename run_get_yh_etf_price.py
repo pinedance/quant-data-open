@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# pip -q install finance-datareader
 
 # %%
 from os import path
@@ -25,7 +24,7 @@ print(etf_tickers)
 
 # %%time
 etf_data_raw = [
-    fin_data(ticker.strip(), day_start) for ticker in etf_tickers
+    fin_data(ticker.strip(), day_start, src="yahoo") for ticker in etf_tickers
 ]
 
 # %%
