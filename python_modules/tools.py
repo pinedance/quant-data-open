@@ -18,6 +18,7 @@ def yyyymm2quarter(yyyymm, q_dict=month2quarter_dict):
 def get_json(url, keys=["result"]):
     d = requests.get(url)
     rst = d.json()
+    # print( rst )
     if (keys is not None) and (len(keys) > 0):
         for k in keys:
             rst = rst[k]

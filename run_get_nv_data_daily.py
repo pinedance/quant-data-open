@@ -18,27 +18,27 @@ def get_priceDF(url, keys=["result"]):
 QUEUE = [
     {
         "name": "환율|달러원",
-        "url": "https://m.stock.naver.com/front-api/v1/chart/pricesByPeriod?category=exchange&reutersCode=FX_USDKRW&chartInfoType=marketindex&scriptChartType=areaYear",
+        "url": "https://m.stock.naver.com/front-api/chart/pricesByPeriod?category=exchange&reutersCode=FX_USDKRW&chartInfoType=marketindex&scriptChartType=areaYear",
         "keys": ["result", "priceInfos"]
     },
     {
         "name": "금리|한국국채10년",
-        "url": "https://m.stock.naver.com/front-api/v1/chart/pricesByPeriod?category=bond&reutersCode=KR10YT%3DRR&chartInfoType=governmentBond&scriptChartType=areaYear",
+        "url": "https://m.stock.naver.com/front-api/chart/pricesByPeriod?category=bond&reutersCode=KR10YT%3DRR&chartInfoType=governmentBond&scriptChartType=areaYear",
         "keys": ["result", "priceInfos"]
     },
     {
         "name": "금리|미국국채10년",
-        "url": "https://m.stock.naver.com/front-api/v1/chart/pricesByPeriod?category=bond&reutersCode=US10YT%3DRR&chartInfoType=governmentBond&scriptChartType=areaYear",
+        "url": "https://m.stock.naver.com/front-api/chart/pricesByPeriod?category=bond&reutersCode=US10YT%3DRR&chartInfoType=governmentBond&scriptChartType=areaYear",
         "keys": ["result", "priceInfos"]
     },
     {
         "name": "골드|원",
-        "url": "https://m.stock.naver.com/front-api/v1/chart/pricesByPeriod?category=metals&reutersCode=CMDT_GD&chartInfoType=marketindex&scriptChartType=areaYear",
+        "url": "https://m.stock.naver.com/front-api/chart/pricesByPeriod?category=metals&reutersCode=CMDT_GD&chartInfoType=marketindex&scriptChartType=areaYear",
         "keys": ["result", "priceInfos"]
     },
     {
         "name": "원유|WTI",
-        "url": "https://m.stock.naver.com/front-api/v1/chart/pricesByPeriod?category=energy&reutersCode=CLcv1&chartInfoType=futures&scriptChartType=areaYear",
+        "url": "https://m.stock.naver.com/front-api/chart/pricesByPeriod?category=energy&reutersCode=CLcv1&chartInfoType=futures&scriptChartType=areaYear",
         "keys": ["result", "priceInfos"]
     },
     {
