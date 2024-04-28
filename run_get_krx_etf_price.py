@@ -27,7 +27,7 @@ print(etf_tickers)
 
 # %%time
 etf_data_raw = [
-    fin_data(ticker.strip(), day_start, day_end) for ticker in etf_tickers
+    fin_data(ticker.strip(), day_start) for ticker in etf_tickers
 ]
 
 # %%
