@@ -9,9 +9,10 @@ on:
     workflows: 
       - "Update data monthly"
       - "Update data daily"
+      - "Update price daily"
     types:
       - completed
-    
+
 jobs:
   build:
     runs-on: ubuntu-latest
