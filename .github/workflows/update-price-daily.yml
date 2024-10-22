@@ -34,8 +34,8 @@ jobs:
         sudo apt-get install libxml2-dev libxslt-dev -y
     - name: poetry install
       run: poetry install
-    - name: poetry update
-      run: poetry update
+    # - name: poetry update
+      # run: poetry update
     - name: Get Company List
       run: |
         bash run_get_data_origin.sh
