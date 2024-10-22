@@ -55,6 +55,7 @@ etf_data_raw = [
 
 # %%
 etf_data = pd.concat(etf_data_raw, axis=1)
+etf_data.index = etf_data.index.date
 etf_data.columns = ["A{}".format(ticker) for ticker in etf_tickers]
 # etf_data.dtypes
 etf_data = etf_data.astype('float64')
