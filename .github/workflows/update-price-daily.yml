@@ -24,10 +24,10 @@ jobs:
       with:
         persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal token
         fetch-depth: 0 # otherwise, you will failed to push refs to dest repo
-    - uses: actions/setup-python@v4
+    - uses: actions/setup-python@v5
       with:
         python-version: 3.8
-    - uses: abatilo/actions-poetry@v2.3.0
+    - uses: abatilo/actions-poetry@v2.4.0
     - name: install system dependency
       run: |
         sudo apt-get update
