@@ -46,8 +46,15 @@ for dc in ecos_search_codes:
     _search_opt = search_opt["D"]
     _data_rp = _data_D
     _df = api.get_statistic_search(**dc["코드"], **_search_opt)
+    if _df is None:
+        print( "!!! 데이터가 없습니다.", data_name )
+        continue
     _data_rp[data_name] = _df[select_cols].set_index(select_cols[0])
-    print("Data Downloaded:", data_name)
+    print("* Data Downloaded:", data_name)
+
+#%%
+if len(_data_D) == 0:
+    raise ValueError("!!! There is no Data Downloaded from ECOS API !!!")
 
 # %%
 df_D = pd.concat(list(_data_D.values()), axis=1)
