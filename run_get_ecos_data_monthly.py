@@ -3,7 +3,7 @@ import os
 import datetime as dt
 import numpy as np
 import pandas as pd
-from PublicDataReader import Ecos
+from ecos import Ecos
 from cons import ecos_search_codes_monthly as ecos_search_codes
 from tools import yyyymm2quarter
 from dotenv import load_dotenv
