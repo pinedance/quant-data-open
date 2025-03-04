@@ -1,5 +1,5 @@
 # %%
-import os
+import os, sys
 import datetime as dt
 import numpy as np
 import pandas as pd
@@ -59,28 +59,35 @@ for dc in ecos_search_codes:
         _search_opt = search_opt["Q"]
         _data_rp = _data_Q
     _df = api.get_statistic_search(**dc["코드"], **_search_opt)
+    if _df is None:
+        print( "!!! 데이터가 없습니다.", data_name )
+        continue
     _data_rp[data_name] = _df[select_cols].set_index(select_cols[0])
     print("Data Downloaded:", data_name)
 
-# %%
-df_M = pd.concat(list(_data_M.values()), axis=1)
-df_M.columns = list(_data_M.keys())
-df_M = df_M.astype('float64')
+#%%
+if len(_data_M) == 0:
+    print("!!! There is no Data Downloaded from ECOS API !!!", "Monthly")
+    sys.exit()
+else:
+    df_M = pd.concat(list(_data_M.values()), axis=1)
+    df_M.columns = list(_data_M.keys())
+    df_M = df_M.astype('float64')
+    
+    html_table = df_M.to_html(na_rep='')
+    rst_path = os.path.join("dist", "ECOS", "economic-data-monthly.html")
+    with open(rst_path, "w", encoding="utf-8") as fl:
+        fl.write(html_table)
 
-# %%
-df_Q = pd.concat(list(_data_Q.values()), axis=1)
-df_Q.columns = list(_data_Q.keys())
-df_Q = df_Q.astype('float64')
+if len(_data_Q) == 0:
+    print("!!! There is no Data Downloaded from ECOS API !!!", "Quarterly")
+    sys.exit()
+else:
+    df_Q = pd.concat(list(_data_Q.values()), axis=1)
+    df_Q.columns = list(_data_Q.keys())
+    df_Q = df_Q.astype('float64')
 
-
-# %%
-html_table = df_M.to_html(na_rep='')
-rst_path = os.path.join("dist", "ECOS", "economic-data-monthly.html")
-with open(rst_path, "w", encoding="utf-8") as fl:
-    fl.write(html_table)
-
-# %%
-html_table = df_Q.to_html(na_rep='')
-rst_path = os.path.join("dist", "ECOS", "economic-data-quarterly.html")
-with open(rst_path, "w", encoding="utf-8") as fl:
-    fl.write(html_table)
+    html_table = df_Q.to_html(na_rep='')
+    rst_path = os.path.join("dist", "ECOS", "economic-data-quarterly.html")
+    with open(rst_path, "w", encoding="utf-8") as fl:
+        fl.write(html_table)
