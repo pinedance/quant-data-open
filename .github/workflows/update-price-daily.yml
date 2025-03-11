@@ -24,18 +24,25 @@ jobs:
       with:
         persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal token
         fetch-depth: 0 # otherwise, you will failed to push refs to dest repo
-    - uses: actions/setup-python@v5
-      with:
-        python-version: 3.8
-    - uses: abatilo/actions-poetry@v2.4.0
     - name: install system dependency
       run: |
         sudo apt-get update
         sudo apt-get install libxml2-dev libxslt-dev -y
-    - name: poetry install
+    - uses: actions/setup-python@v5
+      with:
+        python-version: 3.8
+    # https://github.com/marketplace/actions/python-poetry-action    
+    - name: Install poetry
+      uses: abatilo/actions-poetry@v4
+    - uses: actions/cache@v3
+      name: Define a cache for the virtual environment based on the dependencies lock file
+      with:
+        path: ./.venv
+        key: venv-${{ hashFiles('poetry.lock') }}
+    - name: Install the project dependencies
       run: poetry install
     # - name: poetry update
-      # run: poetry update
+    #   run: poetry update
     - name: Get Company List
       run: |
         bash run_get_data_origin.sh
