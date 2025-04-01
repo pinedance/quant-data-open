@@ -3,6 +3,7 @@ from copy import deepcopy
 import requests
 import FinanceDataReader as fdr
 import yfinance as yf
+import pandas as pd
 
 month2quarter_dict = {
     '01': 'Q1', '02': 'Q1', '03': 'Q1', '04': 'Q2', '05': 'Q2', '06': 'Q2',
@@ -61,4 +62,59 @@ def fin_data(*arg, src="auto"):
         print("Catching 'Close'")
         rst = d['Close']
         
+    return rst
+
+def get_price_status( ticker, _hist ):
+
+    if isinstance( _hist, pd.Series ):
+        hist = _hist.to_frame()
+    else:
+        hist = _hist.copy()
+        
+    if hist.empty:
+        return None
+    
+    # print( hist )
+    # print( hist.columns )
+    
+    hist.columns = ['Close']
+    # 200일 이동평균 및 표준편차 계산
+    hist['MA200'] = hist['Close'].rolling(window=200).mean()
+    hist['STD200'] = hist['Close'].rolling(window=200).std()
+    
+    # 최근 마지막 데이터 추출
+    recent = hist.iloc[-1]
+    ma200 = recent['MA200']
+    std200 = recent['STD200']
+    current_price = recent['Close']
+    
+    # 이전 날 데이터 (돌파 판단용)
+    prev_data = hist.iloc[-2]
+    prev_ma200 = prev_data['MA200']
+    prev_price = prev_data['Close']
+    
+    # 상태 결정
+    if current_price > ma200 and prev_price <= prev_ma200:
+        status = "상향 돌파"
+    elif current_price > ma200 and prev_price > prev_ma200:
+        sigma = (current_price - ma200) / std200
+        status = f"상향 지속({sigma:.1f})"
+    elif current_price < ma200 and prev_price >= prev_ma200:
+        status = "하향 돌파"
+    elif current_price < ma200 and prev_price < prev_ma200:
+        sigma = (current_price - ma200) / std200
+        status = f"하향 지속({sigma:.1f})"
+    else:
+        status = "중립"
+    
+    rst = {
+        'ticker': ticker,
+        'current_price': current_price,
+        'ma200': ma200,
+        'std200': std200,
+        'status': status
+    }
+    
+    print(f"{rst['ticker']}: {rst['current_price']:.2f} | MA200: {rst['ma200']:.2f} | 상태: {rst['status']}")
+    
     return rst
