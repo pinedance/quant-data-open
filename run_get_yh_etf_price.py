@@ -4,7 +4,8 @@
 from os import path
 import pandas as pd
 from tqdm import tqdm
-from tools import fin_data
+from tools import fin_data, get_price_status
+from message import notice_price_status
 from cons import config_gsheet_tickers_req_yh as config_tickers_req
 from cons import delta_days
 
@@ -26,6 +27,11 @@ print(etf_tickers)
 etf_data_raw = [
     fin_data(ticker.strip(), day_start, src="yahoo") for ticker in etf_tickers
 ]
+
+# %%
+for i, hist in enumerate(etf_data_raw):
+    status_data = get_price_status( etf_tickers[i], hist )
+    notice_price_status( status_data )
 
 # %%
 etf_data = pd.concat(etf_data_raw, axis=1)
