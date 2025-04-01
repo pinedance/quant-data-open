@@ -4,6 +4,7 @@ import requests
 import FinanceDataReader as fdr
 import yfinance as yf
 import pandas as pd
+from message import send_telegram_message
 
 month2quarter_dict = {
     '01': 'Q1', '02': 'Q1', '03': 'Q1', '04': 'Q2', '05': 'Q2', '06': 'Q2',
@@ -55,13 +56,16 @@ def fin_data(*arg, src="auto"):
         else:
             d = yf.download( *arg )
         
+    if d.empty:
+        send_telegram_message( "{}: Data is Empty!!!".format(ticker) )
+        
     if 'Adj Close' in d.columns:
-        print("Catching 'Adj Close'")
+        print( "{}: Catching 'Adj Close'".format(ticker) )
         rst = d['Adj Close']
     else:
-        print("Catching 'Close'")
+        print( "{}: Catching 'Close'".format(ticker) )
         rst = d['Close']
-        
+ 
     return rst
 
 def get_price_status( ticker, _hist ):
