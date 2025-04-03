@@ -16,7 +16,9 @@ def send_telegram_message(message):
         'chat_id': TELEGRAM_CHAT_ID,
         'text': message
     }
-    print( "Send Message ---" )
+    
+    print()
+    print( "--- Send Message" )
     print( message )
     print( "--- --- ---")
     print()
