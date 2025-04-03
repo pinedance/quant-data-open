@@ -47,10 +47,16 @@ jobs:
       run: |
         bash run_get_data_origin.sh
     - name: Get ETF Price KR
+      env:
+        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
       run: |
         poetry run python run_get_krx_etf_price.py
         poetry run python run_get_nv_etf_price.py
     - name: Get ETF Price US
+      env:
+        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
       run: |
         poetry run python run_get_yh_etf_price.py
     - name: Commit & Push changes
