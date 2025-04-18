@@ -31,10 +31,17 @@ etf_data_raw = [
     fin_data(ticker.strip(), day_start, src="krx") for ticker in etf_tickers
 ]
 
+#%%
+tickers_all_url = "https://pinedance.github.io/quant-data-open/dist/CompanyList.json"
+tickers_all_df = pd.read_json(tickers_all_url)
+tickers_all_df.columns = ["ticker", "name", "group"]
+# print(tickers_all_df)
+ticker_all_dict = tickers_all_df.set_index('ticker')['name'].to_dict()
+
 # %%
 for i, hist in enumerate(etf_data_raw):
     status_data = get_price_status( etf_tickers[i], hist )
-    notice_price_status( status_data )
+    notice_price_status( status_data, tickers=ticker_all_dict )
 
 # %%
 etf_data = pd.concat(etf_data_raw, axis=1)
@@ -52,4 +59,4 @@ with open(rst_path, "w", encoding="utf-8") as fl:
     fl.write(html_table)
 
 # %%
-send_telegram_message("KRX ETF PRICE 업데이트가 완료되었습니다.")
+send_telegram_message("업데이트 완료: KRX ETF PRICE")
