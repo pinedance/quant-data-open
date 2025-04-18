@@ -50,4 +50,4 @@ with open(rst_path, "w", encoding="utf-8") as fl:
     fl.write(html_table)
 
 # %%
-send_telegram_message("YAHOO ETF PRICE 업데이트가 완료되었습니다.")
+send_telegram_message("업데이트 완료: YAHOO ETF PRICE")
