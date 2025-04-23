@@ -1,4 +1,5 @@
 import re
+import time
 from copy import deepcopy
 import requests
 import FinanceDataReader as fdr
@@ -28,6 +29,28 @@ def get_json(url, keys=["result"]):
             rst = rst[k]
     return rst
 
+def download_with_retry( *arg, src="yahoo", max_retries=3, delay=3):
+    arg_ = list( arg )
+    ticker = arg_[0]
+    retries = 0
+    while retries < max_retries:
+        try:
+            data = yf.download( *arg, auto_adjust=True ) if (src == "yahoo") else fdr.DataReader( *arg )
+            if data.empty:
+                m_err = f"No data found for {ticker}"
+                send_telegram_message( m_err )
+                raise ValueError( m_err )
+            return data
+        except Exception as e:
+            retries += 1
+            m_err = f"Attempt {retries} failed: {e}"
+            send_telegram_message( m_err )
+            if retries < max_retries:
+                time.sleep(delay)
+    
+    m_err = f"Failed to download {ticker} after {max_retries} attempts"
+    send_telegram_message( m_err )            
+    raise Exception( m_err )
 
 def fin_data(*arg, src="auto"):
     arg_ = list( arg )
@@ -37,28 +60,28 @@ def fin_data(*arg, src="auto"):
     
     if m_kr is not None and m_kr[0] == ticker:
         ticker_type = "KR"
-    elif m_us is not None and m_us[0] == "ticker":
+    elif m_us is not None and m_us[0] == ticker:
         ticker_type = "US"
     else:
         ticker_type = None
 
     if src == "krx":
-        d = fdr.DataReader( *arg )
+        d = download_with_retry( *arg, src="krx" )
     elif src == "yahoo":
-        d = yf.download( *arg, auto_adjust=True )
+        d = download_with_retry( *arg, src="yahoo" )
     elif src == "auto":
         if ticker_type == "KR":   # 한국 숫자 6자리 티커
             arg_[0] = ticker + ".KS"
-            d = yf.download( *arg_, auto_adjust=True )
+            d = download_with_retry( *arg_, src="yahoo" )
             if len(d) < 30:  # yahoo finance에 데이터가 없다면
                 print( "There is no data in yahoo finance. Try KRX data")
-                d = fdr.DataReader( *arg )
+                d = download_with_retry( *arg, src="krx" )
         else:
-            d = yf.download( *arg, auto_adjust=True )
-        
-    if d.empty:
-        send_telegram_message( "{}: Data is Empty!!!".format(ticker) )
-    
+            d = download_with_retry( *arg, src="yahoo" )
+
+    # if d.empty:
+    #     m_err = "{}: Data is Empty!!!".format(ticker)
+    #     send_telegram_message( m_err )
     # print( d )
     
     if 'Adj Close' in d.columns:
