@@ -11,6 +11,8 @@ on:
         description: 'Activate Manually'
         required: true
         type: boolean
+  repository_dispatch:
+    types: [update-data] # 예시: 'deploy-command'라는 타입의 이벤트가 오면 실행
 
 jobs:
   build:
