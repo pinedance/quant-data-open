@@ -5,7 +5,7 @@
 from os import path
 import pandas as pd
 import json
-from tools import fin_data
+from tFinance import fin_data
 
 # %%
 YEARS = 5

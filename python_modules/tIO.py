@@ -48,7 +48,10 @@ def download_with_retry( *arg, src="yahoo", max_retries=3, delay=3):
     retries = 0
     while retries < max_retries:
         try:
-            data = yf.download( *arg, auto_adjust=True ) if (src == "yahoo") else fdr.DataReader( *arg )
+            if src == "yahoo":
+                data = yf.download( *arg, auto_adjust=True )
+            else:
+                data = fdr.DataReader( *arg )
             if data.empty:
                 m_err = f"No data found for {ticker}"
                 send_telegram_message( m_err )
