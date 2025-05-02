@@ -26,15 +26,25 @@ def send_telegram_message(message):
     response = requests.post(url, params=params)
     return response.json()
 
-def notice_price_status( data, tickers=None ):
+def notice_price_status(data, tickers=None):
+    if not data or not isinstance(data, dict):
+        return
+    
     try:
-        # '상향 지속'이 아닌 경우 알림 전송
-        if not "지속" in data['status']:
-            if tickers:
-                name = tickers.get( f"A{data['ticker']}", "Unknown")
-                message = f"[{data['ticker']}] {data['status']}\n{name}\n현재 가격: {data['current_price']:.2f}\n200일 MA: {data['ma200']:.2f}"
-            else:
-                message = f"[{data['ticker']}] {data['status']}\n현재 가격: {data['current_price']:.2f}\n200일 MA: {data['ma200']:.2f}"
-            send_telegram_message(message)
+        status = data.get('status', '')
+        if not status or "지속" in status:
+            return
+            
+        ticker = data.get('ticker', 'Unknown')
+        current_price = data.get('current_price', 0)
+        ma200 = data.get('ma200', 0)
+        
+        if tickers and f"A{ticker}" in tickers:
+            name = tickers[f"A{ticker}"]
+            message = f"[{ticker}] {status}\n{name}\n현재 가격: {current_price:.2f}\n200일 MA: {ma200:.2f}"
+        else:
+            message = f"[{ticker}] {status}\n현재 가격: {current_price:.2f}\n200일 MA: {ma200:.2f}"
+        
+        send_telegram_message(message)
     except Exception as e:
-        print(f"{ticker} 처리 중 오류 발생: {str(e)}")
+        send_telegram_message(f"Error in notice_price_status for {data.get('ticker', 'Unknown')}: {str(e)}")

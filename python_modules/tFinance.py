@@ -2,55 +2,16 @@ import re
 import time
 from copy import deepcopy
 import requests
+import pandas as pd
 import FinanceDataReader as fdr
 import yfinance as yf
-import pandas as pd
-from message import send_telegram_message
-
-month2quarter_dict = {
-    '01': 'Q1', '02': 'Q1', '03': 'Q1', '04': 'Q2', '05': 'Q2', '06': 'Q2',
-    '07': 'Q3', '08': 'Q3', '09': 'Q3', '10': 'Q4', '11': 'Q4', '12': 'Q4'
-}
+from message import send_telegram_message, notice_price_status
+from tTable import select_column_by_name
+from tIO import download_with_retry
 
 
-def yyyymm2quarter(yyyymm, q_dict=month2quarter_dict):
-    y = yyyymm[:4]
-    m = yyyymm[4:]
-    q = q_dict[m]
-    return f"{y}{q}"
-
-
-def get_json(url, keys=["result"]):
-    d = requests.get(url)
-    rst = d.json()
-    # print( rst )
-    if (keys is not None) and (len(keys) > 0):
-        for k in keys:
-            rst = rst[k]
-    return rst
-
-def download_with_retry( *arg, src="yahoo", max_retries=3, delay=3):
-    arg_ = list( arg )
-    ticker = arg_[0]
-    retries = 0
-    while retries < max_retries:
-        try:
-            data = yf.download( *arg, auto_adjust=True ) if (src == "yahoo") else fdr.DataReader( *arg )
-            if data.empty:
-                m_err = f"No data found for {ticker}"
-                send_telegram_message( m_err )
-                raise ValueError( m_err )
-            return data
-        except Exception as e:
-            retries += 1
-            m_err = f"Attempt {retries} failed: {e}"
-            send_telegram_message( m_err )
-            if retries < max_retries:
-                time.sleep(delay)
-    
-    m_err = f"Failed to download {ticker} after {max_retries} attempts"
-    send_telegram_message( m_err )            
-    raise Exception( m_err )
+#%% DEAL FINANCE DATA
+######################################################################
 
 def fin_data(*arg, src="auto"):
     arg_ = list( arg )
@@ -92,6 +53,31 @@ def fin_data(*arg, src="auto"):
         rst = d['Close']
  
     return rst
+
+def collect_etf_data(tickers, start_date, old_data):
+    etf_data_raw = []
+    total = len(tickers)
+    
+    for i, ticker in enumerate(tickers, 1):
+        print(f"Collecting ETF data: {i}/{total} - {ticker}")
+        # Get existing data for the ticker if available
+        ticker_data = select_column_by_name(old_data, ticker)
+        
+        try:
+            new_data = fin_data(ticker.strip(), start_date, src="yahoo")
+            if not new_data.empty:
+                etf_data_raw.append(new_data)
+            else:
+                print(f"No new data for {ticker}, using existing data")
+                if not ticker_data.empty:
+                    etf_data_raw.append(ticker_data)
+        except Exception as e:
+            print(f"Error fetching data for {ticker}: {e}")
+            if not ticker_data.empty:
+                print(f"Using existing data for {ticker}")
+                etf_data_raw.append(ticker_data)
+    
+    return etf_data_raw
 
 def get_price_status( ticker, _hist ):
 
@@ -147,3 +133,16 @@ def get_price_status( ticker, _hist ):
     print(f"{rst['ticker']}: {rst['current_price']:.2f} | MA200: {rst['ma200']:.2f} | 상태: {rst['status']}")
     
     return rst
+
+def process_price_status(etf_tickers, etf_data_raw):
+    status_results = []
+    for i, hist in enumerate(etf_data_raw):
+        try:
+            status_data = get_price_status(etf_tickers[i], hist)
+            if status_data:
+                status_results.append(status_data)
+        except Exception as e:
+            error_msg = f"Error processing status for {etf_tickers[i]}: {str(e)}"
+            send_telegram_message(error_msg)
+    return status_results
+

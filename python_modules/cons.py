@@ -12,6 +12,13 @@ config_gsheet_tickers_req_yh = {
     "sheet_name": 'TICKERS_REQ'
 }
 
+data_url = dict(
+    kr_ticker_list = "https://pinedance.github.io/quant-data-open/dist/CompanyList.html",
+    yh_last = "https://pinedance.github.io/quant-data-open/dist/YH/etf-adjusted-price-selected.html",
+    krx_last = "https://pinedance.github.io/quant-data-open/dist/KRX/etf-price-selected.html",
+    misc = "https://pinedance.github.io/quant-data-open/dist/misc.html"
+)
+
 # From Yahoo Finance
 config_gsheet_tickers_req_yh2 = {
     "sheet_id": '1rG145KyiClJYEFjUlMnLv4emMNZrx5QM8jUuLXEUVdI',
