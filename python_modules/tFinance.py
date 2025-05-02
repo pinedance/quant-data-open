@@ -54,7 +54,7 @@ def fin_data(*arg, src="auto"):
  
     return rst
 
-def collect_etf_data(tickers, start_date, old_data):
+def collect_etf_data(tickers, start_date, old_data, src="yahoo"):
     etf_data_raw = []
     total = len(tickers)
     
@@ -64,7 +64,7 @@ def collect_etf_data(tickers, start_date, old_data):
         ticker_data = select_column_by_name(old_data, ticker)
         
         try:
-            new_data = fin_data(ticker.strip(), start_date, src="yahoo")
+            new_data = fin_data(ticker.strip(), start_date, src=src)
             if not new_data.empty:
                 etf_data_raw.append(new_data)
             else:
