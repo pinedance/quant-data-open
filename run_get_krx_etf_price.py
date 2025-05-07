@@ -78,4 +78,5 @@ try:
 except Exception as e:
     error_msg = f"Error during data processing and saving: {str(e)}"
     send_telegram_message(error_msg)
+    send_telegram_message("업데이트 실패: KRX ETF PRICE")
     raise
