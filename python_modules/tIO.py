@@ -54,7 +54,8 @@ def download_with_retry( *arg, src="yahoo", max_retries=3, delay=3):
                 data = fdr.DataReader( *arg )
             if data.empty:
                 m_err = f"No data found for {ticker}"
-                send_telegram_message( m_err )
+                # send_telegram_message( m_err )
+                # print(m_err)
                 raise ValueError( m_err )
             return data
         except Exception as e:
