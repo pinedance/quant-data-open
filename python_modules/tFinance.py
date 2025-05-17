@@ -93,6 +93,11 @@ def get_price_status( ticker, _hist ):
     # print( hist.columns )
     
     hist.columns = ['Close']
+
+    # 5일 이동평균 및 표준편차 계산
+    hist['MA005'] = hist['Close'].rolling(window=5).mean()
+    hist['STD005'] = hist['Close'].rolling(window=5).std()
+    
     # 200일 이동평균 및 표준편차 계산
     hist['MA200'] = hist['Close'].rolling(window=200).mean()
     hist['STD200'] = hist['Close'].rolling(window=200).std()
@@ -101,32 +106,34 @@ def get_price_status( ticker, _hist ):
     recent = hist.iloc[-1]
     ma200 = recent['MA200']
     std200 = recent['STD200']
-    current_price = recent['Close']
+    current_price = recent['MA005']
     
     # 이전 날 데이터 (돌파 판단용)
     prev_data = hist.iloc[-2]
     prev_ma200 = prev_data['MA200']
-    prev_price = prev_data['Close']
+    prev_price = prev_data['MA005']
     
     # 상태 결정
+    sigma = (current_price - ma200) / std200
+
     if current_price > ma200 and prev_price <= prev_ma200:
         status = "상향 돌파"
     elif current_price > ma200 and prev_price > prev_ma200:
-        sigma = (current_price - ma200) / std200
         status = f"상향 지속({sigma:.1f})"
     elif current_price < ma200 and prev_price >= prev_ma200:
         status = "하향 돌파"
     elif current_price < ma200 and prev_price < prev_ma200:
-        sigma = (current_price - ma200) / std200
         status = f"하향 지속({sigma:.1f})"
     else:
         status = "중립"
     
+
     rst = {
         'ticker': ticker,
         'current_price': current_price,
         'ma200': ma200,
         'std200': std200,
+        'sigma': sigma,
         'status': status
     }
     
