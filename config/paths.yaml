@@ -1,0 +1,8 @@
+# 경로 설정 파일
+# 프로젝트의 모든 경로를 여기서 관리합니다
+
+templates: templates        # Jinja2 템플릿 디렉토리
+data: output/data          # JSON 데이터 원본
+source: output             # 스크립트 생성 HTML (복사 소스)
+output: public             # 최종 빌드 결과 (GitHub Pages 배포)
+output_subdir: dist        # output 내부 서브디렉토리 (URL 유지용: /dist/...)

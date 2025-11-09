@@ -1,15 +1,17 @@
 # Custom
 # poetry.lock
+.claude/
 _test/
 _test*.py
-.tool-versions
+# .tool-versions
+test_local*.txt
 
-# Ruby
-_site
-.sass-cache/
-.jekyll-metadata
-.bundle/
-vendor/
+# Build output
+public/
+# .sass-cache/
+# .jekyll-metadata
+# .bundle/
+# vendor/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
