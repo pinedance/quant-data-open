@@ -29,6 +29,8 @@ jobs:
         sudo apt-get install libxml2-dev libxslt-dev -y
 
     - uses: actions/setup-python@v5
+      with:
+        allow-prereleases: true
 
     - name: Install uv
       uses: astral-sh/setup-uv@v5
