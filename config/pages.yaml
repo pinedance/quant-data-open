@@ -1,0 +1,51 @@
+# 페이지 설정 파일
+# 새 페이지 추가 시 여기에만 추가하면 자동으로 생성됨
+# 경로 설정은 config/paths.yaml 참고
+
+pages:
+  - name: CompanyList
+    title: "Company List Table"
+    data_file: companylist.json
+    data_key: Co  # JSON의 키 (없으면 전체 데이터)
+    template: table  # table 또는 json
+    columns:
+      - key: cd
+        label: TICKER
+      - key: nm
+        label: NAME
+      - key: gb
+        label: GROUP
+
+  - name: misc
+    title: "Miscellaneous Data Table"
+    data_file: misc.json
+    template: table
+    columns:
+      - key: key
+        label: Key
+      - key: value
+        label: Value
+
+  # 새 페이지 예시
+  # - name: new_data
+  #   title: "New Data Table"
+  #   data_file: new_data.json
+  #   template: table
+  #   columns:
+  #     - key: id
+  #       label: ID
+  #     - key: value
+  #       label: Value
+
+  # 예시: 새 데이터 페이지 추가
+  # - name: new_economic_data
+  #   title: "New Economic Data"
+  #   data_file: new_economic_data.json
+  #   template: table
+  #   columns:
+  #     - key: date
+  #       label: Date
+  #     - key: value
+  #       label: Value
+  #     - key: change
+  #       label: Change

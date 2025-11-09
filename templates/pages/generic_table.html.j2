@@ -1,0 +1,21 @@
+{# 범용 테이블 템플릿 - 모든 데이터에 재사용 가능 #}
+<table>
+    <thead>
+    <tr>
+{% for col in columns %}
+      <td> {{ col.label }} </td>
+{% endfor %}
+    </tr>
+    </thead>
+  <tbody>
+{% for row in data %}
+    <tr>
+{% for col in columns %}
+      <td>{{ row[col.key] | e }}</td>
+{% endfor %}
+    </tr>
+{% endfor %}
+  </tbody>
+</table>
+
+

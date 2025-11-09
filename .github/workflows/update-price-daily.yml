@@ -2,13 +2,8 @@ name: Update price daily
 
 on:
   schedule:
-#  KOR - 9H = UTC
-#  Seoul 06:40 월-금 -> UTC 21:40 
-#    - cron: "40 21 * * *"
-#  Seoul 09:10 월-금 -> UTC 00:10 
-#    - cron: "10 0 * * *"
-#  Seoul 09:00 월-금 -> UTC 23:10 ??? 
-     - cron: "00 23 * * *"
+    # Seoul 09:00 -> UTC 23:00
+    - cron: "00 23 * * *"
   workflow_dispatch:
     inputs:
       tags:
@@ -16,52 +11,52 @@ on:
         required: true
         type: boolean
 
+permissions:
+  contents: write
+
 jobs:
-  build:
+  update-data:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
-      with:
-        persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal token
-        fetch-depth: 0 # otherwise, you will failed to push refs to dest repo
-    - name: install system dependency
+    - uses: actions/checkout@v4
+
+    - name: Install system dependencies
       run: |
         sudo apt-get update
         sudo apt-get install libxml2-dev libxslt-dev -y
+
     - uses: actions/setup-python@v5
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
       with:
-        python-version: 3.8
-    # https://github.com/marketplace/actions/python-poetry-action    
-    - name: Install poetry
-      uses: abatilo/actions-poetry@v4
-    - uses: actions/cache@v3
-      name: Define a cache for the virtual environment based on the dependencies lock file
-      with:
-        path: ./.venv
-        key: venv-${{ hashFiles('poetry.lock') }}
-    - name: Install the project dependencies
-      run: poetry install
-    # - name: poetry update
-    #   run: poetry update
+        enable-cache: true
+        cache-dependency-glob: "uv.lock"
+
+    - name: Install dependencies
+      run: uv sync
+
     - name: Get Company List
-      run: |
-        bash run_get_data_origin.sh
+      run: bash scripts/get_data_origin.sh
+
     - name: Get ETF Price KR
       env:
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
       run: |
-        poetry run python run_get_krx_etf_price.py
-        poetry run python run_get_nv_etf_price.py
+        uv run scripts/get_krx_price.py
+        uv run scripts/get_nv_price.py
+
     - name: Get ETF Price US
       env:
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      run: uv run scripts/get_yh_price.py
+
+    - name: Commit and push changes
       run: |
-        poetry run python run_get_yh_etf_price.py
-    - name: Commit & Push changes
-      uses: actions-js/push@master
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        branch: main
-        message: get new data & update
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        git add output/
+        git diff --staged --quiet || git commit -m "get new data & update"
+        git push

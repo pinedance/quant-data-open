@@ -12,55 +12,54 @@ on:
         required: true
         type: boolean
   repository_dispatch:
-    types: [update-data] # 예시: 'deploy-command'라는 타입의 이벤트가 오면 실행
+    types: [update-data]
+
+permissions:
+  contents: write
 
 jobs:
-  build:
+  update-data:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
-      with:
-        persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal token
-        fetch-depth: 0 # otherwise, you will failed to push refs to dest repo
-    - name: install system dependency
+    - uses: actions/checkout@v4
+
+    - name: Install system dependencies
       run: |
         sudo apt-get update
         sudo apt-get install libxml2-dev libxslt-dev -y
+
     - uses: actions/setup-python@v5
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
       with:
-        python-version: 3.8
-    # https://github.com/marketplace/actions/python-poetry-action    
-    - name: Install poetry
-      uses: abatilo/actions-poetry@v4
-    - uses: actions/cache@v3
-      name: Define a cache for the virtual environment based on the dependencies lock file
-      with:
-        path: ./.venv
-        key: venv-${{ hashFiles('poetry.lock') }}
-    - name: Install the project dependencies
-      run: poetry install
-    # - name: poetry update
-    #   run: poetry update
+        enable-cache: true
+        cache-dependency-glob: "uv.lock"
+
+    - name: Install dependencies
+      run: uv sync
+
     - name: Get Company List
-      run: |
-        bash run_get_data_origin.sh
+      run: bash scripts/get_data_origin.sh
+
     - name: Get Etc Data 01
-      run: |
-        poetry run python run_get_nv_data_daily.py
+      run: uv run scripts/get_nv_data.py
+
     - name: Get Etc Data 02
-      run: |
-        poetry run python run_get_yh_data_daily.py
+      run: uv run scripts/get_yh_data.py
+
     - name: Build Misc Data
-      run: |
-        poetry run python run_build_misc.py
+      run: uv run scripts/build_misc.py
+
     - name: Get Data From ECOS
       env:
         ECOS_KEY: ${{ secrets.ECOS_KEY }}
+      run: uv run scripts/get_ecos_daily.py
+
+    - name: Commit and push changes
       run: |
-        poetry run python run_get_ecos_data_daily.py
-    - name: Commit & Push changes
-      uses: actions-js/push@master
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        branch: main
-        message: get new data & update
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        git add output/
+        git diff --staged --quiet || git commit -m "get new data & update"
+        git push
