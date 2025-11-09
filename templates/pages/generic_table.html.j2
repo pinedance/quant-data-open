@@ -2,19 +2,19 @@
 <table>
     <thead>
     <tr>
-{% for col in columns %}
+{%- for col in columns %}
       <td> {{ col.label }} </td>
-{% endfor %}
+{%- endfor %}
     </tr>
     </thead>
   <tbody>
-{% for row in data %}
+{%- for row in data %}
     <tr>
-{% for col in columns %}
+{%- for col in columns %}
       <td>{{ row[col.key] | e }}</td>
-{% endfor %}
+{%- endfor %}
     </tr>
-{% endfor %}
+{%- endfor %}
   </tbody>
 </table>
 
