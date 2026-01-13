@@ -4,7 +4,7 @@
 # %%
 import pandas as pd
 import json
-from core.tIO import fin_data
+from core.tIO import get_ticker_data
 from core.paths import get_data_path, ensure_output_dirs
 
 # %%
@@ -16,10 +16,10 @@ day_start = day_end - pd.DateOffset(months=(YEARS * 12 + 1))
 print(day_start, day_end)
 
 # %%
-us_data = fin_data("SPY", day_start, day_end, src="yahoo")
+us_data = get_ticker_data("SPY", day_start, day_end, src="yahoo")
 
 # %%
-kr_data = fin_data("069500", day_start, day_end, src="krx")
+kr_data = get_ticker_data("069500", day_start, day_end, src="krx")
 
 # %%
 

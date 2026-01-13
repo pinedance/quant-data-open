@@ -8,6 +8,11 @@ import FinanceDataReader as fdr
 from core.message import send_telegram_message
 from core.tTable import select_column_by_name
 
+#%% CONSTANTS
+######################################################################
+
+MIN_DATA_POINTS = 30  # Yahoo Finance fallback 판단 기준 (약 1개월치)
+
 #%% GET DATA
 ######################################################################
 
@@ -72,11 +77,11 @@ def download_with_retry( *arg, src="yahoo", max_retries=3, delay=3):
     send_telegram_message( m_err )
     raise Exception( m_err )
 
-def fin_data(*arg, src="auto"):
-    arg_ = list( arg )
+def get_ticker_data(*arg, src="auto"):
+    arg_ = list(arg)
     ticker = arg_[0]
-    m_kr = re.match(r"\d{6,6}", ticker )
-    m_us = re.match(r"[a-zA-Z]+", ticker )
+    m_kr = re.match(r"\d{6,6}", ticker)
+    m_us = re.match(r"[a-zA-Z]+", ticker)
 
     if m_kr is not None and m_kr[0] == ticker:
         ticker_type = "KR"
@@ -86,18 +91,18 @@ def fin_data(*arg, src="auto"):
         ticker_type = None
 
     if src == "krx":
-        d = download_with_retry( *arg, src="krx" )
+        d = download_with_retry(*arg, src="krx")
     elif src == "yahoo":
-        d = download_with_retry( *arg, src="yahoo" )
+        d = download_with_retry(*arg, src="yahoo")
     elif src == "auto":
         if ticker_type == "KR":   # 한국 숫자 6자리 티커
             arg_[0] = ticker + ".KS"
-            d = download_with_retry( *arg_, src="yahoo" )
-            if len(d) < 30:  # yahoo finance에 데이터가 없다면
-                print( "There is no data in yahoo finance. Try KRX data")
-                d = download_with_retry( *arg, src="krx" )
+            d = download_with_retry(*arg_, src="yahoo")
+            if len(d) < MIN_DATA_POINTS:  # yahoo finance에 데이터가 없다면
+                print(f"No data in Yahoo Finance for {ticker}, trying KRX")
+                d = download_with_retry(*arg, src="krx")
         else:
-            d = download_with_retry( *arg, src="yahoo" )
+            d = download_with_retry(*arg, src="yahoo")
 
     # if d.empty:
     #     m_err = "{}: Data is Empty!!!".format(ticker)
@@ -105,32 +110,35 @@ def fin_data(*arg, src="auto"):
     # print( d )
 
     if 'Adj Close' in d.columns:
-        print( "{}: Catching 'Adj Close'".format(ticker) )
+        print(f"{ticker}: Using Adj Close")
         rst = d['Adj Close']
     else:
-        print( "{}: Catching 'Close'".format(ticker) )
+        print(f"{ticker}: Using Close")
         rst = d['Close']
 
     return rst
 
-def fetch_price(tickers, start_date, old_data, src="yahoo"):
+def fetch_prices(tickers, start_date, old_data, src="yahoo"):
     price_data = []
     total = len(tickers)
 
     for i, ticker in enumerate(tickers, 1):
-        print(f"Collecting price data: {i}/{total} - {ticker}")
-        ticker_data = select_column_by_name(old_data, ticker)
+        print(f"Fetching price: {i}/{total} - {ticker}")
 
         try:
-            new_data = fin_data(ticker.strip(), start_date, src=src)
+            new_data = get_ticker_data(ticker.strip(), start_date, src=src)
             if not new_data.empty:
                 price_data.append(new_data)
             else:
-                print(f"No new data for {ticker}, using existing data")
+                # 새 데이터 없으면 old_data 사용
+                ticker_data = select_column_by_name(old_data, ticker)
                 if not ticker_data.empty:
+                    print(f"No new data for {ticker}, using existing data")
                     price_data.append(ticker_data)
         except Exception as e:
-            print(f"Error fetching data for {ticker}: {e}")
+            # 에러 발생 시 old_data 사용
+            print(f"Error fetching {ticker}: {e}")
+            ticker_data = select_column_by_name(old_data, ticker)
             if not ticker_data.empty:
                 print(f"Using existing data for {ticker}")
                 price_data.append(ticker_data)
