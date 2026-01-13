@@ -1,10 +1,12 @@
 import os
+import re
 import time
 import pandas as pd
 import requests
 import yfinance as yf
 import FinanceDataReader as fdr
 from core.message import send_telegram_message
+from core.tTable import select_column_by_name
 
 #%% GET DATA
 ######################################################################
@@ -35,7 +37,7 @@ def fetch_tickers(tickers_req_url):
         send_telegram_message(error_msg)
         raise
 
-def load_old_etf_data(url):
+def load_prev_price(url):
     try:
         return pd.read_html(url, index_col=0, header=0)[0]
     except Exception as e:
@@ -65,12 +67,77 @@ def download_with_retry( *arg, src="yahoo", max_retries=3, delay=3):
             print(m_err)
             if retries < max_retries:
                 time.sleep(delay)
-    
+
     m_err = f"Failed to download {ticker} after {max_retries} attempts"
-    send_telegram_message( m_err )            
+    send_telegram_message( m_err )
     raise Exception( m_err )
 
-def save_etf_data(etf_data, output_path):
+def fin_data(*arg, src="auto"):
+    arg_ = list( arg )
+    ticker = arg_[0]
+    m_kr = re.match(r"\d{6,6}", ticker )
+    m_us = re.match(r"[a-zA-Z]+", ticker )
+
+    if m_kr is not None and m_kr[0] == ticker:
+        ticker_type = "KR"
+    elif m_us is not None and m_us[0] == ticker:
+        ticker_type = "US"
+    else:
+        ticker_type = None
+
+    if src == "krx":
+        d = download_with_retry( *arg, src="krx" )
+    elif src == "yahoo":
+        d = download_with_retry( *arg, src="yahoo" )
+    elif src == "auto":
+        if ticker_type == "KR":   # 한국 숫자 6자리 티커
+            arg_[0] = ticker + ".KS"
+            d = download_with_retry( *arg_, src="yahoo" )
+            if len(d) < 30:  # yahoo finance에 데이터가 없다면
+                print( "There is no data in yahoo finance. Try KRX data")
+                d = download_with_retry( *arg, src="krx" )
+        else:
+            d = download_with_retry( *arg, src="yahoo" )
+
+    # if d.empty:
+    #     m_err = "{}: Data is Empty!!!".format(ticker)
+    #     send_telegram_message( m_err )
+    # print( d )
+
+    if 'Adj Close' in d.columns:
+        print( "{}: Catching 'Adj Close'".format(ticker) )
+        rst = d['Adj Close']
+    else:
+        print( "{}: Catching 'Close'".format(ticker) )
+        rst = d['Close']
+
+    return rst
+
+def fetch_price(tickers, start_date, old_data, src="yahoo"):
+    price_data = []
+    total = len(tickers)
+
+    for i, ticker in enumerate(tickers, 1):
+        print(f"Collecting price data: {i}/{total} - {ticker}")
+        ticker_data = select_column_by_name(old_data, ticker)
+
+        try:
+            new_data = fin_data(ticker.strip(), start_date, src=src)
+            if not new_data.empty:
+                price_data.append(new_data)
+            else:
+                print(f"No new data for {ticker}, using existing data")
+                if not ticker_data.empty:
+                    price_data.append(ticker_data)
+        except Exception as e:
+            print(f"Error fetching data for {ticker}: {e}")
+            if not ticker_data.empty:
+                print(f"Using existing data for {ticker}")
+                price_data.append(ticker_data)
+
+    return price_data
+
+def save_price(etf_data, output_path):
     try:
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
         html_table = etf_data.to_html(na_rep='')

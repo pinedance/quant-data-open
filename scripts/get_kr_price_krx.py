@@ -4,8 +4,8 @@
 from os import path
 import pandas as pd
 from core.tDate import setup_date_range
-from core.tIO import load_old_etf_data, fetch_tickers, save_etf_data
-from core.tFinance import collect_etf_data, process_price_status
+from core.tIO import load_prev_price, fetch_tickers, save_price, fetch_price
+from core.tFinance import process_price_status
 from core.tTable import check_fill_nan
 from core.message import send_telegram_message, notice_price_status
 from core.cons import config_gsheet_tickers_req_krx as config_tickers_req
@@ -40,8 +40,8 @@ for tk_ in etf_tickers_:
 
 # %% ETF 데이터 수집 및 검증
 try:
-    old_etf_data = load_old_etf_data(data_url["krx_last"])
-    etf_data_raw = collect_etf_data(
+    old_etf_data = load_prev_price(data_url["krx_last"])
+    etf_data_raw = fetch_price(
         etf_tickers, day_start, old_etf_data, src="krx")
 
     # 데이터 검증
@@ -84,7 +84,7 @@ try:
     etf_data = check_fill_nan(_etf_data)
     etf_data = etf_data.astype('float64')
 
-    if save_etf_data(etf_data, OUTPUT_PATH):
+    if save_price(etf_data, OUTPUT_PATH):
         send_telegram_message("업데이트 완료: KRX ETF PRICE")
 
 except Exception as e:

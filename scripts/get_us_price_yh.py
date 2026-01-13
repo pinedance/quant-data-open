@@ -5,8 +5,8 @@ from os import path
 import pandas as pd
 from datetime import date
 from core.tDate import setup_date_range
-from core.tIO import load_old_etf_data, fetch_tickers, save_etf_data
-from core.tFinance import collect_etf_data, process_price_status, calculate_macd
+from core.tIO import load_prev_price, fetch_tickers, save_price, fetch_price
+from core.tFinance import process_price_status, calculate_macd
 from core.tTable import check_fill_nan
 from core.message import send_telegram_message, notice_price_status
 from core.cons import config_gsheet_tickers_req_yh as config_tickers_req
@@ -45,8 +45,8 @@ etf_tickers = etf_tickers[:10]
 
 #%% ETF 데이터 수집 및 검증
 try:
-    old_price = load_old_etf_data(data_url["yh_last"])
-    price_raw = collect_etf_data(etf_tickers, day_start, old_price)
+    old_price = load_prev_price(data_url["yh_last"])
+    price_raw = fetch_price(etf_tickers, day_start, old_price)
 
     # 데이터 검증
     if not price_raw:
@@ -121,16 +121,16 @@ try:
     macd_hist_ema3.index = macd_hist_ema3.index.date
 
     # 데이터 저장
-    save_etf_data(price_raw, OUTPUT_PATH_PRICE_D_RAW)
-    save_etf_data(price_ema3, OUTPUT_PATH_PRICE_D_EMA3)
-    save_etf_data(price_raw_monthly_eom, OUTPUT_PATH_PRICE_M_RAW_EOM)
-    save_etf_data(price_ema3_monthly_eom, OUTPUT_PATH_PRICE_M_EMA3_EOM)
-    save_etf_data(price_raw_monthly_current, OUTPUT_PATH_PRICE_M_RAW_CURRENT)
-    save_etf_data(price_ema3_monthly_current, OUTPUT_PATH_PRICE_M_EMA3_CURRENT)
-    save_etf_data(macd_line_raw, OUTPUT_PATH_MACD_LINE_M_RAW_CURRENT)
-    save_etf_data(macd_hist_raw, OUTPUT_PATH_MACD_HIST_M_RAW_CURRENT)
-    save_etf_data(macd_line_ema3, OUTPUT_PATH_MACD_LINE_M_EMA3_CURRENT)
-    save_etf_data(macd_hist_ema3, OUTPUT_PATH_MACD_HIST_M_EMA3_CURRENT)
+    save_price(price_raw, OUTPUT_PATH_PRICE_D_RAW)
+    save_price(price_ema3, OUTPUT_PATH_PRICE_D_EMA3)
+    save_price(price_raw_monthly_eom, OUTPUT_PATH_PRICE_M_RAW_EOM)
+    save_price(price_ema3_monthly_eom, OUTPUT_PATH_PRICE_M_EMA3_EOM)
+    save_price(price_raw_monthly_current, OUTPUT_PATH_PRICE_M_RAW_CURRENT)
+    save_price(price_ema3_monthly_current, OUTPUT_PATH_PRICE_M_EMA3_CURRENT)
+    save_price(macd_line_raw, OUTPUT_PATH_MACD_LINE_M_RAW_CURRENT)
+    save_price(macd_hist_raw, OUTPUT_PATH_MACD_HIST_M_RAW_CURRENT)
+    save_price(macd_line_ema3, OUTPUT_PATH_MACD_LINE_M_EMA3_CURRENT)
+    save_price(macd_hist_ema3, OUTPUT_PATH_MACD_HIST_M_EMA3_CURRENT)
 
     send_telegram_message("업데이트 완료: YAHOO ETF PRICE")
 

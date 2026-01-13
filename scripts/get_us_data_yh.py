@@ -5,7 +5,7 @@
 from os import path
 import pandas as pd
 from tqdm import tqdm
-from core.tFinance import fin_data
+from core.tIO import fin_data
 from core.cons import config_gsheet_tickers_req_yh2 as config_tickers_req
 from core.cons import delta_days
 
