@@ -4,8 +4,7 @@
 # %%
 import pandas as pd
 import json
-from core.tIO import get_ticker_data
-from core.paths import get_data_path, ensure_output_dirs
+from core.tIO import get_ticker_data, get_output_path
 
 # %%
 YEARS = 5
@@ -49,8 +48,7 @@ rst.append({
 print(rst)
 
 # %%
-ensure_output_dirs()
-rst_path = get_data_path("misc.json")
+rst_path = get_output_path("data", "misc.json")
 with open(rst_path, "w", encoding="utf-8") as fl:
     json.dump(rst, fl, ensure_ascii=False)
 
