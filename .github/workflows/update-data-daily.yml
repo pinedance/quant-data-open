@@ -2,9 +2,8 @@ name: Update data daily
 
 on:
   schedule:
-#  KOR - 9H = UTC
-#  Seoul 09:30 월-금 -> UTC 00:30 
-    - cron: "30 0 * * *"
+#  Seoul 08:30 월-금 -> UTC 23:30 
+    - cron: "30 23 * * *"
   workflow_dispatch:
     inputs:
       tags:
