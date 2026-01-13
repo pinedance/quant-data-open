@@ -1,10 +1,11 @@
 # Custom
 # poetry.lock
 .claude/
-_test/
-_test*.py
+CLAUDE.md
+_*/
+_*.*
 # .tool-versions
-test_local*.txt
+logs/
 
 # Build output
 public/
