@@ -50,13 +50,13 @@ jobs:
     - name: Get Etc Data 02
       run: uv run scripts/get_us_data_yh.py
 
-    - name: Build Misc Data
-      run: uv run scripts/build_misc.py
-
     - name: Get Data From ECOS
       env:
         ECOS_KEY: ${{ secrets.ECOS_KEY }}
       run: uv run scripts/get_kr_data_ecos_daily.py
+
+    - name: Build Misc Data
+      run: uv run scripts/build_misc.py
 
     - name: Commit and push changes
       run: |
