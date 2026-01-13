@@ -5,7 +5,7 @@ from os import path
 import pandas as pd
 from datetime import date
 from core.tDate import setup_date_range
-from core.tIO import load_prev_price, fetch_tickers, save_price, fetch_price
+from core.tIO import load_prev_price, fetch_tickers, save_price, fetch_prices
 from core.tFinance import process_price_status, calculate_macd
 from core.tTable import check_fill_nan
 from core.message import send_telegram_message, notice_price_status
@@ -46,7 +46,7 @@ etf_tickers = etf_tickers[:10]
 #%% ETF 데이터 수집 및 검증
 try:
     old_price = load_prev_price(data_url["yh_last"])
-    price_raw = fetch_price(etf_tickers, day_start, old_price)
+    price_raw = fetch_prices(etf_tickers, day_start, old_price)
 
     # 데이터 검증
     if not price_raw:

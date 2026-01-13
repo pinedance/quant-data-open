@@ -4,7 +4,7 @@
 from os import path
 import pandas as pd
 from core.tDate import setup_date_range
-from core.tIO import load_prev_price, fetch_tickers, save_price, fetch_price
+from core.tIO import load_prev_price, fetch_tickers, save_price, fetch_prices
 from core.tFinance import process_price_status
 from core.tTable import check_fill_nan
 from core.message import send_telegram_message, notice_price_status
@@ -41,7 +41,7 @@ for tk_ in etf_tickers_:
 # %% ETF 데이터 수집 및 검증
 try:
     old_etf_data = load_prev_price(data_url["krx_last"])
-    etf_data_raw = fetch_price(
+    etf_data_raw = fetch_prices(
         etf_tickers, day_start, old_etf_data, src="krx")
 
     # 데이터 검증
