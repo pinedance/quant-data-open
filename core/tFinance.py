@@ -1,83 +1,9 @@
-import re
-import time
-from copy import deepcopy
-import requests
 import pandas as pd
-import FinanceDataReader as fdr
-import yfinance as yf
-from core.message import send_telegram_message, notice_price_status
-from core.tTable import select_column_by_name
-from core.tIO import download_with_retry
+from core.message import send_telegram_message
 
 
 #%% DEAL FINANCE DATA
 ######################################################################
-
-def fin_data(*arg, src="auto"):
-    arg_ = list( arg )
-    ticker = arg_[0]
-    m_kr = re.match(r"\d{6,6}", ticker )
-    m_us = re.match(r"[a-zA-Z]+", ticker )
-    
-    if m_kr is not None and m_kr[0] == ticker:
-        ticker_type = "KR"
-    elif m_us is not None and m_us[0] == ticker:
-        ticker_type = "US"
-    else:
-        ticker_type = None
-
-    if src == "krx":
-        d = download_with_retry( *arg, src="krx" )
-    elif src == "yahoo":
-        d = download_with_retry( *arg, src="yahoo" )
-    elif src == "auto":
-        if ticker_type == "KR":   # 한국 숫자 6자리 티커
-            arg_[0] = ticker + ".KS"
-            d = download_with_retry( *arg_, src="yahoo" )
-            if len(d) < 30:  # yahoo finance에 데이터가 없다면
-                print( "There is no data in yahoo finance. Try KRX data")
-                d = download_with_retry( *arg, src="krx" )
-        else:
-            d = download_with_retry( *arg, src="yahoo" )
-
-    # if d.empty:
-    #     m_err = "{}: Data is Empty!!!".format(ticker)
-    #     send_telegram_message( m_err )
-    # print( d )
-    
-    if 'Adj Close' in d.columns:
-        print( "{}: Catching 'Adj Close'".format(ticker) )
-        rst = d['Adj Close']
-    else:
-        print( "{}: Catching 'Close'".format(ticker) )
-        rst = d['Close']
- 
-    return rst
-
-def collect_etf_data(tickers, start_date, old_data, src="yahoo"):
-    etf_data_raw = []
-    total = len(tickers)
-    
-    for i, ticker in enumerate(tickers, 1):
-        print(f"Collecting ETF data: {i}/{total} - {ticker}")
-        # Get existing data for the ticker if available
-        ticker_data = select_column_by_name(old_data, ticker)
-        
-        try:
-            new_data = fin_data(ticker.strip(), start_date, src=src)
-            if not new_data.empty:
-                etf_data_raw.append(new_data)
-            else:
-                print(f"No new data for {ticker}, using existing data")
-                if not ticker_data.empty:
-                    etf_data_raw.append(ticker_data)
-        except Exception as e:
-            print(f"Error fetching data for {ticker}: {e}")
-            if not ticker_data.empty:
-                print(f"Using existing data for {ticker}")
-                etf_data_raw.append(ticker_data)
-    
-    return etf_data_raw
 
 def get_price_status( ticker, _hist ):
 
@@ -152,4 +78,20 @@ def process_price_status(etf_tickers, etf_data_raw):
             error_msg = f"Error processing status for {etf_tickers[i]}: {str(e)}"
             send_telegram_message(error_msg)
     return status_results
+
+def calculate_macd(df, fast=12, slow=26, signal=9):
+    # Calculate EMA for fast and slow periods
+    ema_fast = df.ewm(span=fast).mean()
+    ema_slow = df.ewm(span=slow).mean()
+
+    # Calculate MACD line
+    macd_line = ema_fast - ema_slow
+
+    # Calculate signal line
+    signal_line = macd_line.ewm(span=signal).mean()
+
+    # Calculate MACD histogram
+    macd_histogram = macd_line - signal_line
+
+    return macd_line, macd_histogram
 

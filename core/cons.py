@@ -1,4 +1,5 @@
-delta_days = 800
+# 5년
+delta_days = 5 * 12 * 22
 
 # From KRX
 config_gsheet_tickers_req_krx = {

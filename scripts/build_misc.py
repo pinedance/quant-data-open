@@ -4,8 +4,7 @@
 # %%
 import pandas as pd
 import json
-from core.tFinance import fin_data
-from core.paths import get_data_path, ensure_output_dirs
+from core.tIO import get_ticker_data, get_output_path
 
 # %%
 YEARS = 5
@@ -16,10 +15,10 @@ day_start = day_end - pd.DateOffset(months=(YEARS * 12 + 1))
 print(day_start, day_end)
 
 # %%
-us_data = fin_data("SPY", day_start, day_end, src="yahoo")
+us_data = get_ticker_data("SPY", day_start, day_end, src="yahoo")
 
 # %%
-kr_data = fin_data("069500", day_start, day_end, src="krx")
+kr_data = get_ticker_data("069500", day_start, day_end, src="krx")
 
 # %%
 
@@ -49,8 +48,7 @@ rst.append({
 print(rst)
 
 # %%
-ensure_output_dirs()
-rst_path = get_data_path("misc.json")
+rst_path = get_output_path("data", "misc.json")
 with open(rst_path, "w", encoding="utf-8") as fl:
     json.dump(rst, fl, ensure_ascii=False)
 
