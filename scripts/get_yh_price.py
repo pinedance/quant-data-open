@@ -44,8 +44,8 @@ print(f"Total tickers: {len(etf_tickers)}")
 print(f"Unique tickers: {len(set(etf_tickers))}")
 
 #%% For test
-# print("!!! TEST MODE !!!")
-# etf_tickers = etf_tickers[:10]
+print("!!! TEST MODE !!!")
+etf_tickers = etf_tickers[:10]
 
 #%% ETF 데이터 수집 및 검증
 try:
@@ -100,11 +100,12 @@ try:
     )
 
     # 실제 날짜로 인덱스 교체
-    actual_dates = etf_data.resample('ME').apply(
-        lambda x: x[x.index.day <= current_day].index[-1] if not x[x.index.day <= current_day].empty else None
+    daily_date_df = pd.DataFrame({'date': etf_data.index}, index=etf_data.index)
+    monthly_date_df = daily_date_df.resample('ME').apply(
+        lambda x: x[x.index.day <= current_day].iloc[-1] if not x[x.index.day <= current_day].empty else None
     )
-    etf_data_monthly_today.index = actual_dates
-    etf_data_ema3_monthly_today.index = actual_dates
+    etf_data_monthly_today.index = monthly_date_df['date']
+    etf_data_ema3_monthly_today.index = monthly_date_df['date']
 
     # index를 date로 변환 후 저장
     etf_data.index = etf_data.index.date
