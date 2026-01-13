@@ -6,8 +6,12 @@ import pandas as pd
 from core.ecos import Ecos
 from core.cons import ecos_search_codes_daily as ecos_search_codes
 from core.tDate import yyyymm2quarter
-from core.paths import get_output_path, ensure_output_dirs
+from core.tIO import save_df_as_html_table
+from core.tIO import get_output_path
 from dotenv import load_dotenv
+
+#%%
+OUTPUT_PATH_D = get_output_path("KR/economy/D", "ECOS.html")
 
 # %%
 # PyblicDataReader : https://github.com/WooilJeong/PublicDataReader
@@ -64,9 +68,4 @@ df_D = df_D.astype('float64')
 
 
 # %%
-ensure_output_dirs()
-html_table = df_D.to_html(na_rep='')
-rst_path = get_output_path("ECOS", "economic-data-daily.html")
-with open(rst_path, "w", encoding="utf-8") as fl:
-    fl.write(html_table)
-
+save_df_as_html_table(df_D, OUTPUT_PATH_D)

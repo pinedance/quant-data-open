@@ -5,9 +5,13 @@ import pandas as pd
 from tqdm import tqdm
 import requests
 from bs4 import BeautifulSoup
+from core.tIO import save_df_as_html_table
 from core.cons import config_gsheet_tickers_req_krx as config_tickers_req
 from core.cons import delta_days
-from core.paths import get_output_path, ensure_output_dirs
+from core.tIO import get_output_path
+
+#%%
+OUTPUT_PATH_PRICE_D_RAW = get_output_path("KR/stocks/price/D", "raw-nv.html")
 
 # %%
 days = delta_days
@@ -49,24 +53,16 @@ def get_price(ticker, days):
 
 
 # %%
-etf_data_raw = [
+price_raw_lst = [
     get_price(ticker.strip(), days)['Close'] for ticker in etf_tickers
 ]
 
 # %%
-etf_data = pd.concat(etf_data_raw, axis=1)
-etf_data.index = etf_data.index.date
-etf_data.columns = ["A{}".format(ticker) for ticker in etf_tickers]
+price_raw = pd.concat(price_raw_lst, axis=1)
+price_raw.index = price_raw.index.date
+price_raw.columns = ["A{}".format(ticker) for ticker in etf_tickers]
 # etf_data.dtypes
-etf_data = etf_data.astype('float64')
+price_raw = price_raw.astype('float64')
 
 # %%
-html_table = etf_data.to_html(na_rep='')
-
-# %%
-ensure_output_dirs()
-rst_path = get_output_path("NV", "etf-price-selected.html")
-with open(rst_path, "w", encoding="utf-8") as fl:
-    fl.write(html_table)
-
-# %%
+save_df_as_html_table(price_raw, OUTPUT_PATH_PRICE_D_RAW)

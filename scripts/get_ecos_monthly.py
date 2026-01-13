@@ -6,8 +6,13 @@ import pandas as pd
 from core.ecos import Ecos
 from core.cons import ecos_search_codes_monthly as ecos_search_codes
 from core.tDate import yyyymm2quarter
-from core.paths import get_output_path, ensure_output_dirs
+from core.tIO import save_df_as_html_table
+from core.tIO import get_output_path
 from dotenv import load_dotenv
+
+#%%
+OUTPUT_PATH_M = get_output_path("KR/economy/M", "ECOS.html")
+OUTPUT_PATH_Q = get_output_path("KR/economy/Q", "ECOS.html")
 
 # %%
 # PyblicDataReader : https://github.com/WooilJeong/PublicDataReader
@@ -71,26 +76,16 @@ if len(_data_M) == 0:
     print("!!! There is no Data Downloaded from ECOS API !!!", "Monthly")
     sys.exit()
 else:
-    ensure_output_dirs()
     df_M = pd.concat(list(_data_M.values()), axis=1)
     df_M.columns = list(_data_M.keys())
     df_M = df_M.astype('float64')
-
-    html_table = df_M.to_html(na_rep='')
-    rst_path = get_output_path("ECOS", "economic-data-monthly.html")
-    with open(rst_path, "w", encoding="utf-8") as fl:
-        fl.write(html_table)
+    save_df_as_html_table( df_M, OUTPUT_PATH_M)
 
 if len(_data_Q) == 0:
     print("!!! There is no Data Downloaded from ECOS API !!!", "Quarterly")
     sys.exit()
 else:
-    ensure_output_dirs()
     df_Q = pd.concat(list(_data_Q.values()), axis=1)
     df_Q.columns = list(_data_Q.keys())
     df_Q = df_Q.astype('float64')
-
-    html_table = df_Q.to_html(na_rep='')
-    rst_path = get_output_path("ECOS", "economic-data-quarterly.html")
-    with open(rst_path, "w", encoding="utf-8") as fl:
-        fl.write(html_table)
+    save_df_as_html_table(df_Q, OUTPUT_PATH_Q)

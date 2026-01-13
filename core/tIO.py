@@ -5,6 +5,7 @@ import pandas as pd
 import requests
 import yfinance as yf
 import FinanceDataReader as fdr
+from pathlib import Path
 from core.message import send_telegram_message
 from core.tTable import select_column_by_name
 
@@ -12,6 +13,20 @@ from core.tTable import select_column_by_name
 ######################################################################
 
 MIN_DATA_POINTS = 30  # Yahoo Finance fallback 판단 기준 (약 1개월치)
+PROJECT_ROOT = Path(__file__).parent.parent
+OUTPUT_ROOT = PROJECT_ROOT / "output"
+
+#%% PATH UTILITIES
+######################################################################
+
+def get_output_path(subdir, filename):
+    """
+    서브디렉토리의 출력 파일 경로 반환
+    예: get_output_path("US/stocks/price/D", "raw.html")
+    """
+    base_path = OUTPUT_ROOT / subdir
+    base_path.mkdir(parents=True, exist_ok=True)
+    return base_path / filename
 
 #%% GET DATA
 ######################################################################
@@ -80,7 +95,7 @@ def download_with_retry( *arg, src="yahoo", max_retries=3, delay=3):
 def get_ticker_data(*arg, src="auto"):
     arg_ = list(arg)
     ticker = arg_[0]
-    m_kr = re.match(r"\d{6,6}", ticker)
+    m_kr = re.match(r"[0-9a-zA-Z]{6,6}", ticker)
     m_us = re.match(r"[a-zA-Z]+", ticker)
 
     if m_kr is not None and m_kr[0] == ticker:
@@ -145,14 +160,14 @@ def fetch_prices(tickers, start_date, old_data, src="yahoo"):
 
     return price_data
 
-def save_price(etf_data, output_path):
+def save_df_as_html_table( df, output_path):
     try:
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        html_table = etf_data.to_html(na_rep='')
+        html_table = df.to_html(na_rep='')
         with open(output_path, "w", encoding="utf-8") as fl:
             fl.write(html_table)
         return True
     except Exception as e:
-        error_msg = f"Error saving ETF data: {str(e)}"
+        error_msg = f"Error saving data: {str(e)}"
         send_telegram_message(error_msg)
         return False
