@@ -4,7 +4,7 @@
 # %%
 import pandas as pd
 import json
-from core.tFinance import fin_data
+from core.tIO import fin_data
 from core.paths import get_data_path, ensure_output_dirs
 
 # %%

@@ -46,14 +46,14 @@ jobs:
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
       run: |
-        uv run scripts/get_krx_price.py
-        uv run scripts/get_nv_price.py
+        uv run scripts/get_kr_price_krx.py
+        uv run scripts/get_kr_price_nv.py
 
     - name: Get ETF Price US
       env:
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-      run: uv run scripts/get_yh_price.py
+      run: uv run scripts/get_us_price_yh.py
 
     - name: Commit and push changes
       run: |
