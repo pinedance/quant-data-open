@@ -42,7 +42,7 @@ jobs:
       run: uv sync
 
     - name: Get Company List
-      run: bash scripts/get_data_origin.sh
+      run: bash scripts/get_kr_data_lists.sh
 
     - name: Get Etc Data 01
       run: uv run scripts/get_kr_data_nv.py
@@ -56,7 +56,7 @@ jobs:
     - name: Get Data From ECOS
       env:
         ECOS_KEY: ${{ secrets.ECOS_KEY }}
-      run: uv run scripts/get_ecos_daily.py
+      run: uv run scripts/get_kr_data_ecos_daily.py
 
     - name: Commit and push changes
       run: |

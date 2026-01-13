@@ -44,7 +44,7 @@ jobs:
       env:
         ECOS_KEY: ${{ secrets.ECOS_KEY }}
       run: |
-        uv run scripts/get_ecos_monthly.py
+        uv run scripts/get_kr_data_ecos_monthly.py
 
     - name: Commit and push changes
       run: |

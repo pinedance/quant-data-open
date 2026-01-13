@@ -39,7 +39,7 @@ jobs:
       run: uv sync
 
     - name: Get Company List
-      run: bash scripts/get_data_origin.sh
+      run: bash scripts/get_kr_data_lists.sh
 
     - name: Get ETF Price KR
       env:
