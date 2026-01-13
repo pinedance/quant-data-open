@@ -49,7 +49,7 @@ def download_with_retry( *arg, src="yahoo", max_retries=3, delay=3):
     while retries < max_retries:
         try:
             if src == "yahoo":
-                data = yf.download( *arg, auto_adjust=True )
+                data = yf.download( *arg, auto_adjust=True, progress=False )
             else:
                 data = fdr.DataReader( *arg )
             if data.empty:
