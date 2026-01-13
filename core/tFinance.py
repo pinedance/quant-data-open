@@ -153,3 +153,19 @@ def process_price_status(etf_tickers, etf_data_raw):
             send_telegram_message(error_msg)
     return status_results
 
+def calculate_macd(df, fast=12, slow=26, signal=9):
+    # Calculate EMA for fast and slow periods
+    ema_fast = df.ewm(span=fast).mean()
+    ema_slow = df.ewm(span=slow).mean()
+
+    # Calculate MACD line
+    macd_line = ema_fast - ema_slow
+
+    # Calculate signal line
+    signal_line = macd_line.ewm(span=signal).mean()
+
+    # Calculate MACD histogram
+    macd_histogram = macd_line - signal_line
+
+    return macd_line, macd_histogram
+
