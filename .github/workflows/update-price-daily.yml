@@ -2,7 +2,7 @@ name: Update price daily
 
 on:
   schedule:
-    # Seoul 09:00 -> UTC 23:00
+    # Seoul 08:00 -> UTC 23:00
     - cron: "00 23 * * *"
   workflow_dispatch:
     inputs:
