@@ -5,7 +5,7 @@ import pandas as pd
 from core.tDate import setup_date_range
 from core.tIO import load_prev_price, fetch_tickers, save_df_as_html_table, fetch_prices, get_output_path
 from core.tFinance import process_price_status, calculate_macd
-from core.tTable import check_fill_nan
+from core.tTable import check_fill_nan, post_process_price
 from core.message import send_telegram_message, notice_price_status
 from core.cons import config_gsheet_tickers_req_krx as config_tickers_req
 from core.cons import delta_months, data_url
@@ -35,7 +35,7 @@ print(f"Start date: {day_start}")
 # %% 티커 정보 가져오기
 tickers_req_url = "https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}".format(**config_tickers_req)
 etf_tickers_ = fetch_tickers(tickers_req_url)
-print(etf_tickers_)
+# print(etf_tickers_)
 
 # %%
 etf_tickers = list()
@@ -46,6 +46,7 @@ for tk_ in etf_tickers_:
         print(tk_)
         tk = tk_
     etf_tickers.append(tk)
+etf_tickers = sorted(etf_tickers)
 
 # %% For test
 # print("!!! TEST MODE !!!")
@@ -132,17 +133,17 @@ try:
     macd_line_raw, macd_hist_raw = calculate_macd(price_raw_monthly_current)
     macd_line_ema3, macd_hist_ema3 = calculate_macd(price_ema3_monthly_current)
 
-    # index를 date로 변환 (2중 table header 방지)
-    price_raw.index = price_raw.index.date
-    price_ema3.index = price_ema3.index.date
-    price_raw_monthly_eom.index = price_raw_monthly_eom.index.date
-    price_ema3_monthly_eom.index = price_ema3_monthly_eom.index.date
-    price_raw_monthly_current.index = price_raw_monthly_current.index.date
-    price_ema3_monthly_current.index = price_ema3_monthly_current.index.date
-    macd_line_raw.index = macd_line_raw.index.date
-    macd_hist_raw.index = macd_hist_raw.index.date
-    macd_line_ema3.index = macd_line_ema3.index.date
-    macd_hist_ema3.index = macd_hist_ema3.index.date
+    # dataframe 후처리
+    price_raw = post_process_price(price_raw)
+    price_ema3 = post_process_price(price_ema3)
+    price_raw_monthly_eom = post_process_price(price_raw_monthly_eom)
+    price_ema3_monthly_eom = post_process_price(price_ema3_monthly_eom)
+    price_raw_monthly_current = post_process_price(price_raw_monthly_current)
+    price_ema3_monthly_current = post_process_price(price_ema3_monthly_current)
+    macd_line_raw = post_process_price(macd_line_raw)
+    macd_hist_raw = post_process_price(macd_hist_raw)
+    macd_line_ema3 = post_process_price(macd_line_ema3)
+    macd_hist_ema3 = post_process_price(macd_hist_ema3)
 
     # 데이터 저장
     save_df_as_html_table(price_raw, OUTPUT_PATH_PRICE_D_RAW)

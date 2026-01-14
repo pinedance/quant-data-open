@@ -46,3 +46,12 @@ def check_fill_nan(df, fill_nan=False):
             return df_filled
             
     return df
+
+def post_process_price(df):
+    """모든 행이 nan인 행 삭제 및 index를 date로 변환"""
+    df_new = df.copy()
+    # 모든 행이 nan인 행 삭제
+    df_new = df_new.dropna(how='all')
+    # index를 date로 변환 (2중 table header 방지)
+    df_new.index = df_new.index.date
+    return df_new
