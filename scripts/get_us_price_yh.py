@@ -4,7 +4,7 @@
 import pandas as pd
 from datetime import date
 from core.tDate import setup_date_range
-from core.tIO import load_prev_price, fetch_tickers, save_df_as_html_table, fetch_prices, get_output_path
+from core.tIO import load_prev_price, fetch_tickers, save_df_as_tsv, fetch_prices, get_output_path
 from core.tFinance import process_price_status, calculate_macd
 from core.tTable import check_fill_nan, post_process_price
 from core.message import send_telegram_message, notice_price_status
@@ -12,22 +12,22 @@ from core.cons import config_gsheet_tickers_req_yh as config_tickers_req
 from core.cons import delta_months, data_url
 
 #%% ETF 데이터 수집 관련 설정
-OUTPUT_PATH_PRICE_D_RAW = get_output_path("US/stocks/price/D", "raw.html")
-OUTPUT_PATH_PRICE_D_EMA3 = get_output_path("US/stocks/price/D", "ema3.html")
-OUTPUT_PATH_PRICE_M_RAW_EOM = get_output_path("US/stocks/price/M", "raw-eom.html")
-OUTPUT_PATH_PRICE_M_EMA3_EOM = get_output_path("US/stocks/price/M", "ema3-eom.html")
-OUTPUT_PATH_PRICE_M_RAW_CURRENT = get_output_path("US/stocks/price/M", "raw-current.html")
-OUTPUT_PATH_PRICE_M_EMA3_CURRENT = get_output_path("US/stocks/price/M", "ema3-current.html")
+OUTPUT_PATH_PRICE_D_RAW = get_output_path("US/stocks/price/D", "raw.tsv")
+OUTPUT_PATH_PRICE_D_EMA3 = get_output_path("US/stocks/price/D", "ema3.tsv")
+OUTPUT_PATH_PRICE_M_RAW_EOM = get_output_path("US/stocks/price/M", "raw-eom.tsv")
+OUTPUT_PATH_PRICE_M_EMA3_EOM = get_output_path("US/stocks/price/M", "ema3-eom.tsv")
+OUTPUT_PATH_PRICE_M_RAW_CURRENT = get_output_path("US/stocks/price/M", "raw-current.tsv")
+OUTPUT_PATH_PRICE_M_EMA3_CURRENT = get_output_path("US/stocks/price/M", "ema3-current.tsv")
 
 # MACD 출력 경로
 ## daily close price -> monthly current price -> MACD line
-OUTPUT_PATH_MACD_LINE_M_RAW_CURRENT = get_output_path("US/stocks/signals/MACD/M", "raw-current-line.html")
+OUTPUT_PATH_MACD_LINE_M_RAW_CURRENT = get_output_path("US/stocks/signals/MACD/M", "raw-current-line.tsv")
 ## daily close price -> monthly current price -> MACD histogram
-OUTPUT_PATH_MACD_HIST_M_RAW_CURRENT = get_output_path("US/stocks/signals/MACD/M", "raw-current-histogram.html")
+OUTPUT_PATH_MACD_HIST_M_RAW_CURRENT = get_output_path("US/stocks/signals/MACD/M", "raw-current-histogram.tsv")
 ## daily close price -> daily EMA3 -> monthly current price -> MACD line
-OUTPUT_PATH_MACD_LINE_M_EMA3_CURRENT = get_output_path("US/stocks/signals/MACD/M", "ema3-current-line.html")
+OUTPUT_PATH_MACD_LINE_M_EMA3_CURRENT = get_output_path("US/stocks/signals/MACD/M", "ema3-current-line.tsv")
 ## daily close price -> daily EMA3 -> monthly current price -> MACD histogram
-OUTPUT_PATH_MACD_HIST_M_EMA3_CURRENT = get_output_path("US/stocks/signals/MACD/M", "ema3-current-histogram.html")
+OUTPUT_PATH_MACD_HIST_M_EMA3_CURRENT = get_output_path("US/stocks/signals/MACD/M", "ema3-current-histogram.tsv")
 
 # %% 날짜 범위 설정
 day_start, _day_end = setup_date_range(delta_months)
@@ -119,16 +119,16 @@ try:
     macd_hist_ema3 = post_process_price(macd_hist_ema3)
 
     # 데이터 저장
-    save_df_as_html_table(price_raw, OUTPUT_PATH_PRICE_D_RAW)
-    save_df_as_html_table(price_ema3, OUTPUT_PATH_PRICE_D_EMA3)
-    save_df_as_html_table(price_raw_monthly_eom, OUTPUT_PATH_PRICE_M_RAW_EOM)
-    save_df_as_html_table(price_ema3_monthly_eom, OUTPUT_PATH_PRICE_M_EMA3_EOM)
-    save_df_as_html_table(price_raw_monthly_current, OUTPUT_PATH_PRICE_M_RAW_CURRENT)
-    save_df_as_html_table(price_ema3_monthly_current, OUTPUT_PATH_PRICE_M_EMA3_CURRENT)
-    save_df_as_html_table(macd_line_raw, OUTPUT_PATH_MACD_LINE_M_RAW_CURRENT)
-    save_df_as_html_table(macd_hist_raw, OUTPUT_PATH_MACD_HIST_M_RAW_CURRENT)
-    save_df_as_html_table(macd_line_ema3, OUTPUT_PATH_MACD_LINE_M_EMA3_CURRENT)
-    save_df_as_html_table(macd_hist_ema3, OUTPUT_PATH_MACD_HIST_M_EMA3_CURRENT)
+    save_df_as_tsv(price_raw, OUTPUT_PATH_PRICE_D_RAW)
+    save_df_as_tsv(price_ema3, OUTPUT_PATH_PRICE_D_EMA3)
+    save_df_as_tsv(price_raw_monthly_eom, OUTPUT_PATH_PRICE_M_RAW_EOM)
+    save_df_as_tsv(price_ema3_monthly_eom, OUTPUT_PATH_PRICE_M_EMA3_EOM)
+    save_df_as_tsv(price_raw_monthly_current, OUTPUT_PATH_PRICE_M_RAW_CURRENT)
+    save_df_as_tsv(price_ema3_monthly_current, OUTPUT_PATH_PRICE_M_EMA3_CURRENT)
+    save_df_as_tsv(macd_line_raw, OUTPUT_PATH_MACD_LINE_M_RAW_CURRENT)
+    save_df_as_tsv(macd_hist_raw, OUTPUT_PATH_MACD_HIST_M_RAW_CURRENT)
+    save_df_as_tsv(macd_line_ema3, OUTPUT_PATH_MACD_LINE_M_EMA3_CURRENT)
+    save_df_as_tsv(macd_hist_ema3, OUTPUT_PATH_MACD_HIST_M_EMA3_CURRENT)
 
     send_telegram_message("업데이트 완료: YAHOO ETF PRICE")
 

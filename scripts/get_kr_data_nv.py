@@ -1,11 +1,11 @@
 # URL : https://m.stock.naver.com/
 # %%
 import pandas as pd
-from core.tIO import get_json, save_df_as_html_table
+from core.tIO import get_json, save_df_as_tsv
 from core.tIO import get_output_path
 
 #%%
-OUTPUT_PATH = get_output_path("KR/economy/D", "markets.html")
+OUTPUT_PATH = get_output_path("KR/economy/D", "markets.tsv")
 
 #%%
 def get_raw_priceDF(url, keys=["result"]):
@@ -85,4 +85,4 @@ df_D = df_D.sort_index().astype('float64')
 
 
 # %%
-save_df_as_html_table(df_D, OUTPUT_PATH)
+save_df_as_tsv(df_D, OUTPUT_PATH)

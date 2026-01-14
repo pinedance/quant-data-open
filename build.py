@@ -7,6 +7,7 @@ config/pages.yaml만 수정하면 새 페이지가 자동으로 생성됩니다
 import json
 import shutil
 import yaml
+import pandas as pd
 from pathlib import Path
 from jinja2 import Environment, FileSystemLoader
 
@@ -76,6 +77,22 @@ def ensure_dir(directory):
     Path(directory).mkdir(parents=True, exist_ok=True)
 
 
+def convert_tsv_to_html(tsv_path, html_path):
+    """TSV 파일을 HTML 테이블로 변환"""
+    try:
+        df = pd.read_csv(tsv_path, sep='\t', index_col=0, header=0)
+        html_table = df.to_html(na_rep='')
+
+        ensure_dir(html_path.parent)
+        with open(html_path, 'w', encoding='utf-8') as f:
+            f.write(html_table)
+
+        return True
+    except Exception as e:
+        print(f"⚠️  Error converting {tsv_path.name}: {e}")
+        return False
+
+
 def render_page(env, page_config, paths):
     """설정 기반으로 페이지 렌더링"""
     name = page_config['name']
@@ -133,19 +150,30 @@ def render_page(env, page_config, paths):
     print(f"✓ {json_output_path}")
 
 
-def copy_dist_files(paths):
-    """source 디렉토리의 HTML 파일들을 output으로 복사"""
+def process_dist_files(paths):
+    """TSV 파일을 HTML로 변환하여 output으로 복사"""
     source_dir = paths['source']
     output_dir = paths['output'] / paths['output_subdir']
 
-    if source_dir.exists():
-        # HTML 파일들 복사
-        for html_file in source_dir.rglob("*.html"):
-            relative_path = html_file.relative_to(source_dir)
-            output_path = output_dir / relative_path
-            ensure_dir(output_path.parent)
-            shutil.copy2(html_file, output_path)
-            print(f"✓ Copied {html_file.name}")
+    if not source_dir.exists():
+        print(f"⚠️  Source directory not found: {source_dir}")
+        return
+
+    converted_count = 0
+    failed_count = 0
+
+    # TSV 파일들을 HTML로 변환
+    for tsv_file in source_dir.rglob("*.tsv"):
+        relative_path = tsv_file.relative_to(source_dir)
+        html_path = output_dir / relative_path.with_suffix('.html')
+
+        if convert_tsv_to_html(tsv_file, html_path):
+            converted_count += 1
+            print(f"✓ Converted {tsv_file.name} → {html_path.name}")
+        else:
+            failed_count += 1
+
+    print(f"   Total: {converted_count} converted, {failed_count} failed")
 
 
 def build():
@@ -193,9 +221,9 @@ def build():
         except Exception as e:
             print(f"❌ Error rendering {page_config.get('name', 'unknown')}: {e}")
 
-    # source 디렉토리의 HTML 파일들 복사
-    print(f"\n📋 Copying HTML files from {paths['source']}...")
-    copy_dist_files(paths)
+    # source 디렉토리의 TSV 파일들을 HTML로 변환
+    print(f"\n📋 Converting TSV files from {paths['source']}...")
+    process_dist_files(paths)
 
     print("\n✅ Build completed!")
     print(f"   Output: {paths['output']}")
