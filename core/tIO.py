@@ -171,3 +171,14 @@ def save_df_as_html_table( df, output_path):
         error_msg = f"Error saving data: {str(e)}"
         send_telegram_message(error_msg)
         return False
+
+def save_df_as_tsv(df, output_path):
+    """DataFrame을 TSV 형식으로 저장"""
+    try:
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        df.to_csv(output_path, sep='\t', encoding='utf-8', index=True)
+        return True
+    except Exception as e:
+        error_msg = f"Error saving data: {str(e)}"
+        send_telegram_message(error_msg)
+        return False

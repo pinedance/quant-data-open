@@ -5,13 +5,13 @@ import pandas as pd
 from tqdm import tqdm
 import requests
 from bs4 import BeautifulSoup
-from core.tIO import save_df_as_html_table
+from core.tIO import save_df_as_tsv
 from core.cons import config_gsheet_tickers_req_krx as config_tickers_req
 from core.cons import delta_months
 from core.tIO import get_output_path
 
 #%%
-OUTPUT_PATH_PRICE_D_RAW = get_output_path("KR/stocks/price/D", "raw-nv.html")
+OUTPUT_PATH_PRICE_D_RAW = get_output_path("KR/stocks/price/D", "raw-nv.tsv")
 
 # %%
 days = delta_months
@@ -65,4 +65,4 @@ price_raw.columns = ["A{}".format(ticker) for ticker in etf_tickers]
 price_raw = price_raw.astype('float64')
 
 # %%
-save_df_as_html_table(price_raw, OUTPUT_PATH_PRICE_D_RAW)
+save_df_as_tsv(price_raw, OUTPUT_PATH_PRICE_D_RAW)

@@ -1,12 +1,12 @@
 # %%
 import pandas as pd
 from tqdm import tqdm
-from core.tIO import get_ticker_data, save_df_as_html_table, get_output_path
+from core.tIO import get_ticker_data, save_df_as_tsv, get_output_path
 from core.cons import config_gsheet_tickers_req_yh2 as config_tickers_req
 from core.cons import delta_months
 
 # %%
-OUTPUT_PATH = get_output_path("US/economy/D", "data.html")
+OUTPUT_PATH = get_output_path("US/economy/D", "data.tsv")
 
 #%%
 days = delta_months
@@ -39,4 +39,4 @@ etf_data.columns = ["{}".format(ticker) for ticker in etf_tickers]
 etf_data = etf_data.astype('float64')
 
 # %%
-save_df_as_html_table(etf_data, OUTPUT_PATH)
+save_df_as_tsv(etf_data, OUTPUT_PATH)

@@ -6,12 +6,12 @@ import pandas as pd
 from core.ecos import Ecos
 from core.cons import ecos_search_codes_daily as ecos_search_codes
 from core.tDate import yyyymm2quarter
-from core.tIO import save_df_as_html_table
+from core.tIO import save_df_as_tsv
 from core.tIO import get_output_path
 from dotenv import load_dotenv
 
 #%%
-OUTPUT_PATH_D = get_output_path("KR/economy/D", "ECOS.html")
+OUTPUT_PATH_D = get_output_path("KR/economy/D", "ECOS.tsv")
 
 # %%
 # PyblicDataReader : https://github.com/WooilJeong/PublicDataReader
@@ -68,4 +68,4 @@ df_D = df_D.astype('float64')
 
 
 # %%
-save_df_as_html_table(df_D, OUTPUT_PATH_D)
+save_df_as_tsv(df_D, OUTPUT_PATH_D)

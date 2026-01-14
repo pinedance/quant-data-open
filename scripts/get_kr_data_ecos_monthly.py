@@ -6,13 +6,13 @@ import pandas as pd
 from core.ecos import Ecos
 from core.cons import ecos_search_codes_monthly as ecos_search_codes
 from core.tDate import yyyymm2quarter
-from core.tIO import save_df_as_html_table
+from core.tIO import save_df_as_tsv
 from core.tIO import get_output_path
 from dotenv import load_dotenv
 
 #%%
-OUTPUT_PATH_M = get_output_path("KR/economy/M", "ECOS.html")
-OUTPUT_PATH_Q = get_output_path("KR/economy/Q", "ECOS.html")
+OUTPUT_PATH_M = get_output_path("KR/economy/M", "ECOS.tsv")
+OUTPUT_PATH_Q = get_output_path("KR/economy/Q", "ECOS.tsv")
 
 # %%
 # PyblicDataReader : https://github.com/WooilJeong/PublicDataReader
@@ -79,7 +79,7 @@ else:
     df_M = pd.concat(list(_data_M.values()), axis=1)
     df_M.columns = list(_data_M.keys())
     df_M = df_M.astype('float64')
-    save_df_as_html_table( df_M, OUTPUT_PATH_M)
+    save_df_as_tsv( df_M, OUTPUT_PATH_M)
 
 if len(_data_Q) == 0:
     print("!!! There is no Data Downloaded from ECOS API !!!", "Quarterly")
@@ -88,4 +88,4 @@ else:
     df_Q = pd.concat(list(_data_Q.values()), axis=1)
     df_Q.columns = list(_data_Q.keys())
     df_Q = df_Q.astype('float64')
-    save_df_as_html_table(df_Q, OUTPUT_PATH_Q)
+    save_df_as_tsv(df_Q, OUTPUT_PATH_Q)
