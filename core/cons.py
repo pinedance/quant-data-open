@@ -1,5 +1,5 @@
-# 5년
-delta_months = 5 * 12
+# 5년 + buffer
+delta_months = 5 * 12 + 1
 
 # From KRX
 config_gsheet_tickers_req_krx = {
