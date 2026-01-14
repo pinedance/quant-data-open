@@ -61,7 +61,7 @@ def load_prev_price(url):
     try:
         return pd.read_html(url, index_col=0, header=0)[0]
     except Exception as e:
-        print(f"Error loading old ETF data: {e}")
+        print(f"Error loading prev data: {e}")
         return pd.DataFrame()
 
 def download_with_retry( *arg, src="yahoo", max_retries=3, delay=3):
