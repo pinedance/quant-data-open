@@ -25,8 +25,8 @@ def check_fill_nan(df, fill_nan=False):
                     continue
                 
                 # "최초 index ~ 최종 index" 형태로 표시
-                start_index = nan_indices[0]
-                end_index = nan_indices[-1]
+                start_index = nan_indices[0].date()
+                end_index = nan_indices[-1].date()
                 nan_range = f"{start_index} ~ {end_index}"
                 nan_info.append(f"{col}: {nan_range}")
         

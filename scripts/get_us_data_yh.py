@@ -3,13 +3,13 @@ import pandas as pd
 from tqdm import tqdm
 from core.tIO import get_ticker_data, save_df_as_html_table, get_output_path
 from core.cons import config_gsheet_tickers_req_yh2 as config_tickers_req
-from core.cons import delta_days
+from core.cons import delta_months
 
 # %%
 OUTPUT_PATH = get_output_path("US/economy/D", "data.html")
 
 #%%
-days = delta_days
+days = delta_months
 days_offset = pd.Timedelta(days, unit="days")
 day_end = pd.Timestamp.today().date()
 day_start = day_end - days_offset

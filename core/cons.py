@@ -1,5 +1,5 @@
 # 5년
-delta_days = 5 * 12 * 22
+delta_months = 5 * 12
 
 # From KRX
 config_gsheet_tickers_req_krx = {
@@ -15,8 +15,8 @@ config_gsheet_tickers_req_yh = {
 
 data_url = dict(
     kr_ticker_list = "https://pinedance.github.io/quant-data-open/dist/CompanyList.html",
-    yh_last = "https://pinedance.github.io/quant-data-open/dist/YH/etf-adjusted-price-selected.html",
-    krx_last = "https://pinedance.github.io/quant-data-open/dist/KRX/etf-price-selected.html",
+    yh_last = "http://pinedance.github.io/quant-data-open/dist/US/stocks/price/D/raw.html",
+    krx_last = "http://pinedance.github.io/quant-data-open/dist/KR/stocks/price/D/raw.html",
     misc = "https://pinedance.github.io/quant-data-open/dist/misc.html"
 )
 

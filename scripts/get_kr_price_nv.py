@@ -7,14 +7,14 @@ import requests
 from bs4 import BeautifulSoup
 from core.tIO import save_df_as_html_table
 from core.cons import config_gsheet_tickers_req_krx as config_tickers_req
-from core.cons import delta_days
+from core.cons import delta_months
 from core.tIO import get_output_path
 
 #%%
 OUTPUT_PATH_PRICE_D_RAW = get_output_path("KR/stocks/price/D", "raw-nv.html")
 
 # %%
-days = delta_days
+days = delta_months
 days_offset = pd.Timedelta(days, unit="days")
 day_end = pd.Timestamp.today().date()
 day_start = day_end - days_offset

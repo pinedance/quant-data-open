@@ -13,8 +13,7 @@ def yyyymm2quarter(yyyymm, q_dict=month2quarter_dict):
     q = q_dict[m]
     return f"{y}{q}"
 
-def setup_date_range(days):
-    days_offset = pd.Timedelta(days, unit="days")
-    day_end = pd.Timestamp.today().date()
-    day_start = day_end - days_offset
-    return day_start, day_end
+def setup_date_range(months):
+    day_end = pd.Timestamp.today()
+    day_start = day_end - pd.DateOffset(months=months)
+    return day_start.date(), day_end.date()
