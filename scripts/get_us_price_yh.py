@@ -14,6 +14,9 @@ from core.cons import delta_months, data_url
 #%% ETF 데이터 수집 관련 설정
 OUTPUT_PATH_PRICE_D_RAW = get_output_path("US/stocks/price/D", "raw.tsv")
 OUTPUT_PATH_PRICE_D_EMA3 = get_output_path("US/stocks/price/D", "ema3.tsv")
+OUTPUT_PATH_PRICE_D_RAW_300 = get_output_path("US/stocks/price/D", "raw-300.tsv")
+OUTPUT_PATH_PRICE_D_EMA3_300 = get_output_path("US/stocks/price/D", "ema3-300.tsv")
+
 OUTPUT_PATH_PRICE_M_RAW_EOM = get_output_path("US/stocks/price/M", "raw-eom.tsv")
 OUTPUT_PATH_PRICE_M_EMA3_EOM = get_output_path("US/stocks/price/M", "ema3-eom.tsv")
 OUTPUT_PATH_PRICE_M_RAW_CURRENT = get_output_path("US/stocks/price/M", "raw-current.tsv")
@@ -121,10 +124,14 @@ try:
     # 데이터 저장
     save_df_as_tsv(price_raw, OUTPUT_PATH_PRICE_D_RAW)
     save_df_as_tsv(price_ema3, OUTPUT_PATH_PRICE_D_EMA3)
+    save_df_as_tsv(price_raw.tail(300), OUTPUT_PATH_PRICE_D_RAW_300)
+    save_df_as_tsv(price_ema3.tail(300), OUTPUT_PATH_PRICE_D_EMA3_300)
+
     save_df_as_tsv(price_raw_monthly_eom, OUTPUT_PATH_PRICE_M_RAW_EOM)
     save_df_as_tsv(price_ema3_monthly_eom, OUTPUT_PATH_PRICE_M_EMA3_EOM)
     save_df_as_tsv(price_raw_monthly_current, OUTPUT_PATH_PRICE_M_RAW_CURRENT)
     save_df_as_tsv(price_ema3_monthly_current, OUTPUT_PATH_PRICE_M_EMA3_CURRENT)
+
     save_df_as_tsv(macd_line_raw, OUTPUT_PATH_MACD_LINE_M_RAW_CURRENT)
     save_df_as_tsv(macd_hist_raw, OUTPUT_PATH_MACD_HIST_M_RAW_CURRENT)
     save_df_as_tsv(macd_line_ema3, OUTPUT_PATH_MACD_LINE_M_EMA3_CURRENT)
