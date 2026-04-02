@@ -13,45 +13,66 @@ def select_column_by_name(df, col_name):
 def check_fill_nan(df, fill_nan=False):
     n_nan = df.isna().sum().sum()
     if n_nan > 0:
-        # NaN이 있는 컬럼별로 정보 수집
         nan_info = []
         for col in df.columns:
             nan_series = df[col].isna()
-            if nan_series.sum() > 0:  # any()를 명시적으로 호출
+            if nan_series.sum() > 0:
                 nan_indices = nan_series[nan_series].index
-                
-                # nan_indices가 비어 있는지 확인
-                if len(nan_indices) == 0:
-                    continue
-                
-                # "최초 index ~ 최종 index" 형태로 표시
                 start_index = nan_indices[0].date()
                 end_index = nan_indices[-1].date()
-                nan_range = f"{start_index} ~ {end_index}"
-                nan_info.append(f"{col}: {nan_range}")
-        
-        m_err = f"Warning: {n_nan} NaN values found in the data.\nLocation:\n" + "\n".join(nan_info)
+                nan_info.append(f"{col}: {start_index} ~ {end_index}")
+
+        m_err = f"⚠️ NaN 값 감지 ({n_nan:,}개)\n" + "\n".join(nan_info)
         send_telegram_message(m_err)
-        
+
         if fill_nan:
             send_telegram_message("Fill nan values with forward fill")
-            # forward fill 후 backward fill로 남은 NaN 처리
-            df_filled = df.fillna(method="ffill").fillna(method="bfill")
-            
-            # 여전히 NaN이 있는지 확인
+            df_filled = df.ffill().bfill()
+
             remaining_nan = df_filled.isna().sum().sum()
             if remaining_nan > 0:
                 send_telegram_message(f"Warning: {remaining_nan} NaN values still remain after filling")
-            
+
             return df_filled
-            
+
     return df
 
 def post_process_price(df):
-    """모든 행이 nan인 행 삭제 및 index를 date로 변환"""
-    df_new = df.copy()
-    # 모든 행이 nan인 행 삭제
-    df_new = df_new.dropna(how='all')
-    # index를 date로 변환 (2중 table header 방지)
+    df_new = df.dropna(how='all')
     df_new.index = df_new.index.date
     return df_new
+
+def resample_monthly(daily_prices, method='eom', target_day=None):
+    if not isinstance(daily_prices.index, pd.DatetimeIndex):
+        raise ValueError("daily_prices의 인덱스는 DatetimeIndex 형식이어야 합니다.")
+    if daily_prices.empty:
+        raise ValueError("daily_prices가 비어 있습니다.")
+
+    daily_prices = daily_prices.sort_index()
+
+    if method == 'eom':
+        monthly = daily_prices.resample('ME').last()
+        return monthly[monthly.index <= daily_prices.index[-1]]
+
+    if method == 'current':
+        if target_day is None:
+            target_day = daily_prices.index[-1].day
+
+        month_starts = daily_prices.resample('MS').first().index
+        valid_days = np.minimum(target_day, month_starts.days_in_month)
+        target_dates = pd.to_datetime({
+            'year': month_starts.year,
+            'month': month_starts.month,
+            'day': valid_days
+        })
+
+        pos = daily_prices.index.searchsorted(target_dates, side='right') - 1
+        pos = pos[pos >= 0]
+
+        actual_dates = daily_prices.index[pos]
+        monthly_prices = daily_prices.iloc[pos].copy()
+        monthly_prices.index = actual_dates
+
+        return monthly_prices
+
+    raise ValueError(f"method는 'eom' 또는 'current'이어야 합니다. (받은 값: {method})")

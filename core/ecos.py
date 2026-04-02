@@ -53,6 +53,7 @@ class Ecos:
         query_params = '/'.join(params.values())
         url = f"{self.base_url}/{query_params}"
         res = requests.get(url, params=params, verify=False)
+        res.raise_for_status()
         res_json = res.json()
         if res_json.get("RESULT"):
             if res_json.get("RESULT").get("MESSAGE"):
@@ -89,6 +90,7 @@ class Ecos:
         query_params = '/'.join(params.values())
         url = f"{self.base_url}/{query_params}"
         res = requests.get(url, params=params, verify=False)
+        res.raise_for_status()
         res_json = res.json()
         if res_json.get("RESULT"):
             if res_json.get("RESULT").get("MESSAGE"):
@@ -137,6 +139,7 @@ class Ecos:
         query_params = '/'.join(params.values())
         url = f"{self.base_url}/{query_params}"
         res = requests.get(url, params=params, verify=False)
+        res.raise_for_status()
         res_json = res.json()
         if res_json.get("RESULT"):
             if res_json.get("RESULT").get("MESSAGE"):
@@ -214,9 +217,8 @@ class Ecos:
         }
         query_params = '/'.join(params.values())
         url = f"{self.base_url}/{query_params}"
-        # print( url )
-        # res = requests.get(url, params=params, verify=False)
         res = requests.get(url, verify=False)
+        res.raise_for_status()
         res_json = res.json()
         if res_json.get("RESULT"):
             if res_json.get("RESULT").get("MESSAGE"):
@@ -250,6 +252,7 @@ class Ecos:
         query_params = '/'.join(params.values())
         url = f"{self.base_url}/{query_params}"
         res = requests.get(url, params=params, verify=False)
+        res.raise_for_status()
         res_json = res.json()
         if res_json.get("RESULT"):
             if res_json.get("RESULT").get("MESSAGE"):
@@ -289,6 +292,7 @@ class Ecos:
         query_params = '/'.join(params.values())
         url = f"{self.base_url}/{query_params}"
         res = requests.get(url, params=params, verify=False)
+        res.raise_for_status()
         res_json = res.json()
         if res_json.get("RESULT"):
             if res_json.get("RESULT").get("MESSAGE"):

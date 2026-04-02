@@ -50,9 +50,13 @@ for dc in ecos_search_codes:
     data_name = dc["이름"]
     _search_opt = search_opt["D"]
     _data_rp = _data_D
-    _df = api.get_statistic_search(**dc["코드"], **_search_opt)
+    try:
+        _df = api.get_statistic_search(**dc["코드"], **_search_opt)
+    except Exception as e:
+        print(f"!!! 데이터 수집 실패: {data_name} — {e}")
+        continue
     if _df is None:
-        print( "!!! 데이터가 없습니다.", data_name )
+        print("!!! 데이터가 없습니다.", data_name)
         continue
     _data_rp[data_name] = _df[select_cols].set_index(select_cols[0])
     print("* Data Downloaded:", data_name)
