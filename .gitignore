@@ -1,7 +1,11 @@
 # Custom
 # poetry.lock
+
+# DEV
 .claude/
-CLAUDE.md
+.agent/
+.gemini/
+.dev/
 _*/
 _*.*
 # .tool-versions
