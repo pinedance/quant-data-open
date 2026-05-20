@@ -12,6 +12,10 @@ import pandas as pd
 
 requests.packages.urllib3.disable_warnings()
 
+_ECOS_PAGE_START = "1"
+_ECOS_PAGE_END = "99999"
+_ECOS_KEY_STATS_LIMIT = "100"
+
 class Ecos:
     """
     Ecos API 클래스
@@ -46,8 +50,8 @@ class Ecos:
             "인증키": self.service_key,
             "요청유형": "json",
             "언어구분": "kr",
-            "요청시작건수": "1",
-            "요청종료건수": "99999",
+            "요청시작건수": _ECOS_PAGE_START,
+            "요청종료건수": _ECOS_PAGE_END,
             "통계표코드": 통계표코드,
         }
         query_params = '/'.join(params.values())
@@ -83,8 +87,8 @@ class Ecos:
             "인증키": self.service_key,
             "요청유형": "json",
             "언어구분": "kr",
-            "요청시작건수": "1",
-            "요청종료건수": "99999",
+            "요청시작건수": _ECOS_PAGE_START,
+            "요청종료건수": _ECOS_PAGE_END,
             "용어": 용어,
         }
         query_params = '/'.join(params.values())
@@ -132,8 +136,8 @@ class Ecos:
             "인증키": self.service_key,
             "요청유형": "json",
             "언어구분": "kr",
-            "요청시작건수": "1",
-            "요청종료건수": "99999",
+            "요청시작건수": _ECOS_PAGE_START,
+            "요청종료건수": _ECOS_PAGE_END,
             "통계표코드": 통계표코드,
         }
         query_params = '/'.join(params.values())
@@ -204,8 +208,8 @@ class Ecos:
             "인증키": self.service_key,
             "요청유형": "json",
             "언어구분": "kr",
-            "요청시작건수": "1",
-            "요청종료건수": "99999",
+            "요청시작건수": _ECOS_PAGE_START,
+            "요청종료건수": _ECOS_PAGE_END,
             "통계표코드": 통계표코드,
             "주기": 주기,
             "검색시작일자": 검색시작일자,
@@ -246,8 +250,8 @@ class Ecos:
             "인증키": self.service_key,
             "요청유형": "json",
             "언어구분": "kr",
-            "요청시작건수": "1",
-            "요청종료건수": "100",
+            "요청시작건수": _ECOS_PAGE_START,
+            "요청종료건수": _ECOS_KEY_STATS_LIMIT,
         }
         query_params = '/'.join(params.values())
         url = f"{self.base_url}/{query_params}"
@@ -285,8 +289,8 @@ class Ecos:
             "인증키": self.service_key,
             "요청유형": "json",
             "언어구분": "kr",
-            "요청시작건수": "1",
-            "요청종료건수": "99999",
+            "요청시작건수": _ECOS_PAGE_START,
+            "요청종료건수": _ECOS_PAGE_END,
             "데이터명": 데이터명,
         }
         query_params = '/'.join(params.values())

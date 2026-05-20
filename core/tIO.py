@@ -13,7 +13,9 @@ from core.tTable import select_column_by_name
 #%% CONSTANTS
 ######################################################################
 
-MIN_DATA_POINTS = 30  # Yahoo Finance fallback 판단 기준 (약 1개월치)
+MIN_DATA_POINTS = 30              # Yahoo Finance fallback 판단 기준 (약 1개월치)
+MAX_WORKER_THREADS = 20           # 병렬 다운로드 최대 스레드 수
+SUCCESS_RATE_WARNING_THRESHOLD = 0.5  # 신규 다운로드 성공률 경고 기준
 PROJECT_ROOT = Path(__file__).parent.parent
 OUTPUT_ROOT = PROJECT_ROOT / "output"
 
@@ -149,7 +151,7 @@ def fetch_prices(tickers, start_date, old_data, src="yahoo", max_workers=None):
         raise ValueError("tickers is empty")
     total = len(tickers)
     if max_workers is None:
-        max_workers = min((os.cpu_count() or 1) * 2, 20)
+        max_workers = min((os.cpu_count() or 1) * 2, MAX_WORKER_THREADS)
 
     print(f"Fetching {total} tickers (parallel, workers={max_workers})")
 
@@ -178,7 +180,7 @@ def fetch_prices(tickers, start_date, old_data, src="yahoo", max_workers=None):
     if success_cnt + fallback_cnt == 0:
         raise RuntimeError("가격 데이터를 단 1개도 다운로드하지 못했습니다")
 
-    if success_cnt / total < 0.5:
+    if success_cnt / total < SUCCESS_RATE_WARNING_THRESHOLD:
         msg = f"신규 다운로드 성공률 낮음\n성공 {success_cnt}/{total}  ·  fallback {fallback_cnt}  ·  실패 {failed_cnt}"
         print(msg)
         send_telegram_message(f"⚠️ {msg}")

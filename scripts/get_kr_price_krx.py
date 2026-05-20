@@ -8,7 +8,7 @@ from core.tFinance import process_price_status, calculate_macd
 from core.tTable import check_fill_nan, post_process_price, resample_monthly
 from core.message import send_telegram_message, notice_price_status_batch
 from core.cons import config_gsheet_tickers_req_krx as config_tickers_req
-from core.cons import delta_months, data_url
+from core.cons import delta_months, data_url, PRICE_EMA_SPAN, RECENT_DAYS_COUNT
 
 # %% ETF 데이터 수집 관련 설정
 OUTPUT_PATH_PRICE_D_RAW = get_output_path("KR/stocks/price/D", "raw.tsv")
@@ -97,7 +97,7 @@ try:
     price_raw = price_raw.astype('float64')
 
     # EMA3 데이터 생성 (datetime index 유지)
-    price_ema3 = price_raw.ewm(span=3).mean()
+    price_ema3 = price_raw.ewm(span=PRICE_EMA_SPAN).mean()
 
     # 월간 데이터 생성
     price_raw_monthly_eom = resample_monthly(price_raw, method='eom')
@@ -124,8 +124,8 @@ try:
     # 데이터 저장
     save_df_as_tsv(price_raw, OUTPUT_PATH_PRICE_D_RAW)
     save_df_as_tsv(price_ema3, OUTPUT_PATH_PRICE_D_EMA3)
-    save_df_as_tsv(price_raw.tail(300), OUTPUT_PATH_PRICE_D_RAW_300)
-    save_df_as_tsv(price_ema3.tail(300), OUTPUT_PATH_PRICE_D_EMA3_300)
+    save_df_as_tsv(price_raw.tail(RECENT_DAYS_COUNT), OUTPUT_PATH_PRICE_D_RAW_300)
+    save_df_as_tsv(price_ema3.tail(RECENT_DAYS_COUNT), OUTPUT_PATH_PRICE_D_EMA3_300)
 
     save_df_as_tsv(price_raw_monthly_eom, OUTPUT_PATH_PRICE_M_RAW_EOM)
     save_df_as_tsv(price_ema3_monthly_eom, OUTPUT_PATH_PRICE_M_EMA3_EOM)

@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 from core.ecos import Ecos
 from core.cons import ecos_search_codes_monthly as ecos_search_codes
+from core.cons import ECOS_MONTHLY_FORWARD_DAYS, ECOS_DATA_START_MONTH
 from core.tDate import yyyymm2quarter
 from core.tIO import save_df_as_tsv
 from core.tIO import get_output_path
@@ -25,9 +26,9 @@ api = Ecos(service_key)
 print("ECOS API module is Ready.")
 
 # %%
-date_delta = dt.timedelta(days=30)
+date_delta = dt.timedelta(days=ECOS_MONTHLY_FORWARD_DAYS)
 search_range = dict(
-    open_M="200301",
+    open_M=ECOS_DATA_START_MONTH,
     close_M=(dt.datetime.today() + date_delta).strftime('%Y%m'),
 )
 search_range["open_Q"] = yyyymm2quarter(search_range["open_M"])

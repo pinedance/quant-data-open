@@ -5,6 +5,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+SIGMA_THRESHOLD = 1.8      # 가격 상태 알림 sigma 임계값
+MSG_SEPARATOR_WIDTH = 20   # 알림 메시지 구분선 너비
+
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
@@ -33,7 +36,7 @@ def notice_price_status(data, tickers=None):
 
     try:
         status = data.get('status', '')
-        sigma_max, sigma_min = 1.8, -1.8
+        sigma_max, sigma_min = SIGMA_THRESHOLD, -SIGMA_THRESHOLD
         sigma = data.get('sigma', 0)
         if (not status or "지속" in status) and (sigma_min < sigma < sigma_max):
             return
@@ -58,7 +61,7 @@ def notice_price_status(data, tickers=None):
 
 
 def notice_price_status_batch(status_results, tickers=None):
-    sigma_max, sigma_min = 1.8, -1.8
+    sigma_max, sigma_min = SIGMA_THRESHOLD, -SIGMA_THRESHOLD
     up_breakouts = []
     down_breakouts = []
     sigma_highs = []
@@ -107,19 +110,19 @@ def notice_price_status_batch(status_results, tickers=None):
 
     parts = ["📊 가격 상태 알림"]
     if up_breakouts:
-        parts.append(f"{'─' * 28}")
+        parts.append(f"{'─' * MSG_SEPARATOR_WIDTH}")
         parts.append("▸ 상향 돌파")
         parts.extend(_format_line(d) for d in up_breakouts)
     if down_breakouts:
-        parts.append(f"{'─' * 28}")
+        parts.append(f"{'─' * MSG_SEPARATOR_WIDTH}")
         parts.append("▸ 하향 돌파")
         parts.extend(_format_line(d) for d in down_breakouts)
     if sigma_highs:
-        parts.append(f"{'─' * 28}")
+        parts.append(f"{'─' * MSG_SEPARATOR_WIDTH}")
         parts.append(f"▸ Sigma 고  ( σ ≥ {sigma_max} )")
         parts.extend(_format_line(d) for d in sorted(sigma_highs, key=lambda d: d.get('sigma', 0), reverse=True))
     if sigma_lows:
-        parts.append(f"{'─' * 28}")
+        parts.append(f"{'─' * MSG_SEPARATOR_WIDTH}")
         parts.append(f"▸ Sigma 저  ( σ ≤ {sigma_min} )")
         parts.extend(_format_line(d) for d in sorted(sigma_lows, key=lambda d: d.get('sigma', 0)))
 
