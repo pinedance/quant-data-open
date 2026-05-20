@@ -12,6 +12,69 @@
 
 ---
 
+## 🚀 시작하기
+
+### 요구사항
+
+- Python 3.12+
+- [uv](https://docs.astral.sh/uv/) (패키지 매니저)
+
+### 설치
+
+```bash
+git clone https://github.com/pinedance/quant-data-open.git
+cd quant-data-open
+uv sync
+```
+
+### 환경 설정
+
+`.env` 파일을 생성하고 API 키를 입력합니다:
+
+```bash
+# .env
+ECOS_KEY="your_ecos_api_key_here"
+```
+
+**API 키 발급**:
+- `ECOS_KEY`: [한국은행 경제통계시스템](https://ecos.bok.or.kr/) 회원가입 후 발급
+
+### 빌드
+
+`output/` 디렉토리의 데이터(git에 포함)로 바로 사이트를 빌드할 수 있습니다:
+
+```bash
+uv run build.py
+```
+
+빌드 결과는 `public/dist/`에 생성됩니다. 로컬에서 확인하려면:
+
+```bash
+python -m http.server 8000 --directory public
+# http://localhost:8000/dist/ 에서 확인
+```
+
+### 데이터 수집 (선택)
+
+최신 데이터를 직접 수집하려면 각 스크립트를 실행합니다:
+
+```bash
+# 국내 ETF 가격
+uv run scripts/get_kr_price_krx.py
+uv run scripts/get_kr_price_nv.py
+
+# 해외 ETF 가격
+uv run scripts/get_us_price_yh.py
+
+# 경기 지표
+uv run scripts/get_kr_data_ecos_daily.py   # ECOS_KEY 필요
+uv run scripts/get_kr_data_ecos_monthly.py  # ECOS_KEY 필요
+uv run scripts/get_kr_data_nv.py
+uv run scripts/get_us_data_yh.py
+```
+
+---
+
 ## 📊 제공 데이터
 
 ### 상장 주식
@@ -113,7 +176,7 @@
 - [KOSIS](https://kosis.kr/)
 
 **한국은행**
-- [경제통계시스템 (ECOS)](https://ecos.bok.or.kr/): 통화량M2, 물가지수, 경제심리지수, 뉴스심리지수
+- [경제통계시스템 (ECOS)](https://ecos.bok.or.kr/): 통화량M2, 물가지수, 경제심리지수, 뉴스심리지수(예정)
 
 **산업통상자원부**
 - [수출입 동향](https://www.motie.go.kr/)
@@ -150,11 +213,14 @@ quant-data-open/
 ├── scripts/           # 데이터 수집 스크립트
 ├── config/            # 설정 파일 (pages.yaml, paths.yaml)
 ├── templates/         # Jinja2 템플릿
-├── output/            # 생성된 데이터
+│   ├── layouts/      # 레이아웃 템플릿
+│   └── pages/        # 페이지 템플릿
+├── DOCS/              # 문서
+├── output/            # 생성된 데이터 (git 포함)
 │   └── data/         # JSON 데이터 파일
-├── public/           # 최종 빌드 결과 (GitHub Pages)
+├── public/            # 최종 빌드 결과 (GitHub Pages, git 제외)
 │   └── dist/         # 정적 사이트 (HTML, JSON)
-└── build.py          # 빌드 스크립트
+└── build.py           # 빌드 스크립트
 ```
 
 ### 빌드 시스템
@@ -162,26 +228,17 @@ quant-data-open/
 **템플릿 엔진**: Jinja2
 - 설정 기반 페이지 생성 시스템
 - `config/pages.yaml` 수정만으로 새 페이지 추가 가능
-- 자세한 내용: [ADD_PAGE_GUIDE.md](./ADD_PAGE_GUIDE.md)
+- 자세한 내용: [ADD_PAGE_GUIDE.md](./DOCS/ADD_PAGE_GUIDE.md)
 
 **빌드 명령**:
 ```bash
 uv run build.py
 ```
 
-**로컬 테스트**:
-```bash
-# 빌드 + 로컬 서버 실행 (http://localhost:8000/dist/)
-./test_local.sh
-
-# 로그 파일로 저장하면서 실행 (터미널 출력 + 파일 저장)
-./test_local.sh 2>&1 | tee test_local.txt
-```
-
 ### 자동화 (GitHub Actions)
 
 **데이터 수집 및 배포 자동화**
-- 월간 데이터 업데이트 (월 1회)
+- 월간 경기지표 업데이트 (매주 금요일)
 - 일간 데이터 업데이트 (매일)
 - 가격 데이터 업데이트 (매일)
 - GitHub Pages 자동 배포
@@ -191,6 +248,16 @@ uv run build.py
 - `.github/workflows/update-data-daily.yml`: 일간 경기지표
 - `.github/workflows/update-price-daily.yml`: ETF 가격
 - `.github/workflows/deploy.yml`: 사이트 빌드 및 배포
+
+**Fork 후 GitHub Actions 실행 시 필요한 Secrets**:
+
+| Secret | 필수 | 설명 |
+|---|---|---|
+| `ECOS_KEY` | 필수 | 한국은행 ECOS API 키 |
+| `TELEGRAM_BOT_TOKEN` | 선택 | Telegram 알림용 봇 토큰 |
+| `TELEGRAM_CHAT_ID` | 선택 | Telegram 알림용 채팅 ID |
+
+> Secrets는 GitHub 저장소 Settings → Secrets and variables → Actions 에서 등록합니다.
 
 ### ETF Ticker 관리
 
@@ -203,12 +270,17 @@ uv run build.py
 
 ### 환경 변수
 
-`.env` 파일에 필요한 API 키를 설정합니다.
+`.env` 파일에 필요한 키를 설정합니다 (로컬 실행용).
 
 ```bash
 # .env
 ECOS_KEY="your_ecos_api_key_here"
 ```
 
-**필요한 키**:
-- `ECOS_KEY`: 한국은행 경제통계시스템 API 키
+---
+
+## 📄 라이선스
+
+[MIT License](./LICENSE)
+
+Copyright (c) 2024 Junho
