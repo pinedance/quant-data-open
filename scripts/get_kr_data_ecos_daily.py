@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 from core.ecos import Ecos
 from core.cons import ecos_search_codes_daily as ecos_search_codes
+from core.cons import ECOS_DAILY_FORWARD_DAYS, ECOS_DAILY_BACKWARD_DAYS
 from core.tDate import yyyymm2quarter
 from core.tIO import save_df_as_tsv
 from core.tIO import get_output_path
@@ -24,8 +25,8 @@ api = Ecos(service_key)
 print("ECOS API module is Ready.")
 
 # %%
-date_delta_f = dt.timedelta(days=5)
-date_delta_b = dt.timedelta(days=400)
+date_delta_f = dt.timedelta(days=ECOS_DAILY_FORWARD_DAYS)
+date_delta_b = dt.timedelta(days=ECOS_DAILY_BACKWARD_DAYS)
 search_range = dict()
 search_range['close_D'] = (dt.datetime.today() + date_delta_f).strftime('%Y%m%d')
 search_range['open_D'] = (dt.datetime.today() - date_delta_b).strftime('%Y%m%d')

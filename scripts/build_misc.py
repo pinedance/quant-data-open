@@ -8,6 +8,7 @@ from core.tIO import get_ticker_data, get_output_path
 
 # %%
 YEARS = 5
+WEEKS_PER_YEAR = 52
 
 # %%
 day_end = pd.Timestamp.today().date()
@@ -28,7 +29,7 @@ def count_days_per_week(sr, years):
     offset = pd.DateOffset(years=years)
     first_date = last_date - offset
     target_sr = sr[sr.index > first_date]
-    days_per_week = len(target_sr) / years / 52
+    days_per_week = len(target_sr) / years / WEEKS_PER_YEAR
     return days_per_week
 
 

@@ -1,6 +1,16 @@
 # 5년 + buffer
 delta_months = 5 * 12 + 1
 
+# 가격 데이터 처리
+PRICE_EMA_SPAN = 3        # 일별 가격 평활화용 EMA span
+RECENT_DAYS_COUNT = 300   # 최근 N일 데이터 저장 파일(raw-300, ema3-300)용
+
+# ECOS API 검색 범위
+ECOS_DAILY_FORWARD_DAYS = 5     # 일별 검색 종료일 여유 (일)
+ECOS_DAILY_BACKWARD_DAYS = 400  # 일별 검색 시작일 여유 (일)
+ECOS_MONTHLY_FORWARD_DAYS = 30  # 월별 검색 종료일 여유 (일)
+ECOS_DATA_START_MONTH = "200301"  # 월별 ECOS 데이터 수집 시작 년월
+
 # From KRX
 config_gsheet_tickers_req_krx = {
     "sheet_id": '1UqlIF8aXCsRhGYPHttIgtgVDNbyUJOtOmEsM4u3q5H0',

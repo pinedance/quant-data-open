@@ -1,6 +1,8 @@
 import pandas as pd
 from core.message import send_telegram_message
 
+MA_SHORT_WINDOW = 5
+MA_LONG_WINDOW = 200
 
 #%% DEAL FINANCE DATA
 ######################################################################
@@ -19,10 +21,10 @@ def get_price_status(ticker, _hist):
 
     hist.columns = ['Close']
 
-    hist['MA005'] = hist['Close'].rolling(window=5).mean()
-    hist['STD005'] = hist['Close'].rolling(window=5).std()
-    hist['MA200'] = hist['Close'].rolling(window=200).mean()
-    hist['STD200'] = hist['Close'].rolling(window=200).std()
+    hist['MA005'] = hist['Close'].rolling(window=MA_SHORT_WINDOW).mean()
+    hist['STD005'] = hist['Close'].rolling(window=MA_SHORT_WINDOW).std()
+    hist['MA200'] = hist['Close'].rolling(window=MA_LONG_WINDOW).mean()
+    hist['STD200'] = hist['Close'].rolling(window=MA_LONG_WINDOW).std()
 
     recent = hist.iloc[-1]
     ma200 = recent['MA200']
