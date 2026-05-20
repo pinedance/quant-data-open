@@ -22,18 +22,37 @@
 ### ETF 가격 데이터
 
 **국내 ETF 가격** (종가, 약 1.5년)
-- KRX: [Table](https://pinedance.github.io/quant-data-open/dist/KRX/etf-price-selected.html)
-- Naver: [Table](https://pinedance.github.io/quant-data-open/dist/NV/etf-price-selected.html)
+- 일간 (KRX): [Table](https://pinedance.github.io/quant-data-open/dist/KR/stocks/price/D/raw.html)
+- 일간 (Naver): [Table](https://pinedance.github.io/quant-data-open/dist/KR/stocks/price/D/raw-nv.html)
+- 일간 EMA3: [Table](https://pinedance.github.io/quant-data-open/dist/KR/stocks/price/D/ema3.html)
+- 월간 (현재): [Table](https://pinedance.github.io/quant-data-open/dist/KR/stocks/price/M/raw-current.html)
+- 월간 (월말): [Table](https://pinedance.github.io/quant-data-open/dist/KR/stocks/price/M/raw-eom.html)
+- 월간 EMA3 (현재): [Table](https://pinedance.github.io/quant-data-open/dist/KR/stocks/price/M/ema3-current.html)
+- 월간 EMA3 (월말): [Table](https://pinedance.github.io/quant-data-open/dist/KR/stocks/price/M/ema3-eom.html)
+
+**국내 ETF MACD 시그널** (월간)
+- Raw Histogram: [Table](https://pinedance.github.io/quant-data-open/dist/KR/stocks/signals/MACD/M/raw-current-histogram.html)
+- Raw Line: [Table](https://pinedance.github.io/quant-data-open/dist/KR/stocks/signals/MACD/M/raw-current-line.html)
+- EMA3 Histogram: [Table](https://pinedance.github.io/quant-data-open/dist/KR/stocks/signals/MACD/M/ema3-current-histogram.html)
+- EMA3 Line: [Table](https://pinedance.github.io/quant-data-open/dist/KR/stocks/signals/MACD/M/ema3-current-line.html)
 
 **해외 ETF 가격** (종가, 약 1.5년)
-- Yahoo Finance: [Table](https://pinedance.github.io/quant-data-open/dist/YH/etf-adjusted-price-selected.html)
+- 일간 (Yahoo Finance): [Table](https://pinedance.github.io/quant-data-open/dist/US/stocks/price/D/raw.html)
+- 일간 EMA3: [Table](https://pinedance.github.io/quant-data-open/dist/US/stocks/price/D/ema3.html)
+- 월간 (현재): [Table](https://pinedance.github.io/quant-data-open/dist/US/stocks/price/M/raw-current.html)
+- 월간 (월말): [Table](https://pinedance.github.io/quant-data-open/dist/US/stocks/price/M/raw-eom.html)
+- 월간 EMA3 (현재): [Table](https://pinedance.github.io/quant-data-open/dist/US/stocks/price/M/ema3-current.html)
+- 월간 EMA3 (월말): [Table](https://pinedance.github.io/quant-data-open/dist/US/stocks/price/M/ema3-eom.html)
+
+**해외 ETF MACD 시그널** (월간)
+- Raw Histogram: [Table](https://pinedance.github.io/quant-data-open/dist/US/stocks/signals/MACD/M/raw-current-histogram.html)
+- Raw Line: [Table](https://pinedance.github.io/quant-data-open/dist/US/stocks/signals/MACD/M/raw-current-line.html)
+- EMA3 Histogram: [Table](https://pinedance.github.io/quant-data-open/dist/US/stocks/signals/MACD/M/ema3-current-histogram.html)
+- EMA3 Line: [Table](https://pinedance.github.io/quant-data-open/dist/US/stocks/signals/MACD/M/ema3-current-line.html)
 
 ### 경기 지표
 
-**[분기별 경기 지표](https://pinedance.github.io/quant-data-open/dist/ECOS/economic-data-quarterly.html)**
-- GDP, GNI
-
-**[월간 경기 지표](https://pinedance.github.io/quant-data-open/dist/ECOS/economic-data-monthly.html)**
+**[월간 경기 지표](https://pinedance.github.io/quant-data-open/dist/KR/economy/M/ECOS.html)**
 - 국고채 잔액, 환율(달러), 통화량(M2)
 - KOSPI/KOSDAQ 종가 및 거래대금
 - 경기종합지수(동행/선행 순환변동치)
@@ -44,17 +63,21 @@
 - 실업률, 고용률
 - 소비자물가지수, 생산자물가지수
 
-**[일간 경기 지표](https://pinedance.github.io/quant-data-open/dist/ECOS/economic-data-daily.html)** (약 1.5년)
+**[일간 경기 지표 (ECOS)](https://pinedance.github.io/quant-data-open/dist/KR/economy/D/ECOS.html)** (약 1.5년)
 - 시장금리: MMF 7일, 국고채(1년/3년/5년/10년/20년/30년)
 
-**[일간 경기 지표 (Naver)](https://pinedance.github.io/quant-data-open/dist/NV/economic-data-daily.html)** (약 1년)
+**[일간 시장 지표](https://pinedance.github.io/quant-data-open/dist/KR/economy/D/markets.html)** (약 1년)
 - 환율(달러-원), 금리(한국/미국 국채 10년)
 - 골드(원), 원유(WTI)
 - 주식(S&P500, NASDAQ100, KOSPI, KOSDAQ)
 
+**[일간 미국 경제 지표](https://pinedance.github.io/quant-data-open/dist/US/economy/D/data.html)**
+- 달러 인덱스(DX-Y), 달러원 환율(KRW=X)
+
 ### 기타 데이터
 
-- [일평균 수출액 (월간)](https://pinedance.github.io/quant-data-open/dist/M/average-daily-exports-kr.html)
+- [일평균 수출액 (월간)](https://pinedance.github.io/quant-data-open/dist/KR/economy/M/average-daily-exports.html)
+- 기타: [Table](https://pinedance.github.io/quant-data-open/dist/misc.html) | [JSON](https://pinedance.github.io/quant-data-open/dist/misc.json)
 
 ---
 
