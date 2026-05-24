@@ -24,6 +24,7 @@ class Ecos:
     def __init__(self, service_key=None):
         self.service_key = service_key
         self.base_url = "http://ecos.bok.or.kr/api"
+        self.session = requests.Session()
 
     def get_statistic_table_list(self, 통계표코드=None, translate=True):
         """
@@ -56,7 +57,7 @@ class Ecos:
         }
         query_params = '/'.join(params.values())
         url = f"{self.base_url}/{query_params}"
-        res = requests.get(url, params=params, verify=False)
+        res = self.session.get(url, params=params, verify=False, timeout=10)
         res.raise_for_status()
         res_json = res.json()
         if res_json.get("RESULT"):
@@ -93,7 +94,7 @@ class Ecos:
         }
         query_params = '/'.join(params.values())
         url = f"{self.base_url}/{query_params}"
-        res = requests.get(url, params=params, verify=False)
+        res = self.session.get(url, params=params, verify=False, timeout=10)
         res.raise_for_status()
         res_json = res.json()
         if res_json.get("RESULT"):
@@ -142,7 +143,7 @@ class Ecos:
         }
         query_params = '/'.join(params.values())
         url = f"{self.base_url}/{query_params}"
-        res = requests.get(url, params=params, verify=False)
+        res = self.session.get(url, params=params, verify=False, timeout=10)
         res.raise_for_status()
         res_json = res.json()
         if res_json.get("RESULT"):
@@ -221,7 +222,7 @@ class Ecos:
         }
         query_params = '/'.join(params.values())
         url = f"{self.base_url}/{query_params}"
-        res = requests.get(url, verify=False)
+        res = self.session.get(url, verify=False, timeout=10)
         res.raise_for_status()
         res_json = res.json()
         if res_json.get("RESULT"):
@@ -255,7 +256,7 @@ class Ecos:
         }
         query_params = '/'.join(params.values())
         url = f"{self.base_url}/{query_params}"
-        res = requests.get(url, params=params, verify=False)
+        res = self.session.get(url, params=params, verify=False, timeout=10)
         res.raise_for_status()
         res_json = res.json()
         if res_json.get("RESULT"):
@@ -295,7 +296,7 @@ class Ecos:
         }
         query_params = '/'.join(params.values())
         url = f"{self.base_url}/{query_params}"
-        res = requests.get(url, params=params, verify=False)
+        res = self.session.get(url, params=params, verify=False, timeout=10)
         res.raise_for_status()
         res_json = res.json()
         if res_json.get("RESULT"):

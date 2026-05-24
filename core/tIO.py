@@ -29,13 +29,13 @@ def get_output_path(subdir, filename):
     base_path.mkdir(parents=True, exist_ok=True)
     return base_path / filename
 
-#%% GET DATA
-######################################################################
+# Create a persistent session for connection pooling and reuse
+_session = requests.Session()
 
 def get_json(url, keys=None):
     if keys is None:
         keys = ["result"]
-    response = requests.get(url)
+    response = _session.get(url, timeout=10)
     response.raise_for_status()
     rst = response.json()
     for k in keys:
@@ -60,7 +60,11 @@ def fetch_tickers(tickers_req_url):
 
 def load_prev_price(url):
     try:
-        return pd.read_html(url, index_col=0, header=0)[0]
+        df = pd.read_html(url, index_col=0, header=0)[0]
+        df.index = pd.to_datetime(df.index)
+        if df.index.tz is not None:
+            df.index = df.index.tz_localize(None)
+        return df
     except Exception as e:
         print(f"Error loading prev data: {e}")
         return pd.DataFrame()

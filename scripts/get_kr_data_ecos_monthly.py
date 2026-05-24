@@ -65,11 +65,40 @@ for dc in ecos_search_codes:
     if dc.get("주기") == "Q":
         _search_opt = search_opt["Q"]
         _data_rp = _data_Q
-    try:
-        _df = api.get_statistic_search(**dc["코드"], **_search_opt)
-    except Exception as e:
-        print(f"!!! 데이터 수집 실패: {data_name} — {e}")
-        continue
+        try:
+            _df = api.get_statistic_search(**dc["코드"], **_search_opt)
+        except Exception as e:
+            _df = None
+            
+        # 미래 분기 데이터 미발표 등으로 데이터가 없을 시 최대 4분기 이전까지 순차 검색
+        if _df is None:
+            close_q = _search_opt["검색종료일자"]
+            for attempt in range(4):
+                try:
+                    year = int(close_q[:4])
+                    q = int(close_q[5])
+                    print(f"Checking BOK quarterly data for {data_name} at {close_q}...")
+                    fallback_opt = _search_opt.copy()
+                    fallback_opt["검색종료일자"] = close_q
+                    _df = api.get_statistic_search(**dc["코드"], **fallback_opt)
+                    if _df is not None and not _df.empty:
+                        print(f"✓ Found published quarterly data at {close_q} for {data_name}")
+                        break
+                except Exception:
+                    _df = None
+                
+                # Step back one quarter
+                if q > 1:
+                    close_q = f"{year}Q{q-1}"
+                else:
+                    close_q = f"{year-1}Q4"
+    else:
+        try:
+            _df = api.get_statistic_search(**dc["코드"], **_search_opt)
+        except Exception as e:
+            print(f"!!! 데이터 수집 실패: {data_name} — {e}")
+            continue
+            
     if _df is None:
         print("!!! 데이터가 없습니다.", data_name)
         continue
