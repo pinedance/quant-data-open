@@ -18,8 +18,12 @@ def check_fill_nan(df, fill_nan=False):
             nan_series = df[col].isna()
             if nan_series.sum() > 0:
                 nan_indices = nan_series[nan_series].index
-                start_index = nan_indices[0].date()
-                end_index = nan_indices[-1].date()
+                start_index = nan_indices[0]
+                end_index = nan_indices[-1]
+                if hasattr(start_index, 'date'):
+                    start_index = start_index.date()
+                if hasattr(end_index, 'date'):
+                    end_index = end_index.date()
                 nan_info.append(f"{col}: {start_index} ~ {end_index}")
 
         m_err = f"⚠️ NaN 값 감지 ({n_nan:,}개)\n" + "\n".join(nan_info)

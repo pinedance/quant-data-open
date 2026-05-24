@@ -1,6 +1,6 @@
+import math
 import pandas as pd
 from core.message import send_telegram_message
-
 from core.cons import MA_SHORT_WINDOW, MA_LONG_WINDOW
 
 #%% DEAL FINANCE DATA
@@ -33,18 +33,24 @@ def get_price_status(ticker, _hist):
     prev_data = hist.iloc[-2]
     prev_ma200 = prev_data['MA200']
     prev_price = prev_data['MA005']
-
-    sigma = (current_price - ma200) / std200
-
-    if current_price > ma200 and prev_price <= prev_ma200:
-        status = "상향 돌파"
-    elif current_price > ma200 and prev_price > prev_ma200:
-        status = f"상향 지속({sigma:.1f})"
-    elif current_price < ma200 and prev_price >= prev_ma200:
-        status = "하향 돌파"
-    elif current_price < ma200 and prev_price < prev_ma200:
-        status = f"하향 지속({sigma:.1f})"
+ 
+    if pd.isna(ma200) or pd.isna(std200) or math.isnan(ma200) or math.isnan(std200):
+        sigma = 0.0
+        status = "데이터부족"
+    elif std200 > 0:
+        sigma = (current_price - ma200) / std200
+        if current_price > ma200 and prev_price <= prev_ma200:
+            status = "상향 돌파"
+        elif current_price > ma200 and prev_price > prev_ma200:
+            status = f"상향 지속({sigma:.1f})"
+        elif current_price < ma200 and prev_price >= prev_ma200:
+            status = "하향 돌파"
+        elif current_price < ma200 and prev_price < prev_ma200:
+            status = f"하향 지속({sigma:.1f})"
+        else:
+            status = "중립"
     else:
+        sigma = 0.0
         status = "중립"
     
 
@@ -57,7 +63,9 @@ def get_price_status(ticker, _hist):
         'status': status
     }
     
-    print(f"{rst['ticker']}: {rst['current_price']:.2f} | MA200: {rst['ma200']:.2f} | 상태: {rst['status']}")
+    ma_val = rst['ma200']
+    ma_str = f"{ma_val:.2f}" if not pd.isna(ma_val) else "0.00"
+    print(f"{rst['ticker']}: {rst['current_price']:.2f} | MA200: {ma_str} | 상태: {rst['status']}")
     
     return rst
 
