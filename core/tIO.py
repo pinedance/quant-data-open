@@ -13,9 +13,7 @@ from core.tTable import select_column_by_name
 #%% CONSTANTS
 ######################################################################
 
-MIN_DATA_POINTS = 30              # Yahoo Finance fallback 판단 기준 (약 1개월치)
-MAX_WORKER_THREADS = 20           # 병렬 다운로드 최대 스레드 수
-SUCCESS_RATE_WARNING_THRESHOLD = 0.5  # 신규 다운로드 성공률 경고 기준
+from core.cons import MIN_DATA_POINTS, MAX_WORKER_THREADS, SUCCESS_RATE_WARNING_THRESHOLD
 PROJECT_ROOT = Path(__file__).parent.parent
 OUTPUT_ROOT = PROJECT_ROOT / "output"
 

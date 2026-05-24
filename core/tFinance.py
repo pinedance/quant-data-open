@@ -1,8 +1,7 @@
 import pandas as pd
 from core.message import send_telegram_message
 
-MA_SHORT_WINDOW = 5
-MA_LONG_WINDOW = 200
+from core.cons import MA_SHORT_WINDOW, MA_LONG_WINDOW
 
 #%% DEAL FINANCE DATA
 ######################################################################

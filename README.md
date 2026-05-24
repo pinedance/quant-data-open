@@ -211,7 +211,6 @@ uv run scripts/get_us_data_yh.py
 quant-data-open/
 ├── core/              # Python 유틸리티 모듈
 ├── scripts/           # 데이터 수집 스크립트
-├── config/            # 설정 파일 (pages.yaml, paths.yaml)
 ├── templates/         # Jinja2 템플릿
 │   ├── layouts/      # 레이아웃 템플릿
 │   └── pages/        # 페이지 템플릿
@@ -220,14 +219,15 @@ quant-data-open/
 │   └── data/         # JSON 데이터 파일
 ├── public/            # 최종 빌드 결과 (GitHub Pages, git 제외)
 │   └── dist/         # 정적 사이트 (HTML, JSON)
-└── build.py           # 빌드 스크립트
+├── build.py           # 빌드 스크립트
+└── config.yaml        # 통합 설정 파일 (상수 및 페이지/경로 정보)
 ```
 
 ### 빌드 시스템
 
 **템플릿 엔진**: Jinja2
 - 설정 기반 페이지 생성 시스템
-- `config/pages.yaml` 수정만으로 새 페이지 추가 가능
+- `config.yaml` 수정만으로 새 페이지 추가 가능
 - 자세한 내용: [ADD_PAGE_GUIDE.md](./DOCS/ADD_PAGE_GUIDE.md)
 
 **빌드 명령**:

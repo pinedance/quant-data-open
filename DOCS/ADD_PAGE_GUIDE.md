@@ -2,7 +2,7 @@
 
 ## 🚀 빠른 시작
 
-새 데이터 페이지를 추가하려면 **`config/pages.yaml` 파일만 수정**하면 됩니다!
+새 데이터 페이지를 추가하려면 **`config.yaml` 파일만 수정**하면 됩니다!
 
 ## 📝 단계별 가이드
 
@@ -18,9 +18,9 @@
 ]
 ```
 
-### 2단계: config/pages.yaml에 설정 추가
+### 2단계: config.yaml에 설정 추가
 
-`config/pages.yaml` 파일을 열고 `pages:` 섹션에 추가:
+`config.yaml` 파일을 열고 `pages:` 섹션에 추가:
 
 ```yaml
 pages:
@@ -103,7 +103,7 @@ HTML 테이블이 필요 없고 JSON만 필요한 경우:
 새 페이지 추가 시 확인사항:
 
 - [ ] `output/data/` 폴더에 JSON 파일이 있는가?
-- [ ] `config/pages.yaml`에 설정을 추가했는가?
+- [ ] `config.yaml`에 설정을 추가했는가?
 - [ ] `name`이 다른 페이지와 중복되지 않는가?
 - [ ] `columns`의 `key`가 JSON 데이터와 일치하는가?
 - [ ] `uv run build.py` 실행 후 에러가 없는가?
@@ -132,7 +132,7 @@ JSON 파일이 UTF-8 인코딩인지 확인하세요.
 
 ## 📚 참고
 
-- 기존 페이지 예시: `config/pages.yaml`의 `CompanyList`, `misc` 참고
+- 기존 페이지 예시: `config.yaml`의 `pages:` 섹션 내 `CompanyList`, `misc` 참고
 - 범용 템플릿: `templates/pages/generic_table.html.j2`
 - 빌드 스크립트: `build.py`
-- 경로 설정: `config/paths.yaml`
+- 경로 설정: `config.yaml`의 `paths:` 섹션 참고
