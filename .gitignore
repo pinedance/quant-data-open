@@ -4,6 +4,7 @@
 # DEV
 .claude/
 .agent/
+.agents/
 .gemini/
 .dev/
 _*/

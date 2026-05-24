@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 설정 파일 기반 정적 사이트 빌더
-config/pages.yaml만 수정하면 새 페이지가 자동으로 생성됩니다
+config.yaml만 수정하면 새 페이지가 자동으로 생성됩니다
 """
 
 import json
@@ -11,11 +11,11 @@ import pandas as pd
 from pathlib import Path
 from jinja2 import Environment, FileSystemLoader
 
-# 기본 경로
-BASE_DIR = Path(__file__).parent
-CONFIG_DIR = BASE_DIR / "config"
-PAGES_CONFIG = CONFIG_DIR / "pages.yaml"
-PATHS_CONFIG = CONFIG_DIR / "paths.yaml"
+from core.config import ConfigManager
+
+# Load ConfigManager singleton
+_config = ConfigManager()
+BASE_DIR = Path(__file__).resolve().parent
 
 
 def load_json_data(filepath):
@@ -26,22 +26,12 @@ def load_json_data(filepath):
 
 def load_pages_config():
     """페이지 설정 파일 로드"""
-    if not PAGES_CONFIG.exists():
-        print(f"⚠️  설정 파일이 없습니다: {PAGES_CONFIG}")
-        return {"pages": []}
-
-    with open(PAGES_CONFIG, 'r', encoding='utf-8') as f:
-        return yaml.safe_load(f)
+    return {"pages": _config.get_pages()}
 
 
 def load_paths_config():
     """경로 설정 파일 로드"""
-    if not PATHS_CONFIG.exists():
-        print(f"⚠️  경로 설정 파일이 없습니다: {PATHS_CONFIG}")
-        return {}
-
-    with open(PATHS_CONFIG, 'r', encoding='utf-8') as f:
-        return yaml.safe_load(f)
+    return _config.get_paths()
 
 
 def get_paths():

@@ -7,8 +7,7 @@ import json
 from core.tIO import get_ticker_data, get_output_path
 
 # %%
-YEARS = 5
-WEEKS_PER_YEAR = 52
+from core.cons import MISC_HISTORY_YEARS as YEARS, WEEKS_PER_YEAR
 
 # %%
 day_end = pd.Timestamp.today().date()

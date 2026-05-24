@@ -5,8 +5,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-SIGMA_THRESHOLD = 1.8      # 가격 상태 알림 sigma 임계값
-MSG_SEPARATOR_WIDTH = 20   # 알림 메시지 구분선 너비
+from core.cons import SIGMA_THRESHOLD, MSG_SEPARATOR_WIDTH
 
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
