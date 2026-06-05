@@ -1,0 +1,479 @@
+{
+  "Co": [
+    {
+      "cd": "AGG",
+      "nm": "iShares Core U.S. Aggregate Bond ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "BIL",
+      "nm": "State Street SPDR Bloomberg 1-3 Month T-Bill ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "BND",
+      "nm": "Vanguard Total Bond Market Index Fund",
+      "gb": "US"
+    },
+    {
+      "cd": "BNDX",
+      "nm": "Vanguard Total International Bond Index Fund",
+      "gb": "US"
+    },
+    {
+      "cd": "BWX",
+      "nm": "State Street SPDR Bloomberg International Treasury Bond ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "DBMF",
+      "nm": "iMGP DBi Managed Futures Strategy ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "EDV",
+      "nm": "Vanguard Extended Duration Treasury Index Fund ETF Shares",
+      "gb": "US"
+    },
+    {
+      "cd": "EEMS",
+      "nm": "iShares MSCI Emerging Markets Small-Cap ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "EMB",
+      "nm": "iShares J.P. Morgan USD Emerging Markets Bond ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "EMLC",
+      "nm": "VanEck J.P. Morgan EM Local Currency Bond ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "EMXC",
+      "nm": "iShares MSCI Emerging Markets ex China ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "EXI",
+      "nm": "iShares Global Industrials ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "GLDM",
+      "nm": "SPDR Gold MiniShares",
+      "gb": "US"
+    },
+    {
+      "cd": "GUNR",
+      "nm": "FlexShares Morningstar Global Upstream Natural Resources Index Fund",
+      "gb": "US"
+    },
+    {
+      "cd": "HYG",
+      "nm": "iShares iBoxx $ High Yield Corporate Bond ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "IAU",
+      "nm": "iShares Gold Trust",
+      "gb": "US"
+    },
+    {
+      "cd": "ICLN",
+      "nm": "iShares Global Clean Energy ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "IDMO",
+      "nm": "Invesco S&P International Developed Momentum ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "IEF",
+      "nm": "iShares 7-10 Year Treasury Bond ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "IEFA",
+      "nm": "iShares Core MSCI EAFE ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "IGF",
+      "nm": "iShares Global Infrastructure ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "IJR",
+      "nm": "iShares Core S&P Small-Cap ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "ILF",
+      "nm": "iShares Latin America 40 ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "IMTM",
+      "nm": "iShares MSCI Intl Momentum Factor ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "INDA",
+      "nm": "iShares MSCI India ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "IPAC",
+      "nm": "iShares Core MSCI Pacific ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "ITA",
+      "nm": "iShares U.S. Aerospace & Defense ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "IWM",
+      "nm": "iShares Russell 2000 ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "IXC",
+      "nm": "iShares Global Energy ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "IXG",
+      "nm": "iShares Global Financials ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "IXJ",
+      "nm": "iShares Global Healthcare ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "IXN",
+      "nm": "iShares Global Tech ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "IXP",
+      "nm": "iShares Global Comm Services ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "JEPI",
+      "nm": "JPMorgan Equity Premium Income ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "JXI",
+      "nm": "iShares Global Utilities ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "KXI",
+      "nm": "iShares Global Consumer Staples ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "LQD",
+      "nm": "iShares iBoxx $ Investment Grade Corporate Bond ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "MCHI",
+      "nm": "iShares MSCI China ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "MOAT",
+      "nm": "VanEck Morningstar Wide Moat ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "MXI",
+      "nm": "iShares Global Materials ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "OILK",
+      "nm": "ProShares K-1 Free Crude Oil ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "PDBC",
+      "nm": "Invesco Optimum Yield Diversified Commodity Strategy No K-1 ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "QQQ",
+      "nm": "Invesco QQQ Trust",
+      "gb": "US"
+    },
+    {
+      "cd": "QQQM",
+      "nm": "Invesco NASDAQ 100 ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "REET",
+      "nm": "iShares Global REIT ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "REMX",
+      "nm": "VanEck Rare Earth and Strategic Metals ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "RXI",
+      "nm": "iShares Global Consumer Discretionary ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "SCHD",
+      "nm": "Schwab U.S. Dividend Equity ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "SCHP",
+      "nm": "Schwab U.S. TIPS ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "SCZ",
+      "nm": "iShares MSCI EAFE Small-Cap ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "SGOV",
+      "nm": "iShares 0-3 Month Treasury Bond ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "SHY",
+      "nm": "iShares 1-3 Year Treasury Bond ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "SLV",
+      "nm": "iShares Silver Trust",
+      "gb": "US"
+    },
+    {
+      "cd": "SPMO",
+      "nm": "Invesco S&P 500 Momentum ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "SPY",
+      "nm": "State Street SPDR S&P 500 ETF Trust",
+      "gb": "US"
+    },
+    {
+      "cd": "SPYM",
+      "nm": "State Street SPDR Portfolio S&P 500 ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "TIP",
+      "nm": "iShares TIPS Bond ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "TLT",
+      "nm": "iShares 20+ Year Treasury Bond ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "UEVM",
+      "nm": "VictoryShares Emerging Markets Value Momentum ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "USHY",
+      "nm": "iShares Broad USD High Yield Corporate Bond ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "USO",
+      "nm": "United States Oil Fund, LP",
+      "gb": "US"
+    },
+    {
+      "cd": "VB",
+      "nm": "Vanguard Small-Cap Index Fund ETF Shares",
+      "gb": "US"
+    },
+    {
+      "cd": "VBK",
+      "nm": "Vanguard Small-Cap Growth Index Fund ETF Shares",
+      "gb": "US"
+    },
+    {
+      "cd": "VBR",
+      "nm": "Vanguard Small-Cap Value Index Fund ETF Shares",
+      "gb": "US"
+    },
+    {
+      "cd": "VEA",
+      "nm": "Vanguard FTSE Developed Markets Index Fund ETF Shares",
+      "gb": "US"
+    },
+    {
+      "cd": "VEU",
+      "nm": "Vanguard FTSE All-World ex-US Index Fund ETF Shares",
+      "gb": "US"
+    },
+    {
+      "cd": "VEXC",
+      "nm": "Vanguard Emerging Markets Ex-China ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "VGIT",
+      "nm": "Vanguard Intermediate-Term Treasury Index Fund ETF Shares",
+      "gb": "US"
+    },
+    {
+      "cd": "VGK",
+      "nm": "Vanguard FTSE Europe ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "VGLT",
+      "nm": "Vanguard Long-Term Treasury Index Fund ETF Shares",
+      "gb": "US"
+    },
+    {
+      "cd": "VGSH",
+      "nm": "Vanguard Short-Term Treasury Index Fund ETF Shares",
+      "gb": "US"
+    },
+    {
+      "cd": "VNQ",
+      "nm": "Vanguard Real Estate Index Fund ETF Shares",
+      "gb": "US"
+    },
+    {
+      "cd": "VNQI",
+      "nm": "Vanguard Global ex-U.S. Real Estate Index Fund ETF Shares",
+      "gb": "US"
+    },
+    {
+      "cd": "VOO",
+      "nm": "Vanguard S&P 500 ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "VOX",
+      "nm": "Vanguard Communication Services Index Fund ETF Shares",
+      "gb": "US"
+    },
+    {
+      "cd": "VPL",
+      "nm": "Vanguard FTSE Pacific Index Fund ETF Shares",
+      "gb": "US"
+    },
+    {
+      "cd": "VSS",
+      "nm": "Vanguard FTSE All-World ex-US Small-Cap Index Fund ETF Shares",
+      "gb": "US"
+    },
+    {
+      "cd": "VTI",
+      "nm": "Vanguard Total Stock Market Index Fund ETF Shares",
+      "gb": "US"
+    },
+    {
+      "cd": "VTIP",
+      "nm": "Vanguard Short-Term Inflation-Protected Securities Index Fund ETF Shares",
+      "gb": "US"
+    },
+    {
+      "cd": "VTV",
+      "nm": "Vanguard Value Index Fund ETF Shares",
+      "gb": "US"
+    },
+    {
+      "cd": "VUG",
+      "nm": "Vanguard Growth Index Fund ETF Shares",
+      "gb": "US"
+    },
+    {
+      "cd": "VWO",
+      "nm": "Vanguard Emerging Markets Stock Index Fund",
+      "gb": "US"
+    },
+    {
+      "cd": "VWOB",
+      "nm": "Vanguard Emerging Markets Government Bond Index Fund",
+      "gb": "US"
+    },
+    {
+      "cd": "VXUS",
+      "nm": "Vanguard Total International Stock Index Fund ETF Shares",
+      "gb": "US"
+    },
+    {
+      "cd": "XLB",
+      "nm": "State Street Materials Select Sector SPDR ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "XLC",
+      "nm": "State Street Communication Services Select Sector SPDR ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "XLE",
+      "nm": "State Street Energy Select Sector SPDR ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "XLF",
+      "nm": "State Street Financial Select Sector SPDR ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "XLI",
+      "nm": "State Street Industrial Select Sector SPDR ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "XLK",
+      "nm": "State Street Technology Select Sector SPDR ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "XLP",
+      "nm": "State Street Consumer Staples Select Sector SPDR ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "XLU",
+      "nm": "State Street Utilities Select Sector SPDR ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "XLV",
+      "nm": "State Street Health Care Select Sector SPDR ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "XLY",
+      "nm": "State Street Consumer Discretionary Select Sector SPDR ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "XMMO",
+      "nm": "Invesco S&P MidCap Momentum ETF",
+      "gb": "US"
+    }
+  ]
+}
