@@ -51,8 +51,20 @@ def resample_monthly(daily_prices, method='eom', target_day=None):
     daily_prices = daily_prices.sort_index()
 
     if method == 'eom':
+        # 1. Resample to standard month end
         monthly = daily_prices.resample('ME').last()
-        return monthly[monthly.index <= daily_prices.index[-1]]
+        # 2. Extract standard EOM up to the previous month
+        last_date = daily_prices.index[-1]
+        prev_months = monthly[monthly.index < pd.Timestamp(last_date.year, last_date.month, 1)]
+        
+        # 3. Create a single-row DataFrame for the current exact daily date
+        current_row = daily_prices.iloc[[-1]].copy()
+        
+        # 4. Concatenate
+        combined = pd.concat([prev_months, current_row])
+        # drop duplicates in index just in case last_date is exactly last day of month
+        combined = combined[~combined.index.duplicated(keep='last')]
+        return combined
 
     if method == 'current':
         if target_day is None:

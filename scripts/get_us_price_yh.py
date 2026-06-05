@@ -4,9 +4,9 @@ import pandas as pd
 from datetime import date
 from core.tDate import setup_date_range
 from core.tIO import load_prev_price, fetch_tickers, save_df_as_tsv, fetch_prices, get_output_path
-from core.tFinance import process_price_status, calculate_macd
+from core.tFinance import calculate_macd
 from core.tTable import check_fill_nan, post_process_price, resample_monthly
-from core.message import send_telegram_message, notice_price_status_batch
+from core.message import send_telegram_message
 from core.cons import config_gsheet_tickers_req_yh as config_tickers_req
 from core.cons import delta_months, data_url, PRICE_EMA_SPAN, RECENT_DAYS_COUNT
 
@@ -31,6 +31,13 @@ OUTPUT_PATH_MACD_LINE_M_EMA3_CURRENT = get_output_path("US/stocks/signals/MACD/M
 ## daily close price -> daily EMA3 -> monthly current price -> MACD histogram
 OUTPUT_PATH_MACD_HIST_M_EMA3_CURRENT = get_output_path("US/stocks/signals/MACD/M", "ema3-current-histogram.tsv")
 
+# daily close price -> monthly EOM price -> MACD line & histogram
+OUTPUT_PATH_MACD_LINE_M_RAW_EOM = get_output_path("US/stocks/signals/MACD/M", "raw-eom-line.tsv")
+OUTPUT_PATH_MACD_HIST_M_RAW_EOM = get_output_path("US/stocks/signals/MACD/M", "raw-eom-histogram.tsv")
+# daily close price -> daily EMA3 -> monthly EOM price -> MACD line & histogram
+OUTPUT_PATH_MACD_LINE_M_EMA3_EOM = get_output_path("US/stocks/signals/MACD/M", "ema3-eom-line.tsv")
+OUTPUT_PATH_MACD_HIST_M_EMA3_EOM = get_output_path("US/stocks/signals/MACD/M", "ema3-eom-histogram.tsv")
+
 
 def main():
     # 날짜 범위 설정
@@ -41,10 +48,12 @@ def main():
     tickers_req_url = "https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}".format(**config_tickers_req)
     etf_tickers = fetch_tickers(tickers_req_url)
 
-    # ETF 데이터 수집 및 검증
+    # ETF 데이터 수집, 검증, 처리 및 저장
     try:
         prev_price = load_prev_price(data_url["yh_last"])
-        price_raw_df = fetch_prices(etf_tickers, day_start, prev_price)
+        price_raw_df, download_warning = fetch_prices(etf_tickers, day_start, prev_price)
+        if download_warning:
+            send_telegram_message(f"⚠️ YAHOO: {download_warning}")
 
         # 데이터 검증
         if price_raw_df.empty:
@@ -55,19 +64,10 @@ def main():
             missing_count = len(etf_tickers) - len(price_raw_df.columns)
             send_telegram_message(f"⚠️ {missing_count}개 티커 수집 실패")
 
-    except Exception as e:
-        send_telegram_message(f"🚨 ETF 데이터 수집 오류\n{str(e)}")
-        raise
-
-    # 가격 상태 분석
-    status_results = process_price_status(list(price_raw_df.columns), [price_raw_df[c] for c in price_raw_df.columns])
-    notice_price_status_batch(status_results, tickers=None)
-
-    # 데이터 처리 및 저장
-    try:
+        # 데이터 처리 및 저장
         price_raw, nan_warnings = check_fill_nan(price_raw_df)
         if nan_warnings:
-            print(nan_warnings)
+            send_telegram_message("⚠️ [Data Quality] 일부 데이터 NaN 값 감지 (대시보드 참조)")
         price_raw = price_raw.astype('float64')
 
         # EMA3 데이터 생성 (datetime index 유지)
@@ -83,6 +83,10 @@ def main():
         macd_line_raw, macd_hist_raw = calculate_macd(price_raw_monthly_current)
         macd_line_ema3, macd_hist_ema3 = calculate_macd(price_ema3_monthly_current)
 
+        # EOM MACD 계산
+        macd_line_raw_eom, macd_hist_raw_eom = calculate_macd(price_raw_monthly_eom)
+        macd_line_ema3_eom, macd_hist_ema3_eom = calculate_macd(price_ema3_monthly_eom)
+
         # dataframe 후처리
         price_raw = post_process_price(price_raw)
         price_ema3 = post_process_price(price_ema3)
@@ -90,10 +94,16 @@ def main():
         price_ema3_monthly_eom = post_process_price(price_ema3_monthly_eom)
         price_raw_monthly_current = post_process_price(price_raw_monthly_current)
         price_ema3_monthly_current = post_process_price(price_ema3_monthly_current)
+        
         macd_line_raw = post_process_price(macd_line_raw)
         macd_hist_raw = post_process_price(macd_hist_raw)
         macd_line_ema3 = post_process_price(macd_line_ema3)
         macd_hist_ema3 = post_process_price(macd_hist_ema3)
+
+        macd_line_raw_eom = post_process_price(macd_line_raw_eom)
+        macd_hist_raw_eom = post_process_price(macd_hist_raw_eom)
+        macd_line_ema3_eom = post_process_price(macd_line_ema3_eom)
+        macd_hist_ema3_eom = post_process_price(macd_hist_ema3_eom)
 
         # 데이터 저장
         save_df_as_tsv(price_raw, OUTPUT_PATH_PRICE_D_RAW)
@@ -110,6 +120,11 @@ def main():
         save_df_as_tsv(macd_hist_raw, OUTPUT_PATH_MACD_HIST_M_RAW_CURRENT)
         save_df_as_tsv(macd_line_ema3, OUTPUT_PATH_MACD_LINE_M_EMA3_CURRENT)
         save_df_as_tsv(macd_hist_ema3, OUTPUT_PATH_MACD_HIST_M_EMA3_CURRENT)
+
+        save_df_as_tsv(macd_line_raw_eom, OUTPUT_PATH_MACD_LINE_M_RAW_EOM)
+        save_df_as_tsv(macd_hist_raw_eom, OUTPUT_PATH_MACD_HIST_M_RAW_EOM)
+        save_df_as_tsv(macd_line_ema3_eom, OUTPUT_PATH_MACD_LINE_M_EMA3_EOM)
+        save_df_as_tsv(macd_hist_ema3_eom, OUTPUT_PATH_MACD_HIST_M_EMA3_EOM)
 
         send_telegram_message("✅ YAHOO ETF PRICE 업데이트 완료")
 
