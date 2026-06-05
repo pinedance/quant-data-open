@@ -13,12 +13,14 @@ TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
     print("Warning: TELEGRAM_BOT_TOKEN 또는 TELEGRAM_CHAT_ID가 설정되지 않았습니다. Telegram 알림이 비활성화됩니다.")
 
-def send_telegram_message(message):
+def send_telegram_message(message, parse_mode=None):
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
     params = {
         'chat_id': TELEGRAM_CHAT_ID,
         'text': message
     }
+    if parse_mode:
+        params['parse_mode'] = parse_mode
     
     print()
     print( "--- Send Message" )
