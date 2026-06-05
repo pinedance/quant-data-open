@@ -41,6 +41,9 @@ jobs:
     - name: Get Company List
       run: bash scripts/get_kr_data_lists.sh
 
+    - name: Get US ETF Name List
+      run: uv run scripts/get_us_data_lists.py
+
     - name: Get ETF Price KR
       env:
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
