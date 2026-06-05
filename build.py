@@ -18,6 +18,23 @@ _config = ConfigManager()
 BASE_DIR = Path(__file__).resolve().parent
 
 
+def filter_dashboard_data(data, region):
+    if not data:
+        return None
+    return {
+        "market_regime": data["market_regime"],
+        "trend_breakouts": {
+            "up_breakouts":   [e for e in data["trend_breakouts"]["up_breakouts"]   if e["region"] == region],
+            "down_breakouts": [e for e in data["trend_breakouts"]["down_breakouts"] if e["region"] == region],
+        },
+        "monthly_momentum":   [e for e in data["monthly_momentum"]   if e["region"] == region],
+        "valuation_extremes": [e for e in data["valuation_extremes"] if e["region"] == region],
+        "data_quality_status":[e for e in data["data_quality_status"] if e["region"] == region],
+        "last_updated": data["last_updated"],
+    }
+
+
+
 def load_json_data(filepath):
     """JSON 파일 로드"""
     with open(filepath, 'r', encoding='utf-8-sig') as f:
@@ -122,7 +139,9 @@ def render_page(env, page_config, paths):
         else:
             page_template = env.get_template(template_name)
             
-        content = page_template.render(data=data, columns=columns)
+        # Pass page region config to template
+        region = page_config.get('region')
+        content = page_template.render(data=data, columns=columns, region=region)
 
         layout_template = env.get_template(f'layouts/{layout_name}')
         html = layout_template.render(content=content, title=title)
@@ -192,6 +211,7 @@ def process_dist_files(paths):
 
 def send_telegram_dashboard_summary(data):
     from core.message import send_telegram_message
+    import html
     
     # 1. Market Season
     regime = data["market_regime"]
@@ -203,8 +223,8 @@ def send_telegram_dashboard_summary(data):
         if not entries:
             return "  - KR: 없음\n  - US: 없음"
         # Group by KR/US
-        kr_ticks = [e["ticker"] for e in entries if e["region"] == "KR"]
-        us_ticks = [e["ticker"] for e in entries if e["region"] == "US"]
+        kr_ticks = [f"{e['ticker']}({html.escape(e['name'])})" for e in entries if e["region"] == "KR"]
+        us_ticks = [f"{e['ticker']}({html.escape(e['name'])})" for e in entries if e["region"] == "US"]
         
         lines = []
         if kr_ticks:
@@ -236,16 +256,15 @@ def send_telegram_dashboard_summary(data):
     up_line = f"• EMA200 상향 돌파:\n{format_tickers(up_ticks)}"
     down_line = f"• EMA200 하향 돌파:\n{format_tickers(down_ticks)}"
     
-    # 3. Valuation Extremes (T-Sigma > 2.5 or < -2.5)
+    # 3. Valuation Extremes
     overheated = [e for e in data["valuation_extremes"] if e["t_sigma"] > 2.5]
     depressed = [e for e in data["valuation_extremes"] if e["t_sigma"] < -2.5]
     
-    # Helper to format with sigma value
     def format_extremes(entries):
         if not entries:
             return "  - KR: 없음\n  - US: 없음"
-        kr_parts = [f"{e['ticker']} ({e['t_sigma']})" for e in entries if e["region"] == "KR"]
-        us_parts = [f"{e['ticker']} ({e['t_sigma']})" for e in entries if e["region"] == "US"]
+        kr_parts = [f"{e['ticker']}({e['t_sigma']})" for e in entries if e["region"] == "KR"]
+        us_parts = [f"{e['ticker']}({e['t_sigma']})" for e in entries if e["region"] == "US"]
         
         lines = []
         if kr_parts:
@@ -273,6 +292,13 @@ def send_telegram_dashboard_summary(data):
     overheated_line = f"• 과열 (T-Sigma > 2.5):\n{format_extremes(overheated)}"
     depressed_line = f"• 침체 (T-Sigma < -2.5):\n{format_extremes(depressed)}"
     
+    BASE = "https://pinedance.github.io/quant-data-open/dist"
+    link_line = (
+        f"상세 결과:\n"
+        f"🔗 <a href=\"{BASE}/US/dashboard.html\">🇺🇸 US Dashboard</a> | "
+        f"<a href=\"{BASE}/KR/dashboard.html\">🇰🇷 KR Dashboard</a>"
+    )
+    
     parts = [
         "📊 [Quant Dashboard] 일간 업데이트 완료",
         "",
@@ -282,12 +308,11 @@ def send_telegram_dashboard_summary(data):
         overheated_line,
         depressed_line,
         "",
-        "상세 결과 보기:",
-        "🔗 https://pinedance.github.io/quant-data-open/dist/dashboard.html"
+        link_line
     ]
     
     msg = "\n".join(parts)
-    send_telegram_message(msg)
+    send_telegram_message(msg, parse_mode='HTML')
 
 
 def build():
@@ -322,12 +347,15 @@ def build():
     try:
         dashboard_data = analyzer.analyze()
         
-        # Write dashboard.json to output dir only
-        ensure_dir(paths['output'] / paths['output_subdir'])
-        json_output_path = paths['output'] / paths['output_subdir'] / 'dashboard.json'
-        with open(json_output_path, 'w', encoding='utf-8') as f:
-            json.dump(dashboard_data, f, ensure_ascii=False, indent=2)
-        print(f"✓ Saved dashboard data -> {json_output_path}")
+        # Save filtered dashboards
+        for region in ["US", "KR"]:
+            filtered_data = filter_dashboard_data(dashboard_data, region)
+            region_dir = paths['output'] / paths['output_subdir'] / region
+            ensure_dir(region_dir)
+            json_output_path = region_dir / 'dashboard.json'
+            with open(json_output_path, 'w', encoding='utf-8') as f:
+                json.dump(filtered_data, f, ensure_ascii=False, indent=2)
+            print(f"✓ Saved {region} dashboard data -> {json_output_path}")
     except Exception as e:
         print(f"❌ Error during dashboard analysis: {e}")
         dashboard_data = None
