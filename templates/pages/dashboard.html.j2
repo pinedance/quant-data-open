@@ -1,0 +1,447 @@
+<style>
+  /* Override layout wrappers for dashboard grid flexibility */
+  .table-wrapper {
+    border: none !important;
+    overflow-x: visible !important;
+  }
+  
+  .dashboard-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+
+  /* Grid Layouts */
+  .dashboard-grid-top {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 1.5rem;
+  }
+  
+  @media (max-width: 768px) {
+    .dashboard-grid-top {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Cards */
+  .dash-card {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .dash-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
+
+  .dash-card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #94a3b8;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid #334155;
+    padding-bottom: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  /* Market Regime Section */
+  .regime-value-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem 0;
+  }
+
+  .regime-badge {
+    font-size: 1.5rem;
+    font-weight: 800;
+    padding: 0.5rem 1.5rem;
+    border-radius: 9999px;
+    margin-bottom: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .regime-bullish {
+    background-color: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+  }
+
+  .regime-bearish {
+    background-color: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
+  }
+
+  .regime-val {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #f8fafc;
+  }
+
+  .regime-label {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin-top: 0.25rem;
+  }
+
+  /* Breakouts Section */
+  .breakouts-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  @media (max-width: 640px) {
+    .breakouts-split {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .breakout-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-height: 200px;
+    overflow-y: auto;
+    padding-right: 0.25rem;
+  }
+
+  .breakout-item {
+    display: flex;
+    justify-content: space-between;
+    background: #0f172a;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    border-left: 4px solid #64748b;
+    font-size: 0.9rem;
+  }
+
+  .breakout-item.up {
+    border-left-color: #10b981;
+  }
+
+  .breakout-item.down {
+    border-left-color: #ef4444;
+  }
+
+  .ticker-name {
+    font-weight: 600;
+    color: #f8fafc;
+  }
+
+  .ticker-desc {
+    font-size: 0.75rem;
+    color: #64748b;
+  }
+
+  /* Tickers grid / tags */
+  .ticker-tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    max-height: 250px;
+    overflow-y: auto;
+    padding: 0.5rem;
+    background: #0f172a;
+    border-radius: 8px;
+  }
+
+  .ticker-tag {
+    background: #1e293b;
+    border: 1px solid #334155;
+    padding: 0.4rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #e2e8f0;
+  }
+
+  .region-badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.1rem 0.35rem;
+    border-radius: 3px;
+    text-transform: uppercase;
+  }
+
+  .region-kr {
+    background: rgba(59, 130, 246, 0.2);
+    color: #3b82f6;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+  }
+
+  .region-us {
+    background: rgba(139, 92, 246, 0.2);
+    color: #8b5cf6;
+    border: 1px solid rgba(139, 92, 246, 0.3);
+  }
+
+  /* Table Style Extensions */
+  .valuation-table-container {
+    width: 100%;
+    overflow-x: auto;
+    border-radius: 8px;
+    border: 1px solid #334155;
+    background: #0f172a;
+  }
+
+  .val-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+  }
+
+  .val-table th {
+    background-color: #1e293b;
+    color: #94a3b8;
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    border-bottom: 2px solid #334155;
+  }
+
+  .val-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #1e293b;
+  }
+
+  .val-table tbody tr:hover {
+    background-color: rgba(51, 65, 85, 0.3);
+  }
+
+  /* Hot/Cold Highlights */
+  .status-badge {
+    font-weight: 700;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+  }
+
+  .status-overheated {
+    background-color: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.25);
+  }
+
+  .status-depressed {
+    background-color: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.25);
+  }
+
+  .status-normal {
+    color: #94a3b8;
+  }
+
+  /* Scrollbars */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #0f172a;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+  }
+</style>
+
+<div class="dashboard-container">
+  <!-- Top Grid: Market Regime & Crossovers -->
+  <div class="dashboard-grid-top">
+    <!-- Market Regime Card -->
+    <div class="dash-card">
+      <div class="dash-card-title">
+        <span>Market Regime</span>
+        <span class="region-badge region-us">TIP</span>
+      </div>
+      <div class="regime-value-container">
+        {% if data.market_regime.status == 'Bullish' %}
+          <div class="regime-badge regime-bullish">BULLISH</div>
+        {% else %}
+          <div class="regime-badge regime-bearish">BEARISH</div>
+        {% endif %}
+        <div class="regime-val">{{ '+' if data.market_regime.tip_momentum > 0 else '' }}{{ data.market_regime.tip_momentum }}%</div>
+        <div class="regime-label">TIP Average Momentum (1,3,6,12m)</div>
+      </div>
+    </div>
+
+    <!-- Trend Breakouts Card -->
+    <div class="dash-card">
+      <div class="dash-card-title">
+        <span>Trend Breakouts</span>
+        <span class="region-badge" style="background:#475569; color:#f1f5f9;">EMA200 vs EMA005</span>
+      </div>
+      <div class="breakouts-split">
+        <!-- Upward Breakouts -->
+        <div>
+          <h4 style="color: #10b981; font-size: 0.85rem; margin-bottom: 0.5rem; font-weight:600;">상향 돌파 (Cross Above)</h4>
+          <div class="breakout-list">
+            {% for item in data.trend_breakouts.up_breakouts %}
+              <div class="breakout-item up">
+                <div>
+                  <span class="ticker-name">{{ item.ticker }}</span>
+                  <div class="ticker-desc">{{ item.name }}</div>
+                </div>
+                <span class="region-badge region-{{ item.region.lower() }}">{{ item.region }}</span>
+              </div>
+            {% else %}
+              <div style="color: #475569; font-size: 0.85rem; padding: 1rem; text-align: center;">상향 돌파 종목 없음</div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Downward Breakouts -->
+        <div>
+          <h4 style="color: #ef4444; font-size: 0.85rem; margin-bottom: 0.5rem; font-weight:600;">하향 돌파 (Cross Below)</h4>
+          <div class="breakout-list">
+            {% for item in data.trend_breakouts.down_breakouts %}
+              <div class="breakout-item down">
+                <div>
+                  <span class="ticker-name">{{ item.ticker }}</span>
+                  <div class="ticker-desc">{{ item.name }}</div>
+                </div>
+                <span class="region-badge region-{{ item.region.lower() }}">{{ item.region }}</span>
+              </div>
+            {% else %}
+              <div style="color: #475569; font-size: 0.85rem; padding: 1rem; text-align: center;">하향 돌파 종목 없음</div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 2: Monthly Momentum -->
+  <div class="dash-card">
+    <div class="dash-card-title">
+      <span>Monthly Momentum</span>
+      <span class="region-badge" style="background: rgba(16, 185, 129, 0.1); color:#10b981;">MACD Histogram > 0</span>
+    </div>
+    <div class="ticker-tags-container">
+      {% for item in data.monthly_momentum %}
+        <div class="ticker-tag">
+          <span class="region-badge region-{{ item.region.lower() }}">{{ item.region }}</span>
+          <span class="ticker-name" style="font-size: 0.8rem;">{{ item.ticker }}</span>
+          <span style="font-size: 0.75rem; color: #64748b;">{{ item.name }}</span>
+          <span style="font-weight: 600; color: #10b981; font-size: 0.75rem;">+{{ item.macd_hist }}</span>
+        </div>
+      {% else %}
+        <div style="color: #475569; font-size: 0.85rem; width: 100%; text-align: center; padding: 1rem;">월간 상승 모멘텀 종목 없음</div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Row 3: Valuation Extremes (T-Sigma table) -->
+  <div class="dash-card">
+    <div class="dash-card-title">
+      <span>Valuation Extremes</span>
+      <span style="font-size: 0.75rem; color: #64748b; font-weight: normal;">Sorted by T-Sigma (Degrees of Freedom MLE)</span>
+    </div>
+    <div class="valuation-table-container">
+      <table class="val-table">
+        <thead>
+          <tr>
+            <th>Region</th>
+            <th>Ticker</th>
+            <th>Name</th>
+            <th>T-Sigma (Z)</th>
+            <th>Simple Z</th>
+            <th>Opt DF</th>
+            <th>Avg Mom (1,3,6,12m)</th>
+            <th>EMA5 vs EMA200</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in data.valuation_extremes %}
+            {% set is_hot = item.t_sigma > 2.5 %}
+            {% set is_cold = item.t_sigma < -2.5 %}
+            <tr style="{% if is_hot %}background-color: rgba(239, 68, 68, 0.06);{% elif is_cold %}background-color: rgba(59, 130, 246, 0.06);{% endif %}">
+              <td>
+                <span class="region-badge region-{{ item.region.lower() }}">{{ item.region }}</span>
+              </td>
+              <td class="ticker-name">{{ item.ticker }}</td>
+              <td style="color: #cbd5e1;">{{ item.name }}</td>
+              <td style="font-weight: 700; {% if is_hot %}color: #f87171;{% elif is_cold %}color: #60a5fa;{% endif %}">
+                {{ '+' if item.t_sigma > 0 else '' }}{{ item.t_sigma }}
+              </td>
+              <td style="color: #64748b;">{{ '+' if item.raw_z > 0 else '' }}{{ item.raw_z }}</td>
+              <td style="color: #64748b;">{{ item.df }}</td>
+              <td style="font-weight: 600; color: {% if item.avg_mom > 0 %}#10b981{% elif item.avg_mom < 0 %}#ef4444{% else %}#cbd5e1{% endif %};">
+                {{ '+' if item.avg_mom > 0 else '' }}{{ item.avg_mom }}%
+              </td>
+              <td style="color: #94a3b8;">{{ item.ema005 }} / {{ item.ema200 }}</td>
+              <td>
+                {% if is_hot %}
+                  <span class="status-badge status-overheated">과열 (Overheated)</span>
+                {% elif is_cold %}
+                  <span class="status-badge status-depressed">침체 (Depressed)</span>
+                {% else %}
+                  <span class="status-normal">정상 (Normal)</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Row 4: Data Quality Status -->
+  <div class="dash-card">
+    <div class="dash-card-title">
+      <span>Data Quality Status</span>
+      {% if data.data_quality_status %}
+        <span class="region-badge" style="background: rgba(239, 68, 68, 0.1); color:#ef4444;">Warning</span>
+      {% else %}
+        <span class="region-badge" style="background: rgba(16, 185, 129, 0.1); color:#10b981;">Healthy</span>
+      {% endif %}
+    </div>
+    {% if data.data_quality_status %}
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; background: #0f172a; padding: 1rem; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.2);">
+        {% for item in data.data_quality_status %}
+          <div style="display: flex; justify-content: space-between; font-size: 0.85rem; padding: 0.5rem 0; border-bottom: 1px solid #1e293b;">
+            <div>
+              <span class="region-badge region-{{ item.region.lower() }}" style="margin-right: 0.5rem;">{{ item.region }}</span>
+              <strong style="color: #ef4444;">{{ item.column }}</strong>
+              <span style="color: #64748b; margin-left: 0.5rem;">NaN count: {{ item.count }}</span>
+            </div>
+            <span style="color: #cbd5e1; font-family: monospace;">{{ item.range }}</span>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div style="text-align: center; color: #10b981; font-size: 0.9rem; padding: 1.5rem; background: #0f172a; border-radius: 8px;">
+        ✓ 모든 데이터의 결측치(NaN) 검증을 통과했습니다. (All data quality checks passed)
+      </div>
+    {% endif %}
+  </div>
+  
+  <div style="text-align: right; font-size: 0.75rem; color: #475569; margin-top: -1rem;">
+    Last updated: {{ data.last_updated }}
+  </div>
+</div>
