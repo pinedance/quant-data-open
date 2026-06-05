@@ -7,7 +7,6 @@ import requests
 import yfinance as yf
 import FinanceDataReader as fdr
 from pathlib import Path
-from core.message import send_telegram_message
 from core.tTable import select_column_by_name
 
 #%% CONSTANTS
@@ -47,16 +46,13 @@ def fetch_tickers(tickers_req_url):
         tickers_req_df = pd.read_csv(tickers_req_url)
         if tickers_req_df.empty:
             error_msg = "Google Spreadsheet 데이터 없음"
-            send_telegram_message(f"⚠️ {error_msg}")
             raise ValueError(error_msg)
         
         etf_tickers = list(sorted(set(tickers_req_df["TICKER"].astype("str"))))
         print(f"Successfully loaded {len(etf_tickers)} tickers")
         return etf_tickers
-    
     except Exception as e:
-        send_telegram_message(f"🚨 티커 목록 로드 실패\n{str(e)}")
-        raise
+        raise RuntimeError(f"티커 목록 로드 실패: {str(e)}")
 
 def load_prev_price(url):
     try:
@@ -90,7 +86,7 @@ def download_with_retry(*arg, src="yahoo", max_retries=3, delay=1):
                 time.sleep(delay)
 
     m_err = f"다운로드 실패: {ticker} ({max_retries}회 시도)"
-    send_telegram_message(f"⚠️ {m_err}")
+    print(f"⚠️ {m_err}")
     raise Exception(m_err)
 
 def get_ticker_data(*arg, src="auto"):
@@ -182,15 +178,15 @@ def fetch_prices(tickers, start_date, old_data, src="yahoo", max_workers=None):
     if success_cnt + fallback_cnt == 0:
         raise RuntimeError("가격 데이터를 단 1개도 다운로드하지 못했습니다")
 
+    warning_msg = None
     if success_cnt / total < SUCCESS_RATE_WARNING_THRESHOLD:
-        msg = f"신규 다운로드 성공률 낮음\n성공 {success_cnt}/{total}  ·  fallback {fallback_cnt}  ·  실패 {failed_cnt}"
-        print(msg)
-        send_telegram_message(f"⚠️ {msg}")
+        warning_msg = f"신규 다운로드 성공률 낮음: 성공 {success_cnt}/{total} · fallback {fallback_cnt} · 실패 {failed_cnt}"
+        print(warning_msg)
     else:
         print(f"Download complete — 성공 {success_cnt}, fallback {fallback_cnt}, 실패 {failed_cnt} (total {total})")
 
     available = [t for t in tickers if t in ticker_to_data]
-    return pd.DataFrame({t: ticker_to_data[t] for t in available})
+    return pd.DataFrame({t: ticker_to_data[t] for t in available}), warning_msg
 
 def save_df_as_html_table(df, output_path):
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
