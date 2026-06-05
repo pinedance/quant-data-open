@@ -31,6 +31,11 @@ pages:
       - key: value
         label: Value
 
+  - name: dashboard
+    title: "Market Status Today"
+    data_file: dashboard.json
+    template: dashboard
+
 # Constants and Application settings (previously in core/cons.py)
 constants:
   delta_months: 61  # 5년 * 12 + 1 (5년 + buffer)
