@@ -180,8 +180,8 @@ def fetch_prices(tickers, start_date, old_data, src="yahoo", max_workers=None):
 
     warning_msg = None
     if success_cnt / total < SUCCESS_RATE_WARNING_THRESHOLD:
-        warning_msg = f"신규 다운로드 성공률 낮음: 성공 {success_cnt}/{total} · fallback {fallback_cnt} · 실패 {failed_cnt}"
-        print(warning_msg)
+        warning_msg = f"성공 {success_cnt}/{total} (fallback {fallback_cnt}, 실패 {failed_cnt})"
+        print(f"신규 다운로드 성공률 낮음: {warning_msg}")
     else:
         print(f"Download complete — 성공 {success_cnt}, fallback {fallback_cnt}, 실패 {failed_cnt} (total {total})")
 

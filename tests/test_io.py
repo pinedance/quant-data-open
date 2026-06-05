@@ -53,7 +53,7 @@ def test_fetch_prices_warning():
             assert isinstance(df, pd.DataFrame)
             assert list(df.columns) == ["AAPL"]
             assert warning_msg is not None
-            assert "신규 다운로드 성공률 낮음" in warning_msg
+            assert "성공" in warning_msg
 
 def test_download_with_retry_raises_exception_on_failure():
     with patch("core.tIO.yf.Ticker") as mock_ticker:

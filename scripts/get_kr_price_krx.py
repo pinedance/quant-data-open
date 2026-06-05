@@ -62,7 +62,7 @@ def main():
         prev_price = load_prev_price(data_url["krx_last"])
         price_raw_df, download_warning = fetch_prices(etf_tickers, day_start, prev_price, src="krx")
         if download_warning:
-            send_telegram_message(f"⚠️ KRX: {download_warning}")
+            send_telegram_message(f"⚠️ [KRX] 다운로드 실패: {download_warning}")
 
         # 데이터 검증
         if price_raw_df.empty:
@@ -71,12 +71,12 @@ def main():
 
         if len(price_raw_df.columns) != len(etf_tickers):
             missing_count = len(etf_tickers) - len(price_raw_df.columns)
-            send_telegram_message(f"⚠️ {missing_count}개 티커 수집 실패")
+            send_telegram_message(f"⚠️ [KRX] {missing_count}개 티커 수집 실패")
 
         _price_raw = price_raw_df.rename(columns=lambda c: "A{}".format(c))
         price_raw, nan_warnings = check_fill_nan(_price_raw)
         if nan_warnings:
-            send_telegram_message("⚠️ [Data Quality] 일부 데이터 NaN 값 감지 (대시보드 참조)")
+            send_telegram_message("⚠️ [KRX] 데이터 결측치(NaN) 감지 (대시보드 참조)")
         price_raw = price_raw.astype('float64')
 
         # EMA3 데이터 생성 (datetime index 유지)
@@ -135,10 +135,10 @@ def main():
         save_df_as_tsv(macd_line_ema3_eom, OUTPUT_PATH_MACD_LINE_M_EMA3_EOM)
         save_df_as_tsv(macd_hist_ema3_eom, OUTPUT_PATH_MACD_HIST_M_EMA3_EOM)
 
-        send_telegram_message("✅ KRX ETF PRICE 업데이트 완료")
+        send_telegram_message("✅ [KRX] 가격 업데이트 완료")
 
     except Exception as e:
-        send_telegram_message(f"❌ KRX ETF PRICE 업데이트 실패\n{str(e)}")
+        send_telegram_message(f"❌ [KRX] 가격 업데이트 실패: {str(e)}")
         raise
 
 
