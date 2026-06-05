@@ -289,8 +289,8 @@ def send_telegram_dashboard_summary(data):
             
         return "\n".join(lines)
 
-    overheated_line = f"• 과열 (T-Sigma > 2.5):\n{format_extremes(overheated)}"
-    depressed_line = f"• 침체 (T-Sigma < -2.5):\n{format_extremes(depressed)}"
+    overheated_line = f"• 과열 (T-Sigma &gt; 2.5):\n{format_extremes(overheated)}"
+    depressed_line = f"• 침체 (T-Sigma &lt; -2.5):\n{format_extremes(depressed)}"
     
     BASE = "https://pinedance.github.io/quant-data-open/dist"
     link_line = (
