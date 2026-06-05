@@ -95,8 +95,13 @@ def render_page(env, page_config, paths):
     # 데이터 로드
     data_path = paths['data'] / data_file
     if not data_path.exists():
-        print(f"⚠️  데이터 파일이 없습니다: {data_path}")
-        return
+        # Fallback to output directory (public/dist/)
+        fallback_path = paths['output'] / paths['output_subdir'] / data_file
+        if fallback_path.exists():
+            data_path = fallback_path
+        else:
+            print(f"⚠️  데이터 파일이 없습니다: {data_path} (또는 {fallback_path})")
+            return
 
     full_data = load_json_data(data_path)
 
@@ -156,16 +161,31 @@ def process_dist_files(paths):
     converted_count = 0
     failed_count = 0
 
-    # TSV 파일들을 HTML로 변환
+    # TSV 파일 변환 작업 리스트 구성
+    tasks = []
     for tsv_file in source_dir.rglob("*.tsv"):
         relative_path = tsv_file.relative_to(source_dir)
         html_path = output_dir / relative_path.with_suffix('.html')
+        tasks.append((tsv_file, html_path))
 
-        if convert_tsv_to_html(tsv_file, html_path):
-            converted_count += 1
-            print(f"✓ Converted {tsv_file.name} → {html_path.name}")
-        else:
-            failed_count += 1
+    from concurrent.futures import ProcessPoolExecutor
+    import os
+    max_workers = os.cpu_count() or 4
+
+    # 병렬로 TSV 파일들을 HTML로 변환 (ProcessPoolExecutor 적용으로 CPU GIL 바인딩 우회)
+    with ProcessPoolExecutor(max_workers=max_workers) as executor:
+        futures = {executor.submit(convert_tsv_to_html, tsv, html): (tsv, html) for tsv, html in tasks}
+        for future in futures:
+            tsv_file, html_path = futures[future]
+            try:
+                if future.result():
+                    converted_count += 1
+                    print(f"✓ Converted {tsv_file.name} → {html_path.name}")
+                else:
+                    failed_count += 1
+            except Exception as e:
+                print(f"❌ Error converting {tsv_file.name}: {e}")
+                failed_count += 1
 
     print(f"   Total: {converted_count} converted, {failed_count} failed")
 
@@ -176,8 +196,7 @@ def send_telegram_dashboard_summary(data):
     # 1. Market Season
     regime = data["market_regime"]
     sign = "+" if regime["tip_momentum"] > 0 else ""
-    status_str = "강세" if regime["status"] == "Bullish" else "약세"
-    market_season_line = f"• Market Season (TIP Momentum): {sign}{regime['tip_momentum']:.1f}% ({status_str})"
+    market_season_line = f"• Market Season: TIP Mom ({sign}{regime['tip_momentum']:.1f}%)"
     
     # Helper to format ticker list
     def format_tickers(entries):
@@ -303,13 +322,7 @@ def build():
     try:
         dashboard_data = analyzer.analyze()
         
-        # Write dashboard.json to data dir
-        ensure_dir(paths['data'])
-        temp_json_path = paths['data'] / 'dashboard.json'
-        with open(temp_json_path, 'w', encoding='utf-8') as f:
-            json.dump(dashboard_data, f, ensure_ascii=False, indent=2)
-            
-        # Write dashboard.json to output dir
+        # Write dashboard.json to output dir only
         ensure_dir(paths['output'] / paths['output_subdir'])
         json_output_path = paths['output'] / paths['output_subdir'] / 'dashboard.json'
         with open(json_output_path, 'w', encoding='utf-8') as f:

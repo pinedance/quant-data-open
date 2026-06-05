@@ -7,6 +7,7 @@ import pandas as pd
 import scipy.stats as stats
 import requests
 from pathlib import Path
+from concurrent.futures import ProcessPoolExecutor
 
 def calculate_t_sigma(price_series, window=240):
     if len(price_series) < window + 2:
@@ -102,6 +103,25 @@ def check_nans_for_df(df, region):
                 })
     return nan_info
 
+def _process_single_ticker(args):
+    ticker, series_d, series_m, region, name = args
+    real_z, raw_z, df_fit, loc, scale = calculate_t_sigma(series_d)
+    avg_mom = calculate_average_momentum(series_m)
+    status, ema5, ema200 = calculate_ema_crossovers(series_d)
+    
+    return {
+        "ticker": ticker,
+        "name": name,
+        "region": region,
+        "t_sigma": round(real_z, 2),
+        "raw_z": round(raw_z, 2),
+        "df": round(df_fit, 2),
+        "avg_mom": round(avg_mom * 100, 2),
+        "ema005": round(ema5, 2),
+        "ema200": round(ema200, 2),
+        "status": status
+    }
+
 class DashboardAnalyzer:
     def __init__(self, root_dir):
         self.root_dir = Path(root_dir)
@@ -109,6 +129,15 @@ class DashboardAnalyzer:
         
     def _load_names(self):
         try:
+            # 1. Try local data source first to avoid network latency
+            local_path = self.root_dir / "output/data/companylist.json"
+            if local_path.exists():
+                with open(local_path, 'r', encoding='utf-8-sig') as f:
+                    data = json.load(f)
+                    if "Co" in data:
+                        return {item["cd"]: item["nm"] for item in data["Co"]}
+            
+            # 2. Fallback to remote HTTP request
             tickers_all_url = "https://pinedance.github.io/quant-data-open/dist/CompanyList.json"
             response = requests.get(tickers_all_url, timeout=10)
             response.raise_for_status()
@@ -144,6 +173,7 @@ class DashboardAnalyzer:
         up_breakouts = []
         down_breakouts = []
         nan_status = []
+        tasks = []
         
         # Process US tickers
         if us_daily_path.exists() and us_monthly_path.exists():
@@ -156,31 +186,8 @@ class DashboardAnalyzer:
             for ticker in df_us_d.columns:
                 series_d = df_us_d[ticker].dropna()
                 series_m = df_us_m[ticker].dropna()
-                
-                # Calculate metrics
-                real_z, raw_z, df_fit, loc, scale = calculate_t_sigma(series_d)
-                avg_mom = calculate_average_momentum(series_m)
-                status, ema5, ema200 = calculate_ema_crossovers(series_d)
-                
                 name = names_dict.get(ticker, ticker)
-                stat_entry = {
-                    "ticker": ticker,
-                    "name": name,
-                    "region": "US",
-                    "t_sigma": round(real_z, 2),
-                    "raw_z": round(raw_z, 2),
-                    "df": round(df_fit, 2),
-                    "avg_mom": round(avg_mom * 100, 2),
-                    "ema005": round(ema5, 2),
-                    "ema200": round(ema200, 2),
-                    "status": status
-                }
-                ticker_stats.append(stat_entry)
-                
-                if status == "상향 돌파":
-                    up_breakouts.append(stat_entry)
-                elif status == "하향 돌파":
-                    down_breakouts.append(stat_entry)
+                tasks.append((ticker, series_d, series_m, "US", name))
 
         # Process KR tickers
         if kr_daily_path.exists() and kr_monthly_path.exists():
@@ -191,31 +198,21 @@ class DashboardAnalyzer:
             nan_status.extend(check_nans_for_df(df_kr_d, "KR"))
             
             for col in df_kr_d.columns:
-                # KR Ticker format in daily price TSV might have A-prefix, strip it for names lookup
                 ticker = col[1:] if col.startswith('A') else col
                 series_d = df_kr_d[col].dropna()
                 series_m = df_kr_m[col].dropna()
-                
-                # Calculate metrics
-                real_z, raw_z, df_fit, loc, scale = calculate_t_sigma(series_d)
-                avg_mom = calculate_average_momentum(series_m)
-                status, ema5, ema200 = calculate_ema_crossovers(series_d)
-                
                 name = names_dict.get(ticker, ticker)
-                stat_entry = {
-                    "ticker": ticker,
-                    "name": name,
-                    "region": "KR",
-                    "t_sigma": round(real_z, 2),
-                    "raw_z": round(raw_z, 2),
-                    "df": round(df_fit, 2),
-                    "avg_mom": round(avg_mom * 100, 2),
-                    "ema005": round(ema5, 2),
-                    "ema200": round(ema200, 2),
-                    "status": status
-                }
+                tasks.append((ticker, series_d, series_m, "KR", name))
+
+        # Run tasks in parallel to speed up scipy.stats.t.fit MLE calculation
+        if tasks:
+            max_workers = os.cpu_count() or 4
+            with ProcessPoolExecutor(max_workers=max_workers) as executor:
+                results = list(executor.map(_process_single_ticker, tasks))
+            
+            for stat_entry in results:
                 ticker_stats.append(stat_entry)
-                
+                status = stat_entry["status"]
                 if status == "상향 돌파":
                     up_breakouts.append(stat_entry)
                 elif status == "하향 돌파":
