@@ -128,25 +128,36 @@ class DashboardAnalyzer:
         self.data_dir = self.root_dir / "output"
         
     def _load_names(self):
-        try:
-            # 1. Try local data source first to avoid network latency
-            local_path = self.root_dir / "output/data/companylist.json"
-            if local_path.exists():
-                with open(local_path, 'r', encoding='utf-8-sig') as f:
+        names = {}
+        
+        # 1. KR names from output/KR/data/stocklist.json
+        # Strip 'A' prefix from ticker keys to match the analyzer's clean ticker lookup key
+        kr_path = self.root_dir / "output/KR/data/stocklist.json"
+        if kr_path.exists():
+            try:
+                with open(kr_path, 'r', encoding='utf-8-sig') as f:
                     data = json.load(f)
-                    if "Co" in data:
-                        return {item["cd"]: item["nm"] for item in data["Co"]}
-            
-            # 2. Fallback to remote HTTP request
-            tickers_all_url = "https://pinedance.github.io/quant-data-open/dist/CompanyList.json"
-            response = requests.get(tickers_all_url, timeout=10)
-            response.raise_for_status()
-            df = pd.DataFrame(response.json())
-            df.columns = ["ticker", "name", "group"]
-            return df.set_index('ticker')['name'].to_dict()
-        except Exception as e:
-            print(f"Error loading ticker names: {e}")
-            return {}
+                if "Co" in data:
+                    for item in data["Co"]:
+                        cd = item["cd"]
+                        clean_cd = cd[1:] if cd.startswith('A') else cd
+                        names[clean_cd] = item["nm"]
+            except Exception as e:
+                print(f"Error loading KR stocklist: {e}")
+
+        # 2. US names from output/US/data/stocklist.json
+        us_path = self.root_dir / "output/US/data/stocklist.json"
+        if us_path.exists():
+            try:
+                with open(us_path, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                if "Co" in data:
+                    for item in data["Co"]:
+                        names[item["cd"]] = item["nm"]
+            except Exception as e:
+                print(f"Error loading US stocklist: {e}")
+
+        return names
 
     def analyze(self):
         names_dict = self._load_names()
