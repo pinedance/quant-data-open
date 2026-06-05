@@ -216,7 +216,7 @@ def send_telegram_dashboard_summary(data):
     # 1. Market Season
     regime = data["market_regime"]
     sign = "+" if regime["tip_momentum"] > 0 else ""
-    market_season_line = f"• Market Season: TIP Mom ({sign}{regime['tip_momentum']:.1f}%)"
+    market_season_line = f"🌤️ <b>Market Regime</b>: TIP Mom ({sign}{regime['tip_momentum']:.1f}%)"
     
     # Helper to get HTML link for a ticker based on region
     def get_ticker_link(ticker, region):
@@ -225,95 +225,93 @@ def send_telegram_dashboard_summary(data):
         else:
             return f'<a href="https://finance.yahoo.com/quote/{ticker}">{ticker}</a>'
 
-    # Helper to format ticker list with hyperlinks and no names
+    # Helper to format ticker list with hyperlinks and no names (Option B - None)
     def format_tickers(entries):
-        if not entries:
-            return "  - KR: 없음\n  - US: 없음"
         kr_ticks = [get_ticker_link(e['ticker'], 'KR') for e in entries if e["region"] == "KR"]
         us_ticks = [get_ticker_link(e['ticker'], 'US') for e in entries if e["region"] == "US"]
         
         lines = []
-        if kr_ticks:
-            prefix = "  - KR: "
-            if len(kr_ticks) > 5:
-                prefix += ", ".join(kr_ticks[:5]) + f" (외 {len(kr_ticks) - 5}개)"
-            else:
-                prefix += ", ".join(kr_ticks)
-            lines.append(prefix)
-        else:
-            lines.append("  - KR: 없음")
-            
         if us_ticks:
-            prefix = "  - US: "
+            prefix = "  🇺🇸 "
             if len(us_ticks) > 5:
                 prefix += ", ".join(us_ticks[:5]) + f" (외 {len(us_ticks) - 5}개)"
             else:
                 prefix += ", ".join(us_ticks)
             lines.append(prefix)
         else:
-            lines.append("  - US: 없음")
+            lines.append("  🇺🇸 None")
+            
+        if kr_ticks:
+            prefix = "  🇰🇷 "
+            if len(kr_ticks) > 5:
+                prefix += ", ".join(kr_ticks[:5]) + f" (외 {len(kr_ticks) - 5}개)"
+            else:
+                prefix += ", ".join(kr_ticks)
+            lines.append(prefix)
+        else:
+            lines.append("  🇰🇷 None")
             
         return "\n".join(lines)
-        
-    # 2. Breakouts
-    up_ticks = data["trend_breakouts"]["up_breakouts"]
-    down_ticks = data["trend_breakouts"]["down_breakouts"]
     
-    up_line = f"• EMA200 상향 돌파:\n{format_tickers(up_ticks)}"
-    down_line = f"• EMA200 하향 돌파:\n{format_tickers(down_ticks)}"
-    
-    # 3. Valuation Extremes
-    overheated = [e for e in data["valuation_extremes"] if e["t_sigma"] > 2.5]
-    depressed = [e for e in data["valuation_extremes"] if e["t_sigma"] < -2.5]
-    
+    # Helper to format extremes (Option B - None)
     def format_extremes(entries):
-        if not entries:
-            return "  - KR: 없음\n  - US: 없음"
         kr_parts = [f"{get_ticker_link(e['ticker'], 'KR')}({e['t_sigma']})" for e in entries if e["region"] == "KR"]
         us_parts = [f"{get_ticker_link(e['ticker'], 'US')}({e['t_sigma']})" for e in entries if e["region"] == "US"]
         
         lines = []
-        if kr_parts:
-            prefix = "  - KR: "
-            if len(kr_parts) > 5:
-                prefix += ", ".join(kr_parts[:5]) + f" (외 {len(kr_parts) - 5}개)"
-            else:
-                prefix += ", ".join(kr_parts)
-            lines.append(prefix)
-        else:
-            lines.append("  - KR: 없음")
-            
         if us_parts:
-            prefix = "  - US: "
+            prefix = "  🇺🇸 "
             if len(us_parts) > 5:
                 prefix += ", ".join(us_parts[:5]) + f" (외 {len(us_parts) - 5}개)"
             else:
                 prefix += ", ".join(us_parts)
             lines.append(prefix)
         else:
-            lines.append("  - US: 없음")
+            lines.append("  🇺🇸 None")
+            
+        if kr_parts:
+            prefix = "  🇰🇷 "
+            if len(kr_parts) > 5:
+                prefix += ", ".join(kr_parts[:5]) + f" (외 {len(kr_parts) - 5}개)"
+            else:
+                prefix += ", ".join(kr_parts)
+            lines.append(prefix)
+        else:
+            lines.append("  🇰🇷 None")
             
         return "\n".join(lines)
 
-    overheated_line = f"• 과열 (T-Sigma &gt; 2.5):\n{format_extremes(overheated)}"
-    depressed_line = f"• 침체 (T-Sigma &lt; -2.5):\n{format_extremes(depressed)}"
+    # 2. Breakouts
+    up_ticks = data["trend_breakouts"]["up_breakouts"]
+    down_ticks = data["trend_breakouts"]["down_breakouts"]
+    
+    # 3. Valuation Extremes
+    overheated = [e for e in data["valuation_extremes"] if e["t_sigma"] > 2.5]
+    depressed = [e for e in data["valuation_extremes"] if e["t_sigma"] < -2.5]
     
     BASE = "https://pinedance.github.io/quant-data-open/dist"
     link_line = (
-        f"상세 결과:\n"
         f"🔗 <a href=\"{BASE}/US/dashboard.html\">🇺🇸 US Dashboard</a> | "
         f"<a href=\"{BASE}/KR/dashboard.html\">🇰🇷 KR Dashboard</a>"
     )
     
     parts = [
-        "📊 [Quant Dashboard] 일간 업데이트 완료",
+        "<b>📊 [Quant Dashboard] 일간 업데이트</b>",
         "",
         market_season_line,
-        up_line,
-        down_line,
-        overheated_line,
-        depressed_line,
+        "──────────────────",
+        "📈 <b>EMA200 상향 돌파</b>",
+        format_tickers(up_ticks),
         "",
+        "📉 <b>EMA200 하향 돌파</b>",
+        format_tickers(down_ticks),
+        "",
+        "🔥 <b>과열 (T-Sigma &gt; 2.5)</b>",
+        format_extremes(overheated),
+        "",
+        "❄️ <b>침체 (T-Sigma &lt; -2.5)</b>",
+        format_extremes(depressed),
+        "──────────────────",
         link_line
     ]
     
