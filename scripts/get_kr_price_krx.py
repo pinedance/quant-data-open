@@ -85,7 +85,9 @@ def main():
     # 데이터 처리 및 저장
     try:
         _price_raw = price_raw_df.rename(columns=lambda c: "A{}".format(c))
-        price_raw = check_fill_nan(_price_raw)
+        price_raw, nan_warnings = check_fill_nan(_price_raw)
+        if nan_warnings:
+            print(nan_warnings)
         price_raw = price_raw.astype('float64')
 
         # EMA3 데이터 생성 (datetime index 유지)

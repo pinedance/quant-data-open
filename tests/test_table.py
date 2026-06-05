@@ -1,5 +1,6 @@
 import pandas as pd
-from core.tTable import resample_monthly
+import numpy as np
+from core.tTable import resample_monthly, check_fill_nan
 
 def test_resample_monthly_eom():
     # Generate daily datetime index for 3 months
@@ -25,3 +26,14 @@ def test_resample_monthly_current():
     assert any("2026-01-15" in str(d) for d in res.index)
     assert any("2026-02-15" in str(d) for d in res.index)
     assert any("2026-03-15" in str(d) for d in res.index)
+
+
+def test_check_fill_nan_returns_warnings():
+    df = pd.DataFrame({'col1': [1.0, np.nan, 3.0], 'col2': [2.0, 4.0, np.nan]})
+    df.index = pd.to_datetime(['2026-06-01', '2026-06-02', '2026-06-03'])
+    
+    # Test without fill
+    df_out, warnings = check_fill_nan(df, fill_nan=False)
+    assert len(warnings) > 0
+    assert "col1" in warnings[0]
+    assert df_out.isna().sum().sum() == 2
