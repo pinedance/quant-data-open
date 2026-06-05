@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from core.tFinance import get_price_status, calculate_macd
+from core.tFinance import get_price_status, calculate_macd, process_price_status
 
 def test_calculate_macd():
     # Create a simple upward series
@@ -35,3 +35,28 @@ def test_get_price_status_sufficient_data():
     rst = get_price_status("TEST", prices)
     assert rst is not None
     assert rst['status'] in ["상향 돌파", "중립", "상향 지속(3.5)", "상향 지속(2.5)"] or "상향" in rst['status']
+
+
+def test_process_price_status(capsys):
+    import pytest
+    # 1. Normal flow
+    prices1 = pd.Series([100.0] * 250)
+    prices2 = pd.Series([100.0] * 50)
+    tickers = ["TEST1", "TEST2"]
+    data = [prices1, prices2]
+    
+    results = process_price_status(tickers, data)
+    assert len(results) == 2
+    assert results[0]['ticker'] == "TEST1"
+    assert results[1]['ticker'] == "TEST2"
+
+    # 2. Length mismatch
+    with pytest.raises(ValueError, match="길이가 다릅니다"):
+        process_price_status(["TEST1"], [prices1, prices2])
+
+    # 3. Processing error handling (e.g. invalid history structure)
+    bad_df = pd.DataFrame({'col1': [1, 2], 'col2': [3, 4]})
+    results2 = process_price_status(["TEST_BAD"], [bad_df])
+    assert len(results2) == 0
+    captured = capsys.readouterr()
+    assert "Error processing status for TEST_BAD" in captured.out
