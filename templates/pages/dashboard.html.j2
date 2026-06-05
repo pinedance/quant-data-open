@@ -217,11 +217,19 @@
     font-size: 0.7rem;
     letter-spacing: 0.05em;
     border-bottom: 2px solid #334155;
+    white-space: nowrap;
   }
 
   .val-table td {
     padding: 0.75rem 1rem;
     border-bottom: 1px solid #1e293b;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 480px) {
+    .dash-card {
+      padding: 1rem;
+    }
   }
 
   .val-table tbody tr:hover {
@@ -303,10 +311,14 @@
             {% for item in data.trend_breakouts.up_breakouts %}
               <div class="breakout-item up">
                 <div>
-                  <span class="ticker-name">{{ item.ticker }}</span>
-                  <div class="ticker-desc">{{ item.name }}</div>
+                  {% if region == 'KR' %}
+                    <span class="ticker-name">{{ item.name }}</span>
+                    <div class="ticker-desc">{{ item.ticker }}</div>
+                  {% else %}
+                    <span class="ticker-name">{{ item.ticker }}</span>
+                    <div class="ticker-desc">{{ item.name }}</div>
+                  {% endif %}
                 </div>
-                <span class="region-badge region-{{ item.region.lower() }}">{{ item.region }}</span>
               </div>
             {% else %}
               <div style="color: #475569; font-size: 0.85rem; padding: 1rem; text-align: center;">상향 돌파 종목 없음</div>
@@ -321,10 +333,14 @@
             {% for item in data.trend_breakouts.down_breakouts %}
               <div class="breakout-item down">
                 <div>
-                  <span class="ticker-name">{{ item.ticker }}</span>
-                  <div class="ticker-desc">{{ item.name }}</div>
+                  {% if region == 'KR' %}
+                    <span class="ticker-name">{{ item.name }}</span>
+                    <div class="ticker-desc">{{ item.ticker }}</div>
+                  {% else %}
+                    <span class="ticker-name">{{ item.ticker }}</span>
+                    <div class="ticker-desc">{{ item.name }}</div>
+                  {% endif %}
                 </div>
-                <span class="region-badge region-{{ item.region.lower() }}">{{ item.region }}</span>
               </div>
             {% else %}
               <div style="color: #475569; font-size: 0.85rem; padding: 1rem; text-align: center;">하향 돌파 종목 없음</div>
@@ -344,9 +360,13 @@
     <div class="ticker-tags-container">
       {% for item in data.monthly_momentum %}
         <div class="ticker-tag">
-          <span class="region-badge region-{{ item.region.lower() }}">{{ item.region }}</span>
-          <span class="ticker-name" style="font-size: 0.8rem;">{{ item.ticker }}</span>
-          <span style="font-size: 0.75rem; color: #64748b;">{{ item.name }}</span>
+          {% if region == 'KR' %}
+            <span class="ticker-name" style="font-size: 0.8rem;">{{ item.name }}</span>
+            <span style="font-size: 0.75rem; color: #64748b;">{{ item.ticker }}</span>
+          {% else %}
+            <span class="ticker-name" style="font-size: 0.8rem;">{{ item.ticker }}</span>
+            <span style="font-size: 0.75rem; color: #64748b;">{{ item.name }}</span>
+          {% endif %}
           <span style="font-weight: 600; color: #10b981; font-size: 0.75rem;">+{{ item.macd_hist }}</span>
         </div>
       {% else %}
@@ -365,9 +385,13 @@
       <table class="val-table">
         <thead>
           <tr>
-            <th>Region</th>
-            <th>Ticker</th>
-            <th>Name</th>
+            {% if region == 'KR' %}
+              <th>Name</th>
+              <th>Ticker</th>
+            {% else %}
+              <th>Ticker</th>
+              <th>Name</th>
+            {% endif %}
             <th>T-Sigma (Z)</th>
             <th>Simple Z</th>
             <th>Opt DF</th>
@@ -381,11 +405,13 @@
             {% set is_hot = item.t_sigma > 2.5 %}
             {% set is_cold = item.t_sigma < -2.5 %}
             <tr style="{% if is_hot %}background-color: rgba(239, 68, 68, 0.06);{% elif is_cold %}background-color: rgba(59, 130, 246, 0.06);{% endif %}">
-              <td>
-                <span class="region-badge region-{{ item.region.lower() }}">{{ item.region }}</span>
-              </td>
-              <td class="ticker-name">{{ item.ticker }}</td>
-              <td style="color: #cbd5e1;">{{ item.name }}</td>
+              {% if region == 'KR' %}
+                <td style="color: #cbd5e1; font-weight: 600;">{{ item.name }}</td>
+                <td class="ticker-name" style="font-weight: normal; color: #94a3b8;">{{ item.ticker }}</td>
+              {% else %}
+                <td class="ticker-name">{{ item.ticker }}</td>
+                <td style="color: #cbd5e1;">{{ item.name }}</td>
+              {% endif %}
               <td style="font-weight: 700; {% if is_hot %}color: #f87171;{% elif is_cold %}color: #60a5fa;{% endif %}">
                 {{ '+' if item.t_sigma > 0 else '' }}{{ item.t_sigma }}
               </td>
@@ -426,7 +452,6 @@
         {% for item in data.data_quality_status %}
           <div style="display: flex; justify-content: space-between; font-size: 0.85rem; padding: 0.5rem 0; border-bottom: 1px solid #1e293b;">
             <div>
-              <span class="region-badge region-{{ item.region.lower() }}" style="margin-right: 0.5rem;">{{ item.region }}</span>
               <strong style="color: #ef4444;">{{ item.column }}</strong>
               <span style="color: #64748b; margin-left: 0.5rem;">NaN count: {{ item.count }}</span>
             </div>
