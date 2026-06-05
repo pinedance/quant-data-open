@@ -10,7 +10,7 @@ paths:
 pages:
   - name: CompanyList
     title: "Company List Table"
-    data_file: companylist.json
+    data_file: ../KR/data/stocklist.json
     data_key: Co  # JSON의 키 (없으면 전체 데이터)
     template: table  # table 또는 json
     columns:
@@ -31,10 +31,17 @@ pages:
       - key: value
         label: Value
 
-  - name: dashboard
-    title: "Market Status Today"
-    data_file: dashboard.json
+  - name: US/dashboard
+    title: "US Market Status Today"
+    data_file: US/dashboard.json
     template: dashboard
+    region: US
+
+  - name: KR/dashboard
+    title: "KR Market Status Today"
+    data_file: KR/dashboard.json
+    template: dashboard
+    region: KR
 
 # Constants and Application settings (previously in core/cons.py)
 constants:
