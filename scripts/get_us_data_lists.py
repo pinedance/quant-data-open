@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
-import os
 import json
 import sys
 from pathlib import Path
-import pandas as pd
 import yfinance as yf
 
 # Add root directory to python path to load core modules
