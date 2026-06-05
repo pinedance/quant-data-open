@@ -65,7 +65,9 @@ def main():
 
     # 데이터 처리 및 저장
     try:
-        price_raw = check_fill_nan(price_raw_df)
+        price_raw, nan_warnings = check_fill_nan(price_raw_df)
+        if nan_warnings:
+            print(nan_warnings)
         price_raw = price_raw.astype('float64')
 
         # EMA3 데이터 생성 (datetime index 유지)

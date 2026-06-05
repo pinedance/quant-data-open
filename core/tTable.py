@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-from core.message import send_telegram_message
 
 #%% DATA PROCESSING
 ######################################################################
@@ -12,6 +11,7 @@ def select_column_by_name(df, col_name):
 
 def check_fill_nan(df, fill_nan=False):
     n_nan = df.isna().sum().sum()
+    warnings = []
     if n_nan > 0:
         nan_info = []
         for col in df.columns:
@@ -26,20 +26,16 @@ def check_fill_nan(df, fill_nan=False):
                     end_index = end_index.date()
                 nan_info.append(f"{col}: {start_index} ~ {end_index}")
 
-        m_err = f"⚠️ NaN 값 감지 ({n_nan:,}개)\n" + "\n".join(nan_info)
-        send_telegram_message(m_err)
+        warnings.append(f"NaN 값 감지 ({n_nan:,}개)\n" + "\n".join(nan_info))
 
         if fill_nan:
-            send_telegram_message("Fill nan values with forward fill")
             df_filled = df.ffill().bfill()
-
             remaining_nan = df_filled.isna().sum().sum()
             if remaining_nan > 0:
-                send_telegram_message(f"Warning: {remaining_nan} NaN values still remain after filling")
+                warnings.append(f"Warning: {remaining_nan} NaN values still remain after filling")
+            return df_filled, warnings
 
-            return df_filled
-
-    return df
+    return df, warnings
 
 def post_process_price(df):
     df_new = df.dropna(how='all')
