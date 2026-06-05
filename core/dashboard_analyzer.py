@@ -31,7 +31,7 @@ def calculate_t_sigma(price_series, window=240):
     
     # Calculate T-distribution CDF
     p_value = stats.t.cdf(t_score, df=df_fit)
-    p_value = np.clip(p_value, 0.00001, 0.99999)
+    p_value = np.clip(p_value, 1e-15, 1 - 1e-15)
     
     # standard normal inverse CDF
     real_z_score = float(stats.norm.ppf(p_value))
