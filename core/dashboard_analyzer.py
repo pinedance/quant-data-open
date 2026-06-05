@@ -79,6 +79,29 @@ def calculate_ema_crossovers(price_series):
         
     return status, float(curr_ema005), float(curr_ema200)
 
+def check_nans_for_df(df, region):
+    nan_info = []
+    n_nan = df.isna().sum().sum()
+    if n_nan > 0:
+        for col in df.columns:
+            nan_series = df[col].isna()
+            if nan_series.sum() > 0:
+                nan_indices = nan_series[nan_series].index
+                start_index = nan_indices[0]
+                end_index = nan_indices[-1]
+                # convert timestamps to string
+                if hasattr(start_index, 'strftime'):
+                    start_index = start_index.strftime("%Y-%m-%d")
+                if hasattr(end_index, 'strftime'):
+                    end_index = end_index.strftime("%Y-%m-%d")
+                nan_info.append({
+                    "column": col,
+                    "region": region,
+                    "count": int(nan_series.sum()),
+                    "range": f"{start_index} ~ {end_index}"
+                })
+    return nan_info
+
 class DashboardAnalyzer:
     def __init__(self, root_dir):
         self.root_dir = Path(root_dir)
@@ -120,11 +143,16 @@ class DashboardAnalyzer:
         ticker_stats = []
         up_breakouts = []
         down_breakouts = []
+        nan_status = []
         
         # Process US tickers
         if us_daily_path.exists() and us_monthly_path.exists():
             df_us_d = pd.read_csv(us_daily_path, sep='\t', index_col=0, header=0)
             df_us_m = pd.read_csv(us_monthly_path, sep='\t', index_col=0, header=0)
+            
+            # Check NaNs
+            nan_status.extend(check_nans_for_df(df_us_d, "US"))
+            
             for ticker in df_us_d.columns:
                 series_d = df_us_d[ticker].dropna()
                 series_m = df_us_m[ticker].dropna()
@@ -158,6 +186,10 @@ class DashboardAnalyzer:
         if kr_daily_path.exists() and kr_monthly_path.exists():
             df_kr_d = pd.read_csv(kr_daily_path, sep='\t', index_col=0, header=0)
             df_kr_m = pd.read_csv(kr_monthly_path, sep='\t', index_col=0, header=0)
+            
+            # Check NaNs
+            nan_status.extend(check_nans_for_df(df_kr_d, "KR"))
+            
             for col in df_kr_d.columns:
                 # KR Ticker format in daily price TSV might have A-prefix, strip it for names lookup
                 ticker = col[1:] if col.startswith('A') else col
@@ -236,6 +268,7 @@ class DashboardAnalyzer:
             },
             "monthly_momentum": macd_positive,
             "valuation_extremes": ticker_stats,
+            "data_quality_status": nan_status,
             "last_updated": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }
         
