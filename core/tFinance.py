@@ -1,6 +1,5 @@
 import math
 import pandas as pd
-from core.message import send_telegram_message
 from core.cons import MA_SHORT_WINDOW, MA_LONG_WINDOW
 
 #%% DEAL FINANCE DATA
@@ -73,13 +72,17 @@ def process_price_status(etf_tickers, etf_data_raw):
     if len(etf_tickers) != len(etf_data_raw):
         raise ValueError(f"etf_tickers({len(etf_tickers)})와 etf_data_raw({len(etf_data_raw)}) 길이가 다릅니다.")
     status_results = []
+    errors = []
     for ticker, hist in zip(etf_tickers, etf_data_raw):
         try:
             status_data = get_price_status(ticker, hist)
             if status_data:
                 status_results.append(status_data)
         except Exception as e:
-            send_telegram_message(f"Error processing status for {ticker}: {str(e)}")
+            errors.append(f"Error processing status for {ticker}: {str(e)}")
+            
+    if errors:
+        print("\n".join(errors))
     return status_results
 
 def calculate_macd(df, fast=12, slow=26, signal=9):
