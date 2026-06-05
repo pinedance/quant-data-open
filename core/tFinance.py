@@ -86,10 +86,10 @@ def process_price_status(etf_tickers, etf_data_raw):
     return status_results
 
 def calculate_macd(df, fast=12, slow=26, signal=9):
-    ema_fast = df.ewm(span=fast).mean()
-    ema_slow = df.ewm(span=slow).mean()
+    ema_fast = df.ewm(span=fast, adjust=False).mean()
+    ema_slow = df.ewm(span=slow, adjust=False).mean()
     macd_line = ema_fast - ema_slow
-    signal_line = macd_line.ewm(span=signal).mean()
+    signal_line = macd_line.ewm(span=signal, adjust=False).mean()
     macd_histogram = macd_line - signal_line
     return macd_line, macd_histogram
 
