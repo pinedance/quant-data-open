@@ -218,13 +218,19 @@ def send_telegram_dashboard_summary(data):
     sign = "+" if regime["tip_momentum"] > 0 else ""
     market_season_line = f"• Market Season: TIP Mom ({sign}{regime['tip_momentum']:.1f}%)"
     
-    # Helper to format ticker list
+    # Helper to get HTML link for a ticker based on region
+    def get_ticker_link(ticker, region):
+        if region == "KR":
+            return f'<a href="https://finance.naver.com/item/main.naver?code={ticker}">{ticker}</a>'
+        else:
+            return f'<a href="https://finance.yahoo.com/quote/{ticker}">{ticker}</a>'
+
+    # Helper to format ticker list with hyperlinks and no names
     def format_tickers(entries):
         if not entries:
             return "  - KR: 없음\n  - US: 없음"
-        # Group by KR/US
-        kr_ticks = [f"{e['ticker']}({html.escape(e['name'])})" for e in entries if e["region"] == "KR"]
-        us_ticks = [f"{e['ticker']}({html.escape(e['name'])})" for e in entries if e["region"] == "US"]
+        kr_ticks = [get_ticker_link(e['ticker'], 'KR') for e in entries if e["region"] == "KR"]
+        us_ticks = [get_ticker_link(e['ticker'], 'US') for e in entries if e["region"] == "US"]
         
         lines = []
         if kr_ticks:
@@ -263,8 +269,8 @@ def send_telegram_dashboard_summary(data):
     def format_extremes(entries):
         if not entries:
             return "  - KR: 없음\n  - US: 없음"
-        kr_parts = [f"{e['ticker']}({e['t_sigma']})" for e in entries if e["region"] == "KR"]
-        us_parts = [f"{e['ticker']}({e['t_sigma']})" for e in entries if e["region"] == "US"]
+        kr_parts = [f"{get_ticker_link(e['ticker'], 'KR')}({e['t_sigma']})" for e in entries if e["region"] == "KR"]
+        us_parts = [f"{get_ticker_link(e['ticker'], 'US')}({e['t_sigma']})" for e in entries if e["region"] == "US"]
         
         lines = []
         if kr_parts:
