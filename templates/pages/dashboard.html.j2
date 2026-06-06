@@ -538,29 +538,93 @@
         {% endfor %}
       ];
 
+      // Calculate dynamic bounds to allow panning immediately
+      var xValues = chartData.map(function(d) { return d.value[0]; });
+      var yValues = chartData.map(function(d) { return d.value[1]; });
+
+      var xMin = xValues.length ? Math.min.apply(null, xValues) : -3.0;
+      var xMax = xValues.length ? Math.max.apply(null, xValues) : 3.0;
+      var yMin = yValues.length ? Math.min.apply(null, yValues) : -3.0;
+      var yMax = yValues.length ? Math.max.apply(null, yValues) : 3.0;
+
+      // Symmetric absolute max around 0 (centered)
+      var xAbsMax = Math.max(Math.abs(xMin), Math.abs(xMax), 3.0);
+      var yAbsMax = Math.max(Math.abs(yMin), Math.abs(yMax), 3.0);
+
+      // View bounds (initial visible range)
+      var xViewMin = -xAbsMax - 0.5;
+      var xViewMax = xAbsMax + 0.5;
+      var yViewMin = -yAbsMax - 0.5;
+      var yViewMax = yAbsMax + 0.5;
+
+      // Absolute axis limits (allows panning beyond view bounds)
+      var xAxisMin = -xAbsMax * 2.0;
+      var xAxisMax = xAbsMax * 2.0;
+      var yAxisMin = -yAbsMax * 2.0;
+      var yAxisMax = yAbsMax * 2.0;
+
       var chart = echarts.init(document.getElementById('landscape-chart'));
       chart.setOption({
         backgroundColor: 'transparent',
-        grid: { left: 48, right: 16, top: 16, bottom: 48 },
+        grid: { left: 48, right: 16, top: 35, bottom: 48 },
+        toolbox: {
+          show: true,
+          top: 0,
+          right: 10,
+          feature: {
+            restore: {
+              show: true,
+              title: 'Reset'
+            }
+          },
+          iconStyle: {
+            borderColor: '#94a3b8'
+          },
+          emphasis: {
+            iconStyle: {
+              borderColor: '#ffffff'
+            }
+          }
+        },
+        dataZoom: [
+          {
+            type: 'inside',
+            xAxisIndex: 0,
+            filterMode: 'none',
+            startValue: xViewMin,
+            endValue: xViewMax
+          },
+          {
+            type: 'inside',
+            yAxisIndex: 0,
+            filterMode: 'none',
+            startValue: yViewMin,
+            endValue: yViewMax
+          }
+        ],
         xAxis: {
           type: 'value',
+          min: xAxisMin,
+          max: xAxisMax,
           name: 'MACD Z',
           nameLocation: 'middle',
           nameGap: 28,
-          nameTextStyle: { color: '#64748b', fontSize: 11, fontWeight: 600 },
-          axisLine: { lineStyle: { color: '#334155' } },
-          splitLine: { lineStyle: { color: '#1e293b', type: 'dashed' } },
-          axisLabel: { color: '#94a3b8', fontSize: 10 }
+          nameTextStyle: { color: '#94a3b8', fontSize: 11, fontWeight: 600 },
+          axisLine: { lineStyle: { color: '#475569', width: 1.5 } },
+          splitLine: { lineStyle: { color: '#334155', type: 'dashed' } },
+          axisLabel: { color: '#cbd5e1', fontSize: 10 }
         },
         yAxis: {
           type: 'value',
+          min: yAxisMin,
+          max: yAxisMax,
           name: 'T-Sigma',
           nameLocation: 'middle',
           nameGap: 32,
-          nameTextStyle: { color: '#64748b', fontSize: 11, fontWeight: 600 },
-          axisLine: { lineStyle: { color: '#334155' } },
-          splitLine: { lineStyle: { color: '#1e293b', type: 'dashed' } },
-          axisLabel: { color: '#94a3b8', fontSize: 10 }
+          nameTextStyle: { color: '#94a3b8', fontSize: 11, fontWeight: 600 },
+          axisLine: { lineStyle: { color: '#475569', width: 1.5 } },
+          splitLine: { lineStyle: { color: '#334155', type: 'dashed' } },
+          axisLabel: { color: '#cbd5e1', fontSize: 10 }
         },
         tooltip: {
           trigger: 'item',
@@ -634,8 +698,8 @@
             symbol: 'none',
             label: { show: false },
             data: [
-              { xAxis: 0, lineStyle: { type: 'solid', color: '#475569', width: 1.5 } },
-              { yAxis: 0, lineStyle: { type: 'solid', color: '#475569', width: 1.5 } },
+              { xAxis: 0, lineStyle: { type: 'solid', color: '#64748b', width: 1.5 } },
+              { yAxis: 0, lineStyle: { type: 'solid', color: '#64748b', width: 1.5 } },
               { xAxis: 2, lineStyle: { type: 'dashed', color: '#475569', width: 1 } },
               { xAxis: -2, lineStyle: { type: 'dashed', color: '#475569', width: 1 } },
               { yAxis: 2.5, lineStyle: { type: 'dashed', color: '#475569', width: 1 } },
@@ -644,6 +708,14 @@
           }
         }]
       });
+
+      // Double-click to restore zoom
+      chart.getZr().on('dblclick', function() {
+        chart.dispatchAction({
+          type: 'restore'
+        });
+      });
+
       window.addEventListener('resize', function() { chart.resize(); });
     })();
     </script>
