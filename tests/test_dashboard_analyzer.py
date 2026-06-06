@@ -1,31 +1,49 @@
 import pandas as pd
 import numpy as np
 import scipy.stats as stats
+import pytest
 from core.dashboard_analyzer import calculate_t_sigma, calculate_average_momentum, calculate_ema_crossovers
 
-def test_t_sigma_calculation():
-    np.random.seed(42)
-    returns = np.random.normal(0.001, 0.02, 250)
-    
-    # Let's manually construct price series from returns
+
+def make_trending_up_series(n=250, daily_return=0.001):
+    """Simulate a steadily rising asset (like XLK in a bull run)."""
     prices = [100.0]
-    for r in returns:
-        prices.append(prices[-1] * np.exp(r))
-    
-    price_series = pd.Series(prices)
-    
-    # Calculate expected
-    log_returns = np.log(price_series / price_series.shift(1)).dropna()
-    base_returns = log_returns.iloc[-240:]
-    df_fit, loc_fit, scale_fit = stats.t.fit(base_returns)
-    current_return = log_returns.iloc[-1]
-    t_score = (current_return - loc_fit) / scale_fit
-    p_value = stats.t.cdf(t_score, df=df_fit)
-    p_value = np.clip(p_value, 0.00001, 0.99999)
-    expected_z = stats.norm.ppf(p_value)
-    
-    real_z, *_ = calculate_t_sigma(price_series)
-    assert np.isclose(real_z, expected_z, atol=1e-4)
+    for _ in range(n - 1):
+        prices.append(prices[-1] * (1 + daily_return))
+    return pd.Series(prices)
+
+
+def test_t_sigma_trending_up_is_positive():
+    """
+    A steadily rising asset near its recent high should have positive t_sigma.
+    (Regression: old code returned negative because it used the last daily return,
+    which is ~0 for a smooth trend, not the price level.)
+    """
+    series = make_trending_up_series(n=250, daily_return=0.001)
+    real_z, raw_z, df_fit, loc_fit, scale_fit = calculate_t_sigma(series)
+    assert real_z > 0, f"Expected positive t_sigma for trending-up asset, got {real_z}"
+    assert raw_z > 0, f"Expected positive raw_z for trending-up asset, got {raw_z}"
+
+
+def test_t_sigma_trending_down_is_negative():
+    """A falling asset near its recent low should have negative t_sigma."""
+    series = make_trending_up_series(n=250, daily_return=-0.001)
+    real_z, raw_z, df_fit, loc_fit, scale_fit = calculate_t_sigma(series)
+    assert real_z < 0, f"Expected negative t_sigma for falling asset, got {real_z}"
+
+
+def test_t_sigma_short_series_returns_zeros():
+    """Series shorter than window+2 should return all zeros."""
+    series = pd.Series([100.0] * 10)
+    result = calculate_t_sigma(series)
+    assert result == (0.0, 0.0, 0.0, 0.0, 0.0)
+
+
+def test_t_sigma_returns_five_floats():
+    series = make_trending_up_series(n=250)
+    result = calculate_t_sigma(series)
+    assert len(result) == 5
+    assert all(isinstance(v, float) for v in result)
 
 def test_average_momentum_calculation():
     # 13 month EOM prices (last index represents current date in June, e.g. June 5th)

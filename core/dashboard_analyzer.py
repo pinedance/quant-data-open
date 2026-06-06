@@ -9,37 +9,35 @@ import requests
 from pathlib import Path
 from concurrent.futures import ProcessPoolExecutor
 
-def calculate_t_sigma(price_series, window=240):
+# Module-level constants
+T_SIGMA_WINDOW = 200    # EMA200과 통일 — "EMA200 기준선 대비 현재가 몇 sigma?"
+MACD_Z_WINDOW  = 12     # 12개월 rolling z-score
+
+def calculate_t_sigma(price_series, window=T_SIGMA_WINDOW):
     if len(price_series) < window + 2:
         return 0.0, 0.0, 0.0, 0.0, 0.0
-    
-    # Calculate daily log returns
-    log_returns = np.log(price_series / price_series.shift(1)).dropna()
-    base_returns = log_returns.iloc[-window:]
-    
-    # Fit T-distribution using Maximum Likelihood Estimation (MLE)
+
+    # Use log-price levels (not returns) — Bollinger Band principle + heavy-tail T
+    log_prices = np.log(price_series)
+    base = log_prices.iloc[-window:]          # 200-day window of log-price levels
+
     try:
-        df_fit, loc_fit, scale_fit = stats.t.fit(base_returns)
+        df_fit, loc_fit, scale_fit = stats.t.fit(base)   # MLE: loc ≈ 200-day mean
     except Exception as e:
         print(f"Error fitting stats.t: {e}")
         return 0.0, 0.0, 0.0, 0.0, 0.0
-        
-    current_return = log_returns.iloc[-1]
-    
-    # Calculate t-score
-    t_score = (current_return - loc_fit) / scale_fit
-    
-    # Calculate T-distribution CDF
+
+    current = log_prices.iloc[-1]
+    t_score = (current - loc_fit) / scale_fit            # sigma above 200-day center
     p_value = stats.t.cdf(t_score, df=df_fit)
     p_value = np.clip(p_value, 1e-15, 1 - 1e-15)
-    
-    # standard normal inverse CDF
-    real_z_score = float(stats.norm.ppf(p_value))
-    
-    # raw Z-Score (Simple Normal)
-    raw_z_score = float((current_return - base_returns.mean()) / base_returns.std() if base_returns.std() > 0 else 0.0)
-    
-    return real_z_score, raw_z_score, float(df_fit), float(loc_fit), float(scale_fit)
+    real_z  = float(stats.norm.ppf(p_value))             # convert to standard normal sigma
+
+    raw_z = float(
+        (current - base.mean()) / base.std()
+        if base.std() > 0 else 0.0
+    )
+    return real_z, raw_z, float(df_fit), float(loc_fit), float(scale_fit)
 
 def calculate_average_momentum(price_series):
     # assumes the series is resampled to monthly EOM prices, with last index representing current date
