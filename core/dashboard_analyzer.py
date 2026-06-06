@@ -39,6 +39,26 @@ def calculate_t_sigma(price_series, window=T_SIGMA_WINDOW):
     )
     return real_z, raw_z, float(df_fit), float(loc_fit), float(scale_fit)
 
+def calculate_macd_z(hist_series, window=MACD_Z_WINDOW):
+    """
+    Z-score of current MACD histogram vs its own trailing window.
+    Normalizes price-unit differences → cross-ticker comparison possible.
+
+    Args:
+        hist_series: pd.Series of monthly MACD histogram values (oldest first)
+        window: rolling window in months (default MACD_Z_WINDOW=12)
+    Returns:
+        float: z-score. Positive = momentum stronger than recent history.
+    """
+    if len(hist_series) < window + 1:
+        return 0.0
+    base = hist_series.iloc[-window:]
+    current = hist_series.iloc[-1]
+    std = base.std()
+    if std == 0:
+        return 0.0
+    return float((current - base.mean()) / std)
+
 def calculate_average_momentum(price_series):
     # assumes the series is resampled to monthly EOM prices, with last index representing current date
     if len(price_series) < 13:
@@ -229,38 +249,61 @@ class DashboardAnalyzer:
 
         # 3. Monthly MACD Histogram > 0 list
         macd_positive = []
-        
+        macd_z_lookup    = {}   # ticker -> macd_z   (all tickers, for scatter join)
+        macd_hist_lookup = {}   # ticker -> macd_hist (raw last value)
+
         # Process US EOM MACD
         if us_macd_hist_path.exists():
             df_us_hist = pd.read_csv(us_macd_hist_path, sep='\t', index_col=0, header=0)
             if not df_us_hist.empty:
                 last_row = df_us_hist.iloc[-1]
-                for ticker, val in last_row.items():
+                for ticker in df_us_hist.columns:
+                    hist_series = df_us_hist[ticker].dropna()
+                    val = last_row.get(ticker, float('nan'))
+                    if pd.isna(val):
+                        continue
+                    z = calculate_macd_z(hist_series)
+                    macd_z_lookup[ticker]    = round(z, 2)
+                    macd_hist_lookup[ticker] = round(float(val), 2)
                     if val > 0:
                         macd_positive.append({
                             "ticker": ticker,
                             "name": names_dict.get(ticker, ticker),
                             "region": "US",
-                            "macd_hist": round(val, 2)
+                            "macd_hist": round(float(val), 2),
+                            "macd_z": round(z, 2),
                         })
-                        
+
         # Process KR EOM MACD
         if kr_macd_hist_path.exists():
             df_kr_hist = pd.read_csv(kr_macd_hist_path, sep='\t', index_col=0, header=0)
             if not df_kr_hist.empty:
                 last_row = df_kr_hist.iloc[-1]
-                for col, val in last_row.items():
+                for col in df_kr_hist.columns:
                     ticker = col[1:] if col.startswith('A') else col
+                    hist_series = df_kr_hist[col].dropna()
+                    val = last_row.get(col, float('nan'))
+                    if pd.isna(val):
+                        continue
+                    z = calculate_macd_z(hist_series)
+                    macd_z_lookup[ticker]    = round(z, 2)
+                    macd_hist_lookup[ticker] = round(float(val), 2)
                     if val > 0:
                         macd_positive.append({
                             "ticker": ticker,
                             "name": names_dict.get(ticker, ticker),
                             "region": "KR",
-                            "macd_hist": round(val, 2)
+                            "macd_hist": round(float(val), 2),
+                            "macd_z": round(z, 2),
                         })
 
         # Sort valuation extremes by T-Sigma descending
         ticker_stats.sort(key=lambda x: x["t_sigma"], reverse=True)
+        
+        for entry in ticker_stats:
+            t = entry["ticker"]
+            entry["macd_z"]    = macd_z_lookup.get(t, 0.0)
+            entry["macd_hist"] = macd_hist_lookup.get(t, 0.0)
         
         # Structure final dashboard JSON data
         dashboard_data = {

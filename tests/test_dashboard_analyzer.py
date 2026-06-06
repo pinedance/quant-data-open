@@ -79,3 +79,33 @@ def test_ema_crossovers():
     price_series = pd.Series(prices)
     status, ema5, ema200 = calculate_ema_crossovers(price_series)
     assert status == "상향 돌파"
+
+
+# Append to tests/test_dashboard_analyzer.py
+from core.dashboard_analyzer import calculate_macd_z
+
+def test_macd_z_above_mean_is_positive():
+    """Current histogram above 12-month mean → positive z."""
+    series = pd.Series([1.0] * 12 + [3.0])
+    z = calculate_macd_z(series)
+    assert z > 0, f"Expected positive macd_z, got {z}"
+
+def test_macd_z_below_mean_is_negative():
+    """Current histogram below 12-month mean → negative z."""
+    series = pd.Series([2.0] * 12 + [0.0])
+    z = calculate_macd_z(series)
+    assert z < 0, f"Expected negative macd_z, got {z}"
+
+def test_macd_z_short_series_returns_zero():
+    """Series shorter than window+1 returns 0.0."""
+    series = pd.Series([1.0] * 5)
+    assert calculate_macd_z(series) == 0.0
+
+def test_macd_z_flat_series_returns_zero():
+    """All same values → std=0, returns 0.0."""
+    series = pd.Series([1.0] * 13)
+    assert calculate_macd_z(series) == 0.0
+
+def test_macd_z_is_float():
+    series = pd.Series([float(i) for i in range(14)])
+    assert isinstance(calculate_macd_z(series), float)
