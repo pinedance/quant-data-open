@@ -84,28 +84,46 @@ def test_ema_crossovers():
 # Append to tests/test_dashboard_analyzer.py
 from core.dashboard_analyzer import calculate_macd_z
 
+def make_mock_daily_prices(length=250, volatility=0.01):
+    prices = [100.0]
+    np.random.seed(42)
+    daily_returns = np.random.normal(0, volatility, length)
+    for i in range(1, length):
+        prices.append(prices[-1] * (1 + daily_returns[i]))
+    return pd.Series(prices)
+
 def test_macd_z_above_mean_is_positive():
-    """Current histogram above 12-month mean → positive z."""
     series = pd.Series([1.0] * 12 + [3.0])
-    z = calculate_macd_z(series)
+    daily_prices = make_mock_daily_prices(250)
+    z = calculate_macd_z(series, daily_prices)
     assert z > 0, f"Expected positive macd_z, got {z}"
 
 def test_macd_z_below_mean_is_negative():
-    """Current histogram below 12-month mean → negative z."""
-    series = pd.Series([2.0] * 12 + [0.0])
-    z = calculate_macd_z(series)
+    series = pd.Series([2.0] * 12 + [-1.0])
+    daily_prices = make_mock_daily_prices(250)
+    z = calculate_macd_z(series, daily_prices)
     assert z < 0, f"Expected negative macd_z, got {z}"
 
-def test_macd_z_short_series_returns_zero():
-    """Series shorter than window+1 returns 0.0."""
-    series = pd.Series([1.0] * 5)
-    assert calculate_macd_z(series) == 0.0
-
-def test_macd_z_flat_series_returns_zero():
-    """All same values → std=0, returns 0.0."""
+def test_macd_z_raises_value_error_on_missing_daily_prices():
     series = pd.Series([1.0] * 13)
-    assert calculate_macd_z(series) == 0.0
+    with pytest.raises(ValueError, match="daily_prices is completely missing"):
+        calculate_macd_z(series, None)
+
+def test_macd_z_raises_value_error_on_short_daily_prices():
+    series = pd.Series([1.0] * 13)
+    daily_prices = make_mock_daily_prices(100)
+    with pytest.raises(ValueError, match="must contain at least 200 data points"):
+        calculate_macd_z(series, daily_prices)
+
+def test_macd_z_raises_value_error_on_empty_hist_series():
+    series = pd.Series([], dtype=float)
+    daily_prices = make_mock_daily_prices(250)
+    with pytest.raises(ValueError, match="hist_series must not be empty"):
+        calculate_macd_z(series, daily_prices)
 
 def test_macd_z_is_float():
     series = pd.Series([float(i) for i in range(14)])
-    assert isinstance(calculate_macd_z(series), float)
+    daily_prices = make_mock_daily_prices(250)
+    assert isinstance(calculate_macd_z(series, daily_prices), float)
+
+
