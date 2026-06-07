@@ -39,3 +39,16 @@ def test_macd_z_vector():
     assert isinstance(z, pd.Series)
     assert z['A'] > 0
     assert z['B'] < 0
+
+def test_analyzer_constructor():
+    from core.dashboard_analyzer import DashboardAnalyzer
+    df_d = pd.DataFrame({'A': [100.0] * 200})
+    df_m = pd.DataFrame({'A': [100.0] * 13})
+    df_hist = pd.DataFrame({'A': [1.0]})
+    analyzer = DashboardAnalyzer(
+        names_dict={'A': 'Test Asset'},
+        df_us_d=df_d, df_us_m=df_m, df_us_hist=df_hist,
+        df_kr_d=df_d, df_kr_m=df_m, df_kr_hist=df_hist
+    )
+    assert analyzer.names_dict['A'] == 'Test Asset'
+
