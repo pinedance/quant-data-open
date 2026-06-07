@@ -521,7 +521,7 @@
     </div>
 
     <!-- ECharts.js scatter plot element -->
-    <div id="landscape-chart" style="width: 100%; height: 400px; margin-top: 1rem;"></div>
+    <div id="landscape-chart" style="width: 100%; height: 600px; margin-top: 1rem;"></div>
 
     <script>
     (function() {
@@ -767,7 +767,7 @@
           {% for item in data.data_quality_status %}
             <div class="dq-item">
               <div class="dq-meta">
-                <span class="dq-col">{{ item.column }}</span>
+                <span class="dq-col">{{ item.ticker or item.column }}<span style="font-size: 0.75rem; color: #64748b; font-weight: normal; margin-left: 0.25rem;">({{ item.name }})</span></span>
                 <span class="dq-nan">NaN count: <strong>{{ item.count }}</strong></span>
               </div>
               <span class="dq-range">{{ item.range }}</span>

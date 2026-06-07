@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
+from build import check_nans_for_dashboard
 from core.dashboard_analyzer import (
     calculate_average_momentum,
     calculate_ema_crossovers,
@@ -130,5 +131,23 @@ def test_macd_z_is_float():
     series = pd.Series([float(i) for i in range(14)])
     daily_prices = make_mock_daily_prices(250)
     assert isinstance(calculate_macd_z(series, daily_prices), float)
+
+def test_check_nans_for_dashboard():
+    dates = pd.date_range("2026-06-01", periods=5)
+    df = pd.DataFrame({
+        "AAPL": [100.0, np.nan, np.nan, 103.0, 104.0],
+        "MSFT": [200.0, 201.0, 202.0, 203.0, 204.0]
+    }, index=dates)
+    
+    names_dict = {"AAPL": "Apple Inc.", "MSFT": "Microsoft Corp."}
+    nan_info = check_nans_for_dashboard(df, "US", names_dict)
+    assert len(nan_info) == 1
+    assert nan_info[0]["column"] == "AAPL"
+    assert nan_info[0]["ticker"] == "AAPL"
+    assert nan_info[0]["name"] == "Apple Inc."
+    assert nan_info[0]["region"] == "US"
+    assert nan_info[0]["count"] == 2
+    assert nan_info[0]["range"] == "2026-06-02 ~ 2026-06-03"
+
 
 
