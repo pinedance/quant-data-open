@@ -1,7 +1,10 @@
-import pytest
-import pandas as pd
 from unittest.mock import patch
-from core.tIO import fetch_tickers, fetch_prices, download_with_retry
+
+import pandas as pd
+import pytest
+
+from core.tIO import download_with_retry, fetch_prices, fetch_tickers
+
 
 def test_fetch_tickers_raises_runtime_error_on_empty():
     with patch("pandas.read_csv", side_effect=Exception("Simulated network/file error")):

@@ -7,8 +7,8 @@
 # → res = requests.get(url, verify=False)
 # REF: https://github.com/WooilJeong/PublicDataReader/blob/main/PublicDataReader/ecos/ecos.py
 
-import requests
 import pandas as pd
+import requests
 
 requests.packages.urllib3.disable_warnings()
 

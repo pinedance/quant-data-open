@@ -1,25 +1,24 @@
-import os
-import json
 import datetime
-import pandas as pd
-from pathlib import Path
+import json
+import os
 from concurrent.futures import ProcessPoolExecutor
+from pathlib import Path
 
-from core.tFinance import (
-    calculate_average_momentum,
-    calculate_t_sigma
-)
+import pandas as pd
+
+from core.tFinance import calculate_average_momentum, calculate_t_sigma
+from core.tFinance import calculate_ema_crossovers as tf_ema
+from core.tFinance import calculate_macd_z as tf_macd_z
+
 
 def calculate_ema_crossovers(price_series):
     # Wrapper to support both vectorized DataFrame and legacy Series input formats
     if isinstance(price_series, pd.DataFrame):
-        from core.tFinance import calculate_ema_crossovers as tf_ema
         return tf_ema(price_series)
     
     if len(price_series) < 200:
         return "중립", 0.0, 0.0
         
-    from core.tFinance import calculate_ema_crossovers as tf_ema
     ema5_last, ema200_last, up_break, down_break, up_keep = tf_ema(price_series)
     
     if up_break:
@@ -43,7 +42,6 @@ def calculate_macd_z(hist_series, daily_prices):
         ticker_name = getattr(hist_series, 'name', 'Unknown')
         raise ValueError(f"Ticker [{ticker_name}] daily_prices must contain at least 200 data points for volatility scaling (got {len(daily_prices)}).")
         
-    from core.tFinance import calculate_macd_z as tf_macd_z
     res = tf_macd_z(hist_series, daily_prices)
     if isinstance(res, pd.Series):
         return res

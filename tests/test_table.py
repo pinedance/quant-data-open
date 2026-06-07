@@ -1,6 +1,8 @@
-import pandas as pd
 import numpy as np
-from core.tTable import resample_monthly, check_fill_nan
+import pandas as pd
+
+from core.tTable import check_fill_nan, resample_monthly
+
 
 def test_resample_monthly_eom():
     # Generate daily datetime index for 3 months

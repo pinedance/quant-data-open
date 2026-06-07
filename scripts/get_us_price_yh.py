@@ -1,14 +1,18 @@
 # -*- coding: utf-8 -*-
 
-import pandas as pd
-from datetime import date
-from core.tDate import setup_date_range
-from core.tIO import load_prev_price, fetch_tickers, save_df_as_tsv, fetch_prices, get_output_path
-from core.tFinance import calculate_macd
-from core.tTable import check_fill_nan, post_process_price, resample_monthly
-from core.message import send_telegram_message
+from core.cons import PRICE_EMA_SPAN, RECENT_DAYS_COUNT, data_url, delta_months
 from core.cons import config_gsheet_tickers_req_yh as config_tickers_req
-from core.cons import delta_months, data_url, PRICE_EMA_SPAN, RECENT_DAYS_COUNT
+from core.message import send_telegram_message
+from core.tDate import setup_date_range
+from core.tFinance import calculate_macd
+from core.tIO import (
+    fetch_prices,
+    fetch_tickers,
+    get_output_path,
+    load_prev_price,
+    save_df_as_tsv,
+)
+from core.tTable import check_fill_nan, post_process_price, resample_monthly
 
 # ETF 데이터 수집 관련 설정
 OUTPUT_PATH_PRICE_D_RAW = get_output_path("US/stocks/price/D", "raw.tsv")

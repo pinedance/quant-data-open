@@ -1,6 +1,8 @@
 import pandas as pd
-import numpy as np
-from core.tFinance import get_price_status, calculate_macd, process_price_status
+import pytest
+
+from core.tFinance import calculate_macd, get_price_status, process_price_status
+
 
 def test_calculate_macd():
     # Create a simple upward series
@@ -38,7 +40,6 @@ def test_get_price_status_sufficient_data():
 
 
 def test_process_price_status(capsys):
-    import pytest
     # 1. Normal flow
     prices1 = pd.Series([100.0] * 250)
     prices2 = pd.Series([100.0] * 50)

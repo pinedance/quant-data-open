@@ -2,17 +2,22 @@ import os
 import re
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from pathlib import Path
+
+import FinanceDataReader as fdr
 import pandas as pd
 import requests
 import yfinance as yf
-import FinanceDataReader as fdr
-from pathlib import Path
-from core.tTable import select_column_by_name
 
 #%% CONSTANTS
 ######################################################################
+from core.cons import (
+    MAX_WORKER_THREADS,
+    MIN_DATA_POINTS,
+    SUCCESS_RATE_WARNING_THRESHOLD,
+)
+from core.tTable import select_column_by_name
 
-from core.cons import MIN_DATA_POINTS, MAX_WORKER_THREADS, SUCCESS_RATE_WARNING_THRESHOLD
 PROJECT_ROOT = Path(__file__).parent.parent
 OUTPUT_ROOT = PROJECT_ROOT / "output"
 
