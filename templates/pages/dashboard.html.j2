@@ -538,30 +538,9 @@
         {% endfor %}
       ];
 
-      // Calculate dynamic bounds to allow panning immediately
-      var xValues = chartData.map(function(d) { return d.value[0]; });
-      var yValues = chartData.map(function(d) { return d.value[1]; });
-
-      var xMin = xValues.length ? Math.min.apply(null, xValues) : -3.0;
-      var xMax = xValues.length ? Math.max.apply(null, xValues) : 3.0;
-      var yMin = yValues.length ? Math.min.apply(null, yValues) : -3.0;
-      var yMax = yValues.length ? Math.max.apply(null, yValues) : 3.0;
-
-      // Symmetric absolute max around 0 (centered)
-      var xAbsMax = Math.max(Math.abs(xMin), Math.abs(xMax), 3.0);
-      var yAbsMax = Math.max(Math.abs(yMin), Math.abs(yMax), 3.0);
-
-      // View bounds (initial visible range)
-      var xViewMin = -xAbsMax - 0.5;
-      var xViewMax = xAbsMax + 0.5;
-      var yViewMin = -yAbsMax - 0.5;
-      var yViewMax = yAbsMax + 0.5;
-
-      // Absolute axis limits (allows panning beyond view bounds)
-      var xAxisMin = -xAbsMax * 2.0;
-      var xAxisMax = xAbsMax * 2.0;
-      var yAxisMin = -yAbsMax * 2.0;
-      var yAxisMax = yAbsMax * 2.0;
+      function symAxisBound(v, pad) {
+        return -(Math.max(Math.abs(v.min), Math.abs(v.max)) + pad);
+      }
 
       var chart = echarts.init(document.getElementById('landscape-chart'));
       chart.setOption({
@@ -587,25 +566,13 @@
           }
         },
         dataZoom: [
-          {
-            type: 'inside',
-            xAxisIndex: 0,
-            filterMode: 'none',
-            startValue: xViewMin,
-            endValue: xViewMax
-          },
-          {
-            type: 'inside',
-            yAxisIndex: 0,
-            filterMode: 'none',
-            startValue: yViewMin,
-            endValue: yViewMax
-          }
+          { type: 'inside', xAxisIndex: 0, filterMode: 'none' },
+          { type: 'inside', yAxisIndex: 0, filterMode: 'none' }
         ],
         xAxis: {
           type: 'value',
-          min: xAxisMin,
-          max: xAxisMax,
+          min: function(v) { return  symAxisBound(v, 0.5); },
+          max: function(v) { return -symAxisBound(v, 0.5); },
           name: 'MACD Z',
           nameLocation: 'middle',
           nameGap: 28,
@@ -616,8 +583,8 @@
         },
         yAxis: {
           type: 'value',
-          min: yAxisMin,
-          max: yAxisMax,
+          min: function(v) { return  symAxisBound(v, 0.5); },
+          max: function(v) { return -symAxisBound(v, 0.5); },
           name: 'T-Sigma',
           nameLocation: 'middle',
           nameGap: 32,
