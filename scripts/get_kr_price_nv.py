@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 
 import time
+
 import pandas as pd
-from tqdm import tqdm
 import requests
 from bs4 import BeautifulSoup
-from core.tIO import save_df_as_tsv
+from tqdm import tqdm
+
 from core.cons import config_gsheet_tickers_req_krx as config_tickers_req
 from core.cons import delta_months
-from core.tIO import get_output_path
+from core.tIO import get_output_path, save_df_as_tsv
 
 OUTPUT_PATH_PRICE_D_RAW = get_output_path("KR/stocks/price/D", "raw-nv.tsv")
 

@@ -1,5 +1,7 @@
 import pandas as pd
+
 from core.tTable import resample_monthly
+
 
 def test_resample_monthly_eom_appends_current_exact_date():
     # 2026-05-29 is last trading day of May, 2026-06-05 is current latest day

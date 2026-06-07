@@ -1,11 +1,12 @@
 import pandas as pd
-import numpy as np
-import pytest
+
+from core.dashboard_analyzer import DashboardAnalyzer
 from core.tFinance import (
     calculate_average_momentum,
     calculate_ema_crossovers,
-    calculate_macd_z
+    calculate_macd_z,
 )
+
 
 def test_average_momentum_vector():
     # 2D DataFrame (13 months EOM)
@@ -41,7 +42,6 @@ def test_macd_z_vector():
     assert z['B'] < 0
 
 def test_analyzer_constructor():
-    from core.dashboard_analyzer import DashboardAnalyzer
     df_d = pd.DataFrame({'A': [100.0] * 200})
     df_m = pd.DataFrame({'A': [100.0] * 13})
     df_hist = pd.DataFrame({'A': [1.0]})

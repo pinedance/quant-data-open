@@ -5,15 +5,19 @@ config.yaml만 수정하면 새 페이지가 자동으로 생성됩니다
 """
 
 import json
+import os
 import shutil
 import sys
-import yaml
-import pandas as pd
+from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
+
+import pandas as pd
 from jinja2 import Environment, FileSystemLoader
 
 from core.config import ConfigManager
 from core.cons import MA_LONG_WINDOW as MIN_REQUIRED_DAYS
+from core.dashboard_analyzer import DashboardAnalyzer
+from core.message import send_telegram_dashboard_summary
 from core.tIO import save_df_as_html_table
 
 _config = ConfigManager()
@@ -145,8 +149,6 @@ def process_dist_files(paths):
         html_path = output_dir / relative_path.with_suffix('.html')
         tasks.append((tsv_file, html_path))
 
-    from concurrent.futures import ProcessPoolExecutor
-    import os
     max_workers = os.cpu_count() or 4
     with ProcessPoolExecutor(max_workers=max_workers) as executor:
         futures = {executor.submit(convert_tsv_to_html, tsv, html): (tsv, html) for tsv, html in tasks}
@@ -222,7 +224,6 @@ def build():
     # Preprocess/Filter data
     df_us_d, df_us_m, df_us_hist, df_kr_d, df_kr_m, df_kr_hist = load_and_clean_dataset(paths)
     
-    from core.dashboard_analyzer import DashboardAnalyzer
     # Inject filtered data
     analyzer = DashboardAnalyzer(
         names_dict={}, # Filled dynamically or handled inside
@@ -270,7 +271,6 @@ def build():
     if dashboard_data and not no_message:
         try:
             print("\n📬 Sending Telegram dashboard summary...")
-            from core.message import send_telegram_dashboard_summary
             send_telegram_dashboard_summary(dashboard_data)
             print("✓ Telegram dashboard summary sent.")
         except Exception as e:

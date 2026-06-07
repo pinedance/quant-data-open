@@ -2,14 +2,16 @@
 import json
 import sys
 from pathlib import Path
+
 import yfinance as yf
 
 # Add root directory to python path to load core modules
 BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.append(str(BASE_DIR))
 
-from core.tIO import fetch_tickers
 from core.cons import config_gsheet_tickers_req_yh as config_tickers_req
+from core.tIO import fetch_tickers
+
 
 def main():
     print("Fetching US tickers from Google Sheet...")

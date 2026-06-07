@@ -3,11 +3,9 @@
 
 # %%
 import pandas as pd
-from tqdm import tqdm
-import FinanceDataReader as fdr
+
 from core.cons import config_gsheet_average_daily_exports_kr as config_gsheet1
-from core.tIO import get_output_path
-from core.tIO import save_df_as_tsv
+from core.tIO import get_output_path, save_df_as_tsv
 
 #%%
 OUTPUT_PATH = get_output_path("KR/economy/M", "average-daily-exports.tsv")

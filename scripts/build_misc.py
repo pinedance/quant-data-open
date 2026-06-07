@@ -2,12 +2,14 @@
 # pip -q install finance-datareader
 
 # %%
-import pandas as pd
 import json
-from core.tIO import get_ticker_data, get_output_path
+
+import pandas as pd
 
 # %%
-from core.cons import MISC_HISTORY_YEARS as YEARS, WEEKS_PER_YEAR
+from core.cons import MISC_HISTORY_YEARS as YEARS
+from core.cons import WEEKS_PER_YEAR
+from core.tIO import get_output_path, get_ticker_data
 
 # %%
 day_end = pd.Timestamp.today().date()

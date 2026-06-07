@@ -1,9 +1,9 @@
 # %%
 import pandas as pd
-from tqdm import tqdm
-from core.tIO import get_ticker_data, save_df_as_tsv, get_output_path
+
 from core.cons import config_gsheet_tickers_req_yh2 as config_tickers_req
 from core.cons import delta_months
+from core.tIO import get_output_path, get_ticker_data, save_df_as_tsv
 
 # %%
 OUTPUT_PATH = get_output_path("US/economy/D", "data.tsv")

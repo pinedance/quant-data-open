@@ -1,6 +1,8 @@
 import math
+
 import pandas as pd
-from core.cons import MA_SHORT_WINDOW, MA_LONG_WINDOW
+
+from core.cons import MA_LONG_WINDOW, MA_SHORT_WINDOW
 
 #%% DEAL FINANCE DATA
 ######################################################################
@@ -95,6 +97,7 @@ def calculate_macd(df, fast=12, slow=26, signal=9):
 
 import numpy as np
 import scipy.stats as stats
+
 
 def calculate_average_momentum(prices_df):
     if len(prices_df) < 13:

@@ -1,9 +1,9 @@
 # URL : https://m.stock.naver.com/
 
 import pandas as pd
-from core.tIO import get_json, save_df_as_tsv
-from core.tIO import get_output_path
+
 from core.cons import NAVER_ECONOMY_QUEUE as QUEUE
+from core.tIO import get_json, get_output_path, save_df_as_tsv
 
 OUTPUT_PATH = get_output_path("KR/economy/D", "markets.tsv")
 

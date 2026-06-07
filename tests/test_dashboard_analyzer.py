@@ -1,8 +1,13 @@
-import pandas as pd
 import numpy as np
-import scipy.stats as stats
+import pandas as pd
 import pytest
-from core.dashboard_analyzer import calculate_t_sigma, calculate_average_momentum, calculate_ema_crossovers
+
+from core.dashboard_analyzer import (
+    calculate_average_momentum,
+    calculate_ema_crossovers,
+    calculate_macd_z,
+    calculate_t_sigma,
+)
 
 
 def make_trending_up_series(n=250, daily_return=0.001):
@@ -82,7 +87,7 @@ def test_ema_crossovers():
 
 
 # Append to tests/test_dashboard_analyzer.py
-from core.dashboard_analyzer import calculate_macd_z
+
 
 def make_mock_daily_prices(length=250, volatility=0.01):
     prices = [100.0]

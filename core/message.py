@@ -1,11 +1,13 @@
-import os
+import json
 import math
+import os
+
 import requests
 from dotenv import load_dotenv
 
 load_dotenv()
 
-from core.cons import SIGMA_THRESHOLD, MSG_SEPARATOR_WIDTH
+from core.cons import MSG_SEPARATOR_WIDTH, SIGMA_THRESHOLD
 
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
@@ -14,7 +16,6 @@ if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
     print("Warning: TELEGRAM_BOT_TOKEN 또는 TELEGRAM_CHAT_ID가 설정되지 않았습니다. Telegram 알림이 비활성화됩니다.")
 
 def send_telegram_message(message, parse_mode=None, disable_link_preview=True):
-    import json
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
     params = {
         'chat_id': TELEGRAM_CHAT_ID,
@@ -134,7 +135,6 @@ def notice_price_status_batch(status_results, tickers=None):
 
 
 def send_telegram_dashboard_summary(data):
-    import html
     
     regime = data["market_regime"]
     sign = "+" if regime["tip_momentum"] > 0 else ""

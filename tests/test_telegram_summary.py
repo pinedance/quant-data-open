@@ -1,6 +1,7 @@
-import pytest
 from unittest.mock import patch
+
 from core.message import send_telegram_dashboard_summary
+
 
 @patch('core.message.send_telegram_message')
 def test_telegram_dashboard_summary(mock_send):
