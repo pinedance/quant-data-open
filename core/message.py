@@ -131,3 +131,106 @@ def notice_price_status_batch(status_results, tickers=None):
         parts.extend(_format_line(d) for d in sorted(sigma_lows, key=lambda d: d.get('sigma', 0)))
 
     send_telegram_message("\n".join(parts))
+
+
+def send_telegram_dashboard_summary(data):
+    import html
+    
+    regime = data["market_regime"]
+    sign = "+" if regime["tip_momentum"] > 0 else ""
+    market_season_line = f"🌤️ <b>Market Regime</b>: TIP Mom ({sign}{regime['tip_momentum']:.1f}%)"
+    
+    def get_ticker_link(ticker, region):
+        if region == "KR":
+            return f'<a href="https://finance.naver.com/item/main.naver?code={ticker}">{ticker}</a>'
+        else:
+            return f'<a href="https://finance.yahoo.com/quote/{ticker}">{ticker}</a>'
+
+    def format_tickers(entries):
+        kr_ticks = [get_ticker_link(e['ticker'], 'KR') for e in entries if e["region"] == "KR"]
+        us_ticks = [get_ticker_link(e['ticker'], 'US') for e in entries if e["region"] == "US"]
+        
+        lines = []
+        if us_ticks:
+            prefix = "  🇺🇸 "
+            if len(us_ticks) > 5:
+                prefix += ", ".join(us_ticks[:5]) + f" (외 {len(us_ticks) - 5}개)"
+            else:
+                prefix += ", ".join(us_ticks)
+            lines.append(prefix)
+        else:
+            lines.append("  🇺🇸 None")
+            
+        if kr_ticks:
+            prefix = "  🇰🇷 "
+            if len(kr_ticks) > 5:
+                prefix += ", ".join(kr_ticks[:5]) + f" (외 {len(kr_ticks) - 5}개)"
+            else:
+                prefix += ", ".join(kr_ticks)
+            lines.append(prefix)
+        else:
+            lines.append("  🇰🇷 None")
+            
+        return "\n".join(lines)
+    
+    def format_extremes(entries):
+        kr_parts = [f"{get_ticker_link(e['ticker'], 'KR')}({e['t_sigma']})" for e in entries if e["region"] == "KR"]
+        us_parts = [f"{get_ticker_link(e['ticker'], 'US')}({e['t_sigma']})" for e in entries if e["region"] == "US"]
+        
+        lines = []
+        if us_parts:
+            prefix = "  🇺🇸 "
+            if len(us_parts) > 5:
+                prefix += ", ".join(us_parts[:5]) + f" (외 {len(us_parts) - 5}개)"
+            else:
+                prefix += ", ".join(us_parts)
+            lines.append(prefix)
+        else:
+            lines.append("  🇺🇸 None")
+            
+        if kr_parts:
+            prefix = "  🇰🇷 "
+            if len(kr_parts) > 5:
+                prefix += ", ".join(kr_parts[:5]) + f" (외 {len(kr_parts) - 5}개)"
+            else:
+                prefix += ", ".join(kr_parts)
+            lines.append(prefix)
+        else:
+            lines.append("  🇰🇷 None")
+            
+        return "\n".join(lines)
+
+    up_ticks = data["trend_breakouts"]["up_breakouts"]
+    down_ticks = data["trend_breakouts"]["down_breakouts"]
+    overheated = [e for e in data["valuation_extremes"] if e["t_sigma"] > 2.5]
+    depressed = [e for e in data["valuation_extremes"] if e["t_sigma"] < -2.5]
+    
+    BASE = "https://pinedance.github.io/quant-data-open/dist"
+    link_line = (
+        f"🔗 <a href=\"{BASE}/US/dashboard.html\">🇺🇸 US Dashboard</a> | "
+        f"<a href=\"{BASE}/KR/dashboard.html\">🇰🇷 KR Dashboard</a>"
+    )
+    
+    parts = [
+        "<b>📊 [Quant Dashboard] 일간 업데이트</b>",
+        "",
+        market_season_line,
+        "──────────────────",
+        "📈 <b>EMA200 상향 돌파</b>",
+        format_tickers(up_ticks),
+        "",
+        "📉 <b>EMA200 하향 돌파</b>",
+        format_tickers(down_ticks),
+        "",
+        "🔥 <b>과열 (T-Sigma &gt; 2.5)</b>",
+        format_extremes(overheated),
+        "",
+        "❄️ <b>침체 (T-Sigma &lt; -2.5)</b>",
+        format_extremes(depressed),
+        "──────────────────",
+        link_line
+    ]
+    
+    msg = "\n".join(parts)
+    send_telegram_message(msg, parse_mode='HTML')
+
