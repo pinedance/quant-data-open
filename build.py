@@ -19,6 +19,7 @@ from core.cons import MA_LONG_WINDOW as MIN_REQUIRED_DAYS
 from core.dashboard_analyzer import DashboardAnalyzer
 from core.message import send_telegram_dashboard_summary
 from core.tIO import save_df_as_html_table
+from core.tTable import check_nans
 
 _config = ConfigManager()
 BASE_DIR = Path(__file__).resolve().parent
@@ -37,6 +38,24 @@ def filter_dashboard_data(data, region):
         "data_quality_status": [e for e in data["data_quality_status"] if e["region"] == region],
         "last_updated": data["last_updated"],
     }
+
+def check_nans_for_dashboard(df, region, names_dict=None):
+    nan_info = check_nans(df)
+    dashboard_nan_status = []
+    for item in nan_info:
+        col = item["column"]
+        ticker = col[1:] if (region == "KR" and col.startswith('A')) else col
+        name = names_dict.get(ticker, ticker) if names_dict else ticker
+        
+        dashboard_nan_status.append({
+            "column": col,
+            "ticker": ticker,
+            "name": name,
+            "region": region,
+            "count": item["count"],
+            "range": f"{item['start']} ~ {item['end']}"
+        })
+    return dashboard_nan_status
 
 def load_json_data(filepath):
     with open(filepath, 'r', encoding='utf-8-sig') as f:
@@ -177,6 +196,9 @@ def load_and_clean_dataset(paths):
     if len(df_us_d) < MIN_REQUIRED_DAYS or len(df_kr_d) < MIN_REQUIRED_DAYS:
         raise ValueError(f"Total price history is shorter than required window ({MIN_REQUIRED_DAYS} days).")
 
+    df_us_d_raw = df_us_d.copy()
+    df_kr_d_raw = df_kr_d.copy()
+
     clean_us_cols = df_us_d.iloc[-MIN_REQUIRED_DAYS:, :].dropna(axis=1).columns
     us_excluded = df_us_d.columns.difference(clean_us_cols)
     if not us_excluded.empty:
@@ -194,7 +216,7 @@ def load_and_clean_dataset(paths):
     df_kr_m = df_kr_m[clean_kr_cols]
     df_kr_hist = df_kr_hist[clean_kr_cols]
 
-    return df_us_d, df_us_m, df_us_hist, df_kr_d, df_kr_m, df_kr_hist
+    return df_us_d, df_us_m, df_us_hist, df_kr_d, df_kr_m, df_kr_hist, df_us_d_raw, df_kr_d_raw
 
 def build():
     print("🔨 Building site with Jinja2...")
@@ -222,7 +244,7 @@ def build():
     print("\n📊 Running Quant Dashboard analysis...")
     
     # Preprocess/Filter data
-    df_us_d, df_us_m, df_us_hist, df_kr_d, df_kr_m, df_kr_hist = load_and_clean_dataset(paths)
+    df_us_d, df_us_m, df_us_hist, df_kr_d, df_kr_m, df_kr_hist, df_us_d_raw, df_kr_d_raw = load_and_clean_dataset(paths)
     
     # Inject filtered data
     analyzer = DashboardAnalyzer(
@@ -237,6 +259,12 @@ def build():
     
     try:
         dashboard_data = analyzer.analyze()
+        if dashboard_data:
+            nan_status = []
+            nan_status.extend(check_nans_for_dashboard(df_us_d_raw, "US", analyzer.names_dict))
+            nan_status.extend(check_nans_for_dashboard(df_kr_d_raw, "KR", analyzer.names_dict))
+            dashboard_data["data_quality_status"] = nan_status
+
         for region in ["US", "KR"]:
             filtered_data = filter_dashboard_data(dashboard_data, region)
             region_dir = paths['output'] / paths['output_subdir'] / region

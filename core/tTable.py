@@ -9,24 +9,45 @@ def select_column_by_name(df, col_name):
         return df[col_name]
     return pd.Series(dtype='float64')  # 빈 Series 반환
 
-def check_fill_nan(df, fill_nan=False):
+def check_nans(df):
+    nan_info = []
     n_nan = df.isna().sum().sum()
-    warnings = []
     if n_nan > 0:
-        nan_info = []
         for col in df.columns:
             nan_series = df[col].isna()
             if nan_series.sum() > 0:
                 nan_indices = nan_series[nan_series].index
                 start_index = nan_indices[0]
                 end_index = nan_indices[-1]
-                if hasattr(start_index, 'date'):
-                    start_index = start_index.date()
-                if hasattr(end_index, 'date'):
-                    end_index = end_index.date()
-                nan_info.append(f"{col}: {start_index} ~ {end_index}")
+                if hasattr(start_index, 'strftime'):
+                    start_index = start_index.strftime("%Y-%m-%d")
+                elif hasattr(start_index, 'date'):
+                    start_index = str(start_index.date())
+                else:
+                    start_index = str(start_index)
 
-        warnings.append(f"NaN 값 감지 ({n_nan:,}개)\n" + "\n".join(nan_info))
+                if hasattr(end_index, 'strftime'):
+                    end_index = end_index.strftime("%Y-%m-%d")
+                elif hasattr(end_index, 'date'):
+                    end_index = str(end_index.date())
+                else:
+                    end_index = str(end_index)
+
+                nan_info.append({
+                    "column": col,
+                    "count": int(nan_series.sum()),
+                    "start": start_index,
+                    "end": end_index
+                })
+    return nan_info
+
+def check_nans_for_cli(df, fill_nan=False):
+    nan_info = check_nans(df)
+    warnings = []
+    if nan_info:
+        total_nans = sum(item["count"] for item in nan_info)
+        info_lines = [f"{item['column']}: {item['start']} ~ {item['end']}" for item in nan_info]
+        warnings.append(f"NaN 값 감지 ({total_nans:,}개)\n" + "\n".join(info_lines))
 
         if fill_nan:
             df_filled = df.ffill().bfill()
