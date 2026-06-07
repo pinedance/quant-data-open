@@ -93,3 +93,73 @@ def calculate_macd(df, fast=12, slow=26, signal=9):
     macd_histogram = macd_line - signal_line
     return macd_line, macd_histogram
 
+import numpy as np
+import scipy.stats as stats
+
+def calculate_average_momentum(prices_df):
+    if len(prices_df) < 13:
+        return 0.0 if isinstance(prices_df, pd.Series) else pd.Series(0.0, index=prices_df.columns)
+    P_curr = prices_df.iloc[-1]
+    P_1m = prices_df.iloc[-2]
+    P_3m = prices_df.iloc[-4]
+    P_6m = prices_df.iloc[-7]
+    P_12m = prices_df.iloc[-13]
+    
+    r1 = (P_curr / P_1m) - 1
+    r3 = (P_curr / P_3m) - 1
+    r6 = (P_curr / P_6m) - 1
+    r12 = (P_curr / P_12m) - 1
+    
+    return (r1 + r3 + r6 + r12) / 4.0
+
+def calculate_ema_crossovers(prices_df):
+    if len(prices_df) < 200:
+        raise ValueError("prices_df must contain at least 200 data points.")
+    ema5 = prices_df.ewm(span=5, adjust=False).mean()
+    ema200 = prices_df.ewm(span=200, adjust=False).mean()
+    
+    curr_ema5 = ema5.iloc[-1]
+    curr_ema200 = ema200.iloc[-1]
+    prev_ema5 = ema5.iloc[-2]
+    prev_ema200 = ema200.iloc[-2]
+    
+    up_break = (curr_ema5 > curr_ema200) & (prev_ema5 <= prev_ema200)
+    down_break = (curr_ema5 < curr_ema200) & (prev_ema5 >= prev_ema200)
+    up_keep = (curr_ema5 > curr_ema200) & ~up_break
+    
+    return ema5.iloc[-1], ema200.iloc[-1], up_break, down_break, up_keep
+
+def calculate_macd_z(hist_df, daily_prices_df):
+    if len(daily_prices_df) < 200:
+        raise ValueError("daily_prices_df must contain at least 200 data points.")
+    current_macd_hist = hist_df.iloc[-1]
+    log_returns = np.log(daily_prices_df / daily_prices_df.shift(1))
+    sigma_daily = log_returns.iloc[-200:].std()
+    sigma_monthly = sigma_daily * np.sqrt(21)
+    current_price = daily_prices_df.iloc[-1]
+    scale = current_price * sigma_monthly
+    
+    return current_macd_hist / (scale + 1e-6)
+
+def calculate_t_sigma(series, window=200):
+    if len(series) < window + 2:
+        return 0.0, 0.0, 0.0, 0.0, 0.0
+    
+    log_prices = np.log(series)
+    base = log_prices.iloc[-window:]
+    
+    try:
+        df_fit, loc_fit, scale_fit = stats.t.fit(base)
+    except Exception:
+        return 0.0, 0.0, 0.0, 0.0, 0.0
+        
+    current = log_prices.iloc[-1]
+    t_score = (current - loc_fit) / scale_fit
+    p_value = stats.t.cdf(t_score, df=df_fit)
+    p_value = np.clip(p_value, 1e-15, 1 - 1e-15)
+    real_z = float(stats.norm.ppf(p_value))
+    raw_z = float((current - base.mean()) / base.std() if base.std() > 0 else 0.0)
+    
+    return real_z, raw_z, df_fit, loc_fit, scale_fit
+
+
