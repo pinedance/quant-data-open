@@ -12,7 +12,7 @@ from core.tIO import (
     load_prev_price,
     save_df_as_tsv,
 )
-from core.tTable import check_fill_nan, post_process_price, resample_monthly
+from core.tTable import check_nans_for_cli, post_process_price, resample_monthly
 
 # ETF 데이터 수집 관련 설정
 OUTPUT_PATH_PRICE_D_RAW = get_output_path("US/stocks/price/D", "raw.tsv")
@@ -69,7 +69,7 @@ def main():
             send_telegram_message(f"⚠️ [YAHOO] {missing_count}개 티커 수집 실패")
 
         # 데이터 처리 및 저장
-        price_raw, nan_warnings = check_fill_nan(price_raw_df)
+        price_raw, nan_warnings = check_nans_for_cli(price_raw_df)
         if nan_warnings:
             send_telegram_message("⚠️ [YAHOO] 데이터 결측치(NaN) 감지 (대시보드 참조)")
         price_raw = price_raw.astype('float64')
