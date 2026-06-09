@@ -2,7 +2,7 @@ name: Build and Deploy
 
 on:
   workflow_run:
-    workflows: ["Update data monthly", "Update data daily", "Update price daily"]
+    workflows: ["Update price daily"]
     types:
       - completed
   workflow_dispatch:
