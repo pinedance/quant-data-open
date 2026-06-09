@@ -2,8 +2,8 @@ name: Update data monthly
 
 on:
   schedule:
-    # 금요일 Seoul 17:00 == UTC 08:00
-    - cron: "0 8 * * 5"   # 금요일
+    # 금요일 Seoul 17:03 == UTC 08:03
+    - cron: "3 8 * * 5"   # 금요일
 #     - cron: "0 0 5,15,25 * *"
 #     - cron: "*/20 * * * *"
   workflow_dispatch:
