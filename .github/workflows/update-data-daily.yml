@@ -2,8 +2,8 @@ name: Update data daily
 
 on:
   schedule:
-#  Seoul 19:37 월-금 -> UTC 10:37
-    - cron: "37 10 * * *"
+#  Seoul 19:07 월-금 -> UTC 10:07
+    - cron: "07 10 * * *"
   workflow_dispatch:
     inputs:
       tags:
