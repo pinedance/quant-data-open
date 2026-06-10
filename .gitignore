@@ -6,6 +6,7 @@
 .agent/
 .agents/
 .gemini/
+.ruff_cache/
 .dev/
 _*/
 _*.*
