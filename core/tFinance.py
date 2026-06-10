@@ -166,3 +166,22 @@ def calculate_t_sigma(series, window=200):
     return real_z, raw_z, df_fit, loc_fit, scale_fit
 
 
+def calculate_rsi(series, period=14):
+    """
+    Vectorized Wilder's Relative Strength Index calculation.
+    """
+    if len(series) < period:
+        return pd.Series(50.0, index=series.index)
+        
+    delta = series.diff()
+    gain = delta.clip(lower=0)
+    loss = -delta.clip(upper=0)
+    
+    avg_gain = gain.ewm(alpha=1/period, adjust=False).mean()
+    avg_loss = loss.ewm(alpha=1/period, adjust=False).mean()
+    
+    rs = avg_gain / (avg_loss + 1e-9)
+    return 100.0 - (100.0 / (1.0 + rs))
+
+
+
