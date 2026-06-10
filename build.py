@@ -35,6 +35,7 @@ def filter_dashboard_data(data, region):
         },
         "monthly_momentum":   [e for e in data["monthly_momentum"]   if e["region"] == region],
         "valuation_extremes": [e for e in data["valuation_extremes"] if e["region"] == region],
+        "rsi_extremes":       [e for e in data.get("rsi_extremes", []) if e["region"] == region],
         "data_quality_status": [e for e in data["data_quality_status"] if e["region"] == region],
         "last_updated": data["last_updated"],
     }
