@@ -52,3 +52,13 @@ def test_analyzer_constructor():
     )
     assert analyzer.names_dict['A'] == 'Test Asset'
 
+
+def test_calculate_rsi():
+    from core.tFinance import calculate_rsi
+    prices = pd.Series([100.0 + i for i in range(20)])
+    rsi = calculate_rsi(prices, period=14)
+    assert isinstance(rsi, pd.Series)
+    assert len(rsi) == 20
+    assert rsi.iloc[-1] > 80.0
+
+
