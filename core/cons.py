@@ -70,6 +70,10 @@ MISC_HISTORY_YEARS = _constants.get("MISC_HISTORY_YEARS", 5)    # 기타 통계 
 # Naver Economy Queue Crawler Configuration
 NAVER_ECONOMY_QUEUE = _constants.get("naver_economy_queue", [])
 
+# RSI Configuration
+RSI_PERIOD = _constants.get("RSI_PERIOD", 14)               # RSI 기간
+RSI_SIGNAL_PERIOD = _constants.get("RSI_SIGNAL_PERIOD", 9)  # RSI 시그널 기간 (EMA span)
+
 
 # ==============================================================================
 # 2. Fixed System Logic Constants (Rarely / Never Change)
