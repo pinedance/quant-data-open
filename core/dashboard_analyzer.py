@@ -6,9 +6,11 @@ from pathlib import Path
 
 import pandas as pd
 
-from core.tFinance import calculate_average_momentum, calculate_t_sigma
+from core.tFinance import calculate_average_momentum, calculate_t_sigma, calculate_rsi
 from core.tFinance import calculate_ema_crossovers as tf_ema
 from core.tFinance import calculate_macd_z as tf_macd_z
+from core.cons import RSI_PERIOD, RSI_SIGNAL_PERIOD
+
 
 
 def calculate_ema_crossovers(price_series):
@@ -184,6 +186,40 @@ class DashboardAnalyzer:
 
         ticker_stats.sort(key=lambda x: x["t_sigma"], reverse=True)
 
+        rsi_extremes = []
+        def calculate_rsi_metrics(df_d, df_m, region):
+            for col in df_d.columns:
+                ticker = col[1:] if (region == "KR" and col.startswith('A')) else col
+                name = self.names_dict.get(ticker, ticker)
+                m_series = df_m[col].dropna()
+                d_series = df_d[col].dropna()
+                if m_series.empty or d_series.empty:
+                    continue
+                last_m_date = pd.to_datetime(m_series.index[-1])
+                last_d_date = pd.to_datetime(d_series.index[-1])
+                if last_d_date > last_m_date:
+                    appended_val = pd.Series([d_series.iloc[-1]], index=[d_series.index[-1]])
+                    merged_series = pd.concat([m_series, appended_val])
+                else:
+                    merged_series = m_series
+
+                rsi_series = calculate_rsi(merged_series, period=RSI_PERIOD)
+                rsi_signal_series = rsi_series.ewm(span=RSI_SIGNAL_PERIOD, adjust=False).mean()
+                val_rsi = float(rsi_series.iloc[-1])
+                val_rsi_signal = float(rsi_signal_series.iloc[-1])
+                rsi_extremes.append({
+                    "ticker": ticker,
+                    "name": name,
+                    "region": region,
+                    "rsi": round(val_rsi, 2),
+                    "rsi_signal": round(val_rsi_signal, 2),
+                    "rsi_diff": round(val_rsi - val_rsi_signal, 2)
+                })
+
+        calculate_rsi_metrics(self.df_us_d, self.df_us_m, "US")
+        calculate_rsi_metrics(self.df_kr_d, self.df_kr_m, "KR")
+        rsi_extremes.sort(key=lambda x: x["rsi"], reverse=True)
+
         return {
             "market_regime": {
                 "tip_momentum": round(tip_momentum * 100, 2),
@@ -195,6 +231,7 @@ class DashboardAnalyzer:
             },
             "monthly_momentum": macd_positive,
             "valuation_extremes": ticker_stats,
+            "rsi_extremes": rsi_extremes,
             "data_quality_status": [],
             "last_updated": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }
