@@ -513,6 +513,230 @@
     </div>
   </div>
 
+  <!-- ②-2 RSI Landscape -->
+  <div class="dash-card">
+    <div class="dash-card-title">
+      <span>RSI Landscape</span>
+      <span style="font-size:0.65rem;color:#475569;font-weight:normal;">x: RSI Diff (RSI - Signal) &nbsp;·&nbsp; y: RSI</span>
+    </div>
+
+    <!-- ECharts.js scatter plot element -->
+    <div id="rsi-chart" style="width: 100%; height: 600px; margin-top: 1rem;"></div>
+
+    <script>
+    (function() {
+      var chartData = [
+        {% for item in data.rsi_extremes %}
+        {
+          value: [{{ item.rsi_diff | default(0.0) }}, {{ item.rsi | default(50.0) }}],
+          ticker: {{ item.ticker | tojson }},
+          name: {{ item.name | tojson }},
+          rsi: {{ item.rsi | default(50.0) }},
+          rsi_signal: {{ item.rsi_signal | default(50.0) }},
+          rsi_diff: {{ item.rsi_diff | default(0.0) }}
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
+      ];
+
+      function symAxisBound(v, pad) {
+        return -(Math.max(Math.abs(v.min), Math.abs(v.max)) + pad);
+      }
+
+      var chart = echarts.init(document.getElementById('rsi-chart'));
+      chart.setOption({
+        backgroundColor: 'transparent',
+        grid: { left: 48, right: 16, top: 35, bottom: 48 },
+        toolbox: {
+          show: true,
+          top: 0,
+          right: 10,
+          feature: {
+            restore: {
+              show: true,
+              title: 'Reset'
+            }
+          },
+          iconStyle: {
+            borderColor: '#94a3b8'
+          },
+          emphasis: {
+            iconStyle: {
+              borderColor: '#ffffff'
+            }
+          }
+        },
+        dataZoom: [
+          { type: 'inside', xAxisIndex: 0, filterMode: 'none' },
+          { type: 'inside', yAxisIndex: 0, filterMode: 'none' }
+        ],
+        xAxis: {
+          type: 'value',
+          min: function(v) { return  symAxisBound(v, 5); },
+          max: function(v) { return -symAxisBound(v, 5); },
+          name: 'RSI Diff (RSI - Signal)',
+          nameLocation: 'middle',
+          nameGap: 28,
+          nameTextStyle: { color: '#94a3b8', fontSize: 11, fontWeight: 600 },
+          axisLine: { lineStyle: { color: '#475569', width: 1.5 } },
+          splitLine: { lineStyle: { color: '#334155', type: 'dashed' } },
+          axisLabel: { color: '#cbd5e1', fontSize: 10 }
+        },
+        yAxis: {
+          type: 'value',
+          min: 0,
+          max: 100,
+          name: 'RSI',
+          nameLocation: 'middle',
+          nameGap: 32,
+          nameTextStyle: { color: '#94a3b8', fontSize: 11, fontWeight: 600 },
+          axisLine: { lineStyle: { color: '#475569', width: 1.5 } },
+          splitLine: { lineStyle: { color: '#334155', type: 'dashed' } },
+          axisLabel: { color: '#cbd5e1', fontSize: 10 }
+        },
+        tooltip: {
+          trigger: 'item',
+          backgroundColor: 'rgba(30, 41, 59, 0.95)',
+          borderColor: '#475569',
+          borderWidth: 1,
+          padding: [10, 14],
+          textStyle: { color: '#f1f5f9', fontSize: 12 },
+          formatter: function(params) {
+            var d = params.data;
+            var header = {{ region | tojson }} === 'KR' ? (d.name + ' <span style="font-size:10px;color:#94a3b8;">' + d.ticker + '</span>') : (d.ticker + ' <span style="font-size:10px;color:#94a3b8;">' + d.name + '</span>');
+            return '<div style="font-weight:700;margin-bottom:6px;border-bottom:1px solid #334155;padding-bottom:4px;">' + header + '</div>'
+              + '<div style="display:flex;justify-content:space-between;gap:15px;margin-bottom:2px;">'
+              + '<span style="color:#94a3b8;">RSI:</span>'
+              + '<span style="font-weight:600;color:' + (d.rsi > 70 ? '#f87171' : (d.rsi < 30 ? '#60a5fa' : '#cbd5e1')) + '">' + d.rsi.toFixed(2) + '</span>'
+              + '</div>'
+              + '<div style="display:flex;justify-content:space-between;gap:15px;margin-bottom:2px;">'
+              + '<span style="color:#94a3b8;">RSI Signal:</span>'
+              + '<span style="font-weight:600;color:#cbd5e1">' + d.rsi_signal.toFixed(2) + '</span>'
+              + '</div>'
+              + '<div style="display:flex;justify-content:space-between;gap:15px;">'
+              + '<span style="color:#94a3b8;">RSI Diff:</span>'
+              + '<span style="font-weight:600;color:' + (d.rsi_diff > 0 ? '#10b981' : (d.rsi_diff < 0 ? '#ef4444' : '#cbd5e1')) + '">' + d.rsi_diff.toFixed(2) + '</span>'
+              + '</div>';
+          }
+        },
+        series: [{
+          type: 'scatter',
+          data: chartData,
+          symbolSize: 10,
+          itemStyle: {
+            color: function(params) {
+              var r = params.data.rsi;
+              if (r > 70) return '#f87171'; // soft red
+              if (r < 30) return '#60a5fa'; // soft blue
+              return '#6366f1'; // indigo
+            },
+            shadowBlur: 8,
+            shadowColor: 'rgba(99, 102, 241, 0.4)',
+            opacity: 0.95
+          },
+          label: {
+            show: true,
+            formatter: function(params) {
+              return params.data.ticker;
+            },
+            position: 'top',
+            fontSize: 9,
+            color: '#cbd5e1',
+            fontWeight: 600,
+            distance: 5
+          },
+          labelLayout: {
+            hideOverlap: true
+          },
+          emphasis: {
+            scale: true,
+            itemStyle: {
+              shadowBlur: 15,
+              shadowColor: 'rgba(255, 255, 255, 0.6)',
+              opacity: 1
+            },
+            label: {
+              color: '#ffffff',
+              fontSize: 10,
+              fontWeight: 700
+            }
+          },
+          markLine: {
+            silent: true,
+            symbol: 'none',
+            label: { show: false },
+            data: [
+              { xAxis: 0, lineStyle: { type: 'solid', color: '#64748b', width: 1.5 } },
+              { yAxis: 30, lineStyle: { type: 'dashed', color: '#475569', width: 1 } },
+              { yAxis: 70, lineStyle: { type: 'dashed', color: '#475569', width: 1 } }
+            ]
+          }
+        }]
+      });
+
+      chart.getZr().on('dblclick', function() {
+        chart.dispatchAction({
+          type: 'restore'
+        });
+      });
+
+      window.addEventListener('resize', function() { chart.resize(); });
+    })();
+    </script>
+
+    <!-- Toggle: RSI Table -->
+    <details class="toggle-section" {% if not data.rsi_extremes %}style="display:none;"{% endif %}>
+      <summary class="toggle-summary">RSI Table</summary>
+      <div class="val-table-wrap">
+        <table class="val-table">
+          <thead>
+            <tr>
+              {% if region == 'KR' %}
+                <th>Name</th>
+                <th>Ticker</th>
+              {% else %}
+                <th>Ticker</th>
+                <th>Name</th>
+              {% endif %}
+              <th>RSI</th>
+              <th>RSI Signal</th>
+              <th>RSI Diff</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in data.rsi_extremes %}
+              {% set is_hot  = item.rsi > 70 %}
+              {% set is_cold = item.rsi < 30 %}
+              <tr class="{% if is_hot %}row-hot{% elif is_cold %}row-cold{% endif %}">
+                {% if region == 'KR' %}
+                  <td class="ticker-name-cell">{{ item.name }}</td>
+                  <td class="ticker-symbol-cell">{{ item.ticker }}</td>
+                {% else %}
+                  <td class="ticker-symbol-cell">{{ item.ticker }}</td>
+                  <td class="ticker-name-cell">{{ item.name }}</td>
+                {% endif %}
+                <td style="font-weight:700;">{{ "%.2f"|format(item.rsi) }}</td>
+                <td>{{ "%.2f"|format(item.rsi_signal) }}</td>
+                <td class="{{ 'text-green' if item.rsi_diff > 0 else ('text-red' if item.rsi_diff < 0 else '') }}" style="font-weight:600;">
+                  {{ '+' if item.rsi_diff > 0 else '' }}{{ "%.2f"|format(item.rsi_diff) }}
+                </td>
+                <td>
+                  {% if is_hot %}
+                    <span class="status-badge status-overheated">{% if region == 'KR' %}과열{% else %}Overheated{% endif %}</span>
+                  {% elif is_cold %}
+                    <span class="status-badge status-depressed">{% if region == 'KR' %}침체{% else %}Depressed{% endif %}</span>
+                  {% else %}
+                    <span class="status-normal">{% if region == 'KR' %}정상{% else %}Normal{% endif %}</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </details>
+  </div>
+
   <!-- ③ Market Landscape -->
   <div class="dash-card">
     <div class="dash-card-title">
