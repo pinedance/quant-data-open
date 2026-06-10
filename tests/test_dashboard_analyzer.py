@@ -150,4 +150,31 @@ def test_check_nans_for_dashboard():
     assert nan_info[0]["range"] == "2026-06-02 ~ 2026-06-03"
 
 
+def test_dashboard_analyzer_rsi():
+    from core.dashboard_analyzer import DashboardAnalyzer
+    df_d = pd.DataFrame({'A': [100.0 + i * 0.05 for i in range(250)]})
+    df_d.index = pd.date_range(end='2026-06-10', periods=250, freq='D')
+    
+    df_m = pd.DataFrame({'A': [100.0 + i * 1.5 for i in range(20)]})
+    df_m.index = pd.date_range(end='2026-05-31', periods=20, freq='ME')
+    
+    df_hist = pd.DataFrame({'A': [1.0] * 20})
+    df_hist.index = df_m.index
+    
+    analyzer = DashboardAnalyzer(
+        names_dict={'A': 'Asset A'},
+        df_us_d=df_d, df_us_m=df_m, df_us_hist=df_hist,
+        df_kr_d=df_d, df_kr_m=df_m, df_kr_hist=df_hist
+    )
+    result = analyzer.analyze()
+    assert "rsi_extremes" in result
+    assert len(result["rsi_extremes"]) > 0
+    item = result["rsi_extremes"][0]
+    assert "rsi" in item
+    assert "rsi_signal" in item
+    assert "rsi_diff" in item
+    assert item["ticker"] == "A"
+
+
+
 
