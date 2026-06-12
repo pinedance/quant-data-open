@@ -1,17 +1,13 @@
 name: Update data monthly
 
 on:
+  workflow_dispatch:
+
   schedule:
     # 금요일 Seoul 17:03 == UTC 08:03
     - cron: "3 8 * * 5"   # 금요일
 #     - cron: "0 0 5,15,25 * *"
 #     - cron: "*/20 * * * *"
-  workflow_dispatch:
-    inputs:
-      tags:
-        description: 'Activate Manually'
-        required: true
-        type: boolean
 
 permissions:
   contents: write

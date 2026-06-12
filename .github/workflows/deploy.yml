@@ -1,11 +1,12 @@
 name: Build and Deploy
 
 on:
+  workflow_dispatch:
+  
   workflow_run:
     workflows: ["Update price daily"]
     types:
       - completed
-  workflow_dispatch:
 
 permissions:
   contents: read
