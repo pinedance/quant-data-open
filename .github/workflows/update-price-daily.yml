@@ -1,15 +1,12 @@
 name: Update price daily
 
 on:
-  schedule:
-    # Seoul KST 07:17 -> UTC 22:17
-    - cron: "17 22 * * *"
   workflow_dispatch:
-    inputs:
-      tags:
-        description: 'Activate Manually'
-        required: true
-        type: boolean
+
+  # service-cron-jobs 로 대체
+  # schedule:
+    # Seoul KST 07:17 -> UTC 22:17
+    # - cron: "17 22 * * *"
 
 permissions:
   contents: write

@@ -1,17 +1,15 @@
 name: Update data daily
 
 on:
-  schedule:
-#  Seoul 19:07 월-금 -> UTC 10:07
-    - cron: "07 10 * * *"
   workflow_dispatch:
-    inputs:
-      tags:
-        description: 'Activate Manually'
-        required: true
-        type: boolean
-  repository_dispatch:
-    types: [update-data]
+
+  # service-cron-jobs 로 대체
+  # schedule:
+    # Seoul 19:07 월-금 -> UTC 10:07
+    # - cron: "07 10 * * *"
+
+  # repository_dispatch:
+  #   types: [update-data]
 
 permissions:
   contents: write
