@@ -86,6 +86,11 @@
       "gb": "US"
     },
     {
+      "cd": "IDEV",
+      "nm": "iShares Core MSCI International Developed Markets ETF",
+      "gb": "US"
+    },
+    {
       "cd": "IDMO",
       "nm": "Invesco S&P International Developed Momentum ETF",
       "gb": "US"
@@ -98,6 +103,11 @@
     {
       "cd": "IEFA",
       "nm": "iShares Core MSCI EAFE ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "IEMG",
+      "nm": "iShares Core MSCI Emerging Markets ETF",
       "gb": "US"
     },
     {
