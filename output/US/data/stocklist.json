@@ -2,7 +2,7 @@
   "Co": [
     {
       "cd": "AGG",
-      "nm": "AGG",
+      "nm": "iShares Core U.S. Aggregate Bond ETF",
       "gb": "US"
     },
     {
@@ -151,6 +151,11 @@
       "gb": "US"
     },
     {
+      "cd": "IWY",
+      "nm": "iShares Russell Top 200 Growth ETF",
+      "gb": "US"
+    },
+    {
       "cd": "IXC",
       "nm": "iShares Global Energy ETF",
       "gb": "US"
@@ -248,6 +253,11 @@
     {
       "cd": "SCHD",
       "nm": "Schwab U.S. Dividend Equity ETF",
+      "gb": "US"
+    },
+    {
+      "cd": "SCHG",
+      "nm": "Schwab U.S. Large-Cap Growth ETF",
       "gb": "US"
     },
     {
