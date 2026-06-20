@@ -182,6 +182,22 @@ def calculate_rsi(series, period=14):
     
     rs = avg_gain / (avg_loss + 1e-9)
     return 100.0 - (100.0 / (1.0 + rs))
+def calculate_win_rate(prices_df: pd.DataFrame, lookback: int = 240) -> pd.Series:
+    """
+    Calculate Win Rate (percentage of positive return days) over a lookback window.
+    """
+    returns_df = prices_df.pct_change().iloc[-lookback:]
+    valid_counts = returns_df.notna().sum().replace(0, np.nan)
+    win_rate = (returns_df > 0).sum() / valid_counts
+    return win_rate.fillna(0.0)
 
 
-
+def calculate_win_loss_ratio(prices_df: pd.DataFrame, lookback: int = 240) -> pd.Series:
+    """
+    Calculate Win/Loss Ratio (avg gain / absolute avg loss) over a lookback window.
+    """
+    returns_df = prices_df.pct_change().iloc[-lookback:]
+    avg_gain = returns_df.where(returns_df > 0).mean()
+    avg_loss = returns_df.where(returns_df < 0).mean().abs()
+    ratio = avg_gain / avg_loss
+    return ratio.fillna(1.0).replace([np.inf, -np.inf], 1.0)

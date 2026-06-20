@@ -513,6 +513,178 @@
     </div>
   </div>
 
+  <!-- ① Market Landscape with Win Rate & Win/Loss Ratio -->
+  <div class="dash-card">
+    <div class="dash-card-title">
+      <span>Market Landscape with Win Rate & Win/Loss Ratio</span>
+      <span style="font-size:0.65rem;color:#475569;font-weight:normal;">x: Win Rate &nbsp;·&nbsp; y: Win/Loss Ratio &nbsp;·&nbsp; Bubble: Avg Momentum</span>
+    </div>
+
+    <!-- ECharts.js scatter plot element -->
+    <div id="factor-chart" style="width: 100%; height: 600px; margin-top: 1rem;"></div>
+
+    <script>
+    (function() {
+      var chartData = [
+        {% for item in data.valuation_extremes %}
+        {
+          value: [{{ (item.win_rate | default(0.0)) * 100 }}, {{ item.win_loss_ratio | default(1.0) }}, {{ item.avg_mom | default(0.0) }}],
+          ticker: {{ item.ticker | tojson }},
+          name: {{ item.name | tojson }},
+          win_rate: {{ item.win_rate | default(0.0) }},
+          win_loss_ratio: {{ item.win_loss_ratio | default(1.0) }},
+          avg_mom: {{ item.avg_mom | default(0.0) }}
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
+      ];
+
+      var values = chartData.map(function(d) { return d.avg_mom; });
+      var minVal = Math.min.apply(null, values);
+      var maxVal = Math.max.apply(null, values);
+      var maxAbs = Math.max(Math.abs(minVal), Math.abs(maxVal));
+
+      var chart = echarts.init(document.getElementById('factor-chart'));
+      chart.setOption({
+        backgroundColor: 'transparent',
+        grid: { left: 48, right: 16, top: 35, bottom: 48 },
+        toolbox: {
+          show: true,
+          top: 0,
+          right: 10,
+          feature: {
+            restore: { show: true, title: 'Reset' }
+          },
+          iconStyle: { borderColor: '#94a3b8' },
+          emphasis: { iconStyle: { borderColor: '#ffffff' } }
+        },
+        dataZoom: [
+          { type: 'inside', xAxisIndex: 0, filterMode: 'none' },
+          { type: 'inside', yAxisIndex: 0, filterMode: 'none' }
+        ],
+        xAxis: {
+          type: 'value',
+          min: 0,
+          max: 100,
+          name: 'Win Rate (%)',
+          nameLocation: 'middle',
+          nameGap: 28,
+          nameTextStyle: { color: '#94a3b8', fontSize: 11, fontWeight: 600 },
+          axisLine: { lineStyle: { color: '#475569', width: 1.5 } },
+          splitLine: { lineStyle: { color: '#334155', type: 'dashed' } },
+          axisLabel: { color: '#cbd5e1', fontSize: 10, formatter: '{value}%' }
+        },
+        yAxis: {
+          type: 'value',
+          min: function(v) { return Math.max(0, v.min - 0.2); },
+          max: function(v) { return v.max + 0.2; },
+          name: 'Win/Loss Ratio',
+          nameLocation: 'middle',
+          nameGap: 32,
+          nameTextStyle: { color: '#94a3b8', fontSize: 11, fontWeight: 600 },
+          axisLine: { lineStyle: { color: '#475569', width: 1.5 } },
+          splitLine: { lineStyle: { color: '#334155', type: 'dashed' } },
+          axisLabel: { color: '#cbd5e1', fontSize: 10 }
+        },
+        tooltip: {
+          trigger: 'item',
+          backgroundColor: 'rgba(30, 41, 59, 0.95)',
+          borderColor: '#475569',
+          borderWidth: 1,
+          padding: [10, 14],
+          textStyle: { color: '#f1f5f9', fontSize: 12 },
+          formatter: function(params) {
+            var d = params.data;
+            var header = {{ region | tojson }} === 'KR' ? (d.name + ' <span style="font-size:10px;color:#94a3b8;">' + d.ticker + '</span>') : (d.ticker + ' <span style="font-size:10px;color:#94a3b8;">' + d.name + '</span>');
+            return '<div style="font-weight:700;margin-bottom:6px;border-bottom:1px solid #334155;padding-bottom:4px;">' + header + '</div>'
+              + '<div style="display:flex;justify-content:space-between;gap:15px;margin-bottom:2px;">'
+              + '<span style="color:#94a3b8;">Win Rate:</span>'
+              + '<span style="font-weight:600;color:' + (d.win_rate > 0.5 ? '#10b981' : '#ef4444') + '">' + (d.win_rate * 100).toFixed(2) + '%</span>'
+              + '</div>'
+              + '<div style="display:flex;justify-content:space-between;gap:15px;margin-bottom:2px;">'
+              + '<span style="color:#94a3b8;">Win/Loss Ratio:</span>'
+              + '<span style="font-weight:600;color:' + (d.win_loss_ratio > 1.0 ? '#10b981' : '#ef4444') + '">' + d.win_loss_ratio.toFixed(4) + '</span>'
+              + '</div>'
+              + '<div style="display:flex;justify-content:space-between;gap:15px;">'
+              + '<span style="color:#94a3b8;">Avg Momentum:</span>'
+              + '<span style="font-weight:600;color:' + (d.avg_mom > 0 ? '#10b981' : (d.avg_mom < 0 ? '#ef4444' : '#cbd5e1')) + '">' + d.avg_mom.toFixed(2) + '%</span>'
+              + '</div>';
+          }
+        },
+        visualMap: [{
+          show: true,
+          left: 'right',
+          top: '10%',
+          dimension: 2,
+          min: -maxAbs,
+          max: maxAbs,
+          itemHeight: 120,
+          calculable: true,
+          precision: 2,
+          text: ['High', 'Low'],
+          textStyle: { color: '#cbd5e1' },
+          inRange: {
+            color: ['#60a5fa', '#334155', '#f87171']
+          }
+        }],
+        series: [{
+          type: 'scatter',
+          data: chartData,
+          symbolSize: function(data) {
+            var val = data[2]; // avg_mom
+            var range = maxVal - minVal;
+            if (range === 0) return 12;
+            var norm = (val - minVal) / range;
+            return 8 + norm * 20; // 8px to 28px
+          },
+          itemStyle: {
+            shadowBlur: 8,
+            shadowColor: 'rgba(99, 102, 241, 0.4)',
+            opacity: 0.95
+          },
+          label: {
+            show: true,
+            formatter: function(params) { return params.data.ticker; },
+            position: 'top',
+            fontSize: 9,
+            color: '#cbd5e1',
+            fontWeight: 600,
+            distance: 5
+          },
+          labelLayout: { hideOverlap: true },
+          emphasis: {
+            scale: true,
+            itemStyle: {
+              shadowBlur: 15,
+              shadowColor: 'rgba(255, 255, 255, 0.6)',
+              opacity: 1
+            },
+            label: {
+              color: '#ffffff',
+              fontSize: 10,
+              fontWeight: 700
+            }
+          },
+          markLine: {
+            silent: true,
+            symbol: 'none',
+            label: { show: false },
+            data: [
+              { xAxis: 50, lineStyle: { type: 'solid', color: '#64748b', width: 1.5 } },
+              { yAxis: 1.0, lineStyle: { type: 'solid', color: '#64748b', width: 1.5 } }
+            ]
+          }
+        }]
+      });
+
+      chart.getZr().on('dblclick', function() {
+        chart.dispatchAction({ type: 'restore' });
+      });
+
+      window.addEventListener('resize', function() { chart.resize(); });
+    })();
+    </script>
+  </div>
+
   <!-- ②-2 Market Landscape with RSI -->
   <div class="dash-card">
     <div class="dash-card-title">
