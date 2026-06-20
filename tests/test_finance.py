@@ -61,3 +61,23 @@ def test_process_price_status(capsys):
     assert len(results2) == 0
     captured = capsys.readouterr()
     assert "Error processing status for TEST_BAD" in captured.out
+
+
+def test_calculate_win_rate_and_ratio():
+    from core.tFinance import calculate_win_rate, calculate_win_loss_ratio
+    
+    # 250 rows of alternating returns
+    prices = pd.DataFrame({
+        'A': [100.0 * (1.01 ** i) for i in range(250)], # positive returns only (Win rate should be 1.0)
+        'B': [100.0 if i % 2 == 0 else 99.0 for i in range(250)] # alternating (Gain = 1.01%, Loss = 1.0%)
+    })
+    
+    win_rates = calculate_win_rate(prices, lookback=240)
+    ratios = calculate_win_loss_ratio(prices, lookback=240)
+    
+    assert len(win_rates) == 2
+    assert len(ratios) == 2
+    assert win_rates['A'] == 1.0
+    assert win_rates['B'] > 0.4
+    assert ratios['A'] == 1.0  # fallback when no loss days
+
