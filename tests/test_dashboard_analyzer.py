@@ -175,6 +175,15 @@ def test_dashboard_analyzer_rsi():
     assert "rsi_diff" in item
     assert item["ticker"] == "A"
 
+    assert "valuation_extremes" in result
+    assert len(result["valuation_extremes"]) > 0
+    val_item = result["valuation_extremes"][0]
+    assert "win_rate" in val_item
+    assert "win_loss_ratio" in val_item
+    assert val_item["win_rate"] >= 0.0
+    assert val_item["win_loss_ratio"] >= 0.0
+
+
 
 
 
