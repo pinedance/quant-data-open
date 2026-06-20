@@ -683,6 +683,51 @@
       window.addEventListener('resize', function() { chart.resize(); });
     })();
     </script>
+
+    <!-- Toggle: Factor Table -->
+    <details class="toggle-section" {% if not data.valuation_extremes %}style="display:none;"{% endif %}>
+      <summary class="toggle-summary">Factor Table</summary>
+      <div class="val-table-wrap">
+        <table class="val-table">
+          <thead>
+            <tr>
+              {% if region == 'KR' %}
+                <th>Name</th>
+                <th>Ticker</th>
+              {% else %}
+                <th>Ticker</th>
+                <th>Name</th>
+              {% endif %}
+              <th>Win Rate</th>
+              <th>Win/Loss Ratio</th>
+              <th>Avg Momentum</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in data.valuation_extremes %}
+              <tr>
+                {% if region == 'KR' %}
+                  <td class="ticker-name-cell">{{ item.name }}</td>
+                  <td class="ticker-symbol-cell">{{ item.ticker }}</td>
+                {% else %}
+                  <td class="ticker-symbol-cell">{{ item.ticker }}</td>
+                  <td class="ticker-name-cell">{{ item.name }}</td>
+                {% endif %}
+                <td class="{{ 'text-green' if item.win_rate > 0.5 else 'text-red' }}" style="font-weight:700;">
+                  {{ "%.2f"|format(item.win_rate * 100) }}%
+                </td>
+                <td class="{{ 'text-green' if item.win_loss_ratio > 1.0 else 'text-red' }}" style="font-weight:700;">
+                  {{ "%.4f"|format(item.win_loss_ratio) }}
+                </td>
+                <td class="{{ 'text-green' if item.avg_mom > 0 else 'text-red' }}" style="font-weight:600;">
+                  {{ '+' if item.avg_mom > 0 else '' }}{{ "%.2f"|format(item.avg_mom) }}%
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </details>
   </div>
 
   <!-- ②-2 Market Landscape with RSI -->
