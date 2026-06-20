@@ -6,7 +6,13 @@ from pathlib import Path
 
 import pandas as pd
 
-from core.tFinance import calculate_average_momentum, calculate_t_sigma, calculate_rsi
+from core.tFinance import (
+    calculate_average_momentum,
+    calculate_t_sigma,
+    calculate_rsi,
+    calculate_win_rate,
+    calculate_win_loss_ratio,
+)
 from core.tFinance import calculate_ema_crossovers as tf_ema
 from core.tFinance import calculate_macd_z as tf_macd_z
 from core.cons import RSI_PERIOD, RSI_SIGNAL_PERIOD
@@ -103,12 +109,16 @@ class DashboardAnalyzer:
         us_metrics = (
             calculate_average_momentum(self.df_us_m),
             *calculate_ema_crossovers(self.df_us_d),
-            calculate_macd_z(self.df_us_hist, self.df_us_d)
+            calculate_macd_z(self.df_us_hist, self.df_us_d),
+            calculate_win_rate(self.df_us_d, 240),
+            calculate_win_loss_ratio(self.df_us_d, 240)
         )
         kr_metrics = (
             calculate_average_momentum(self.df_kr_m),
             *calculate_ema_crossovers(self.df_kr_d),
-            calculate_macd_z(self.df_kr_hist, self.df_kr_d)
+            calculate_macd_z(self.df_kr_hist, self.df_kr_d),
+            calculate_win_rate(self.df_kr_d, 240),
+            calculate_win_loss_ratio(self.df_kr_d, 240)
         )
 
         # Build multiprocessing tasks for T-Sigma fitting
@@ -134,7 +144,7 @@ class DashboardAnalyzer:
         macd_positive = []
 
         def assemble_results(df_d, df_hist, metrics, region):
-            avg_mom, ema5_last, ema200_last, up_break, down_break, up_keep, macd_z = metrics
+            avg_mom, ema5_last, ema200_last, up_break, down_break, up_keep, macd_z, win_rates, win_loss_ratios = metrics
             last_hist = df_hist.iloc[-1]
 
             for col in df_d.columns:
@@ -163,7 +173,9 @@ class DashboardAnalyzer:
                     "ema200": round(ema200_last[col], 2),
                     "status": status,
                     "macd_z": round(macd_z[col], 2),
-                    "macd_hist": round(float(last_hist[col]), 2)
+                    "macd_hist": round(float(last_hist[col]), 2),
+                    "win_rate": round(float(win_rates[col]), 4),
+                    "win_loss_ratio": round(float(win_loss_ratios[col]), 4)
                 }
                 ticker_stats.append(stat_entry)
                 
