@@ -69,4 +69,4 @@ jobs:
         git config --local user.name "github-actions[bot]"
         git add .
         git diff --staged --quiet || git commit -m "get new data & update"
-        git push origin output
+        git push origin HEAD:output
