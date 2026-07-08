@@ -25,6 +25,10 @@
 git clone https://github.com/pinedance/quant-data-open.git
 cd quant-data-open
 uv sync
+
+# 중요: 데이터 브랜치 연결 (최초 1회 실행)
+rm -rf output
+git worktree add output output
 ```
 
 ### 환경 설정
@@ -41,9 +45,13 @@ ECOS_KEY="your_ecos_api_key_here"
 
 ### 빌드
 
-`output/` 디렉토리의 데이터(git에 포함)로 바로 사이트를 빌드할 수 있습니다:
+`output` 브랜치의 데이터(`git worktree`로 마운트됨)로 바로 사이트를 빌드할 수 있습니다:
 
 ```bash
+# 빌드 전 최신 데이터 가져오기 (필요시)
+cd output && git pull && cd ..
+
+# 빌드 실행
 uv run build.py
 ```
 
@@ -215,8 +223,7 @@ quant-data-open/
 │   ├── layouts/      # 레이아웃 템플릿
 │   └── pages/        # 페이지 템플릿
 ├── DOCS/              # 문서
-├── output/            # 생성된 데이터 (git 포함)
-│   └── data/         # JSON 데이터 파일
+├── output/            # 생성된 데이터 (output 브랜치와 git worktree로 연동)
 ├── public/            # 최종 빌드 결과 (GitHub Pages, git 제외)
 │   └── dist/         # 정적 사이트 (HTML, JSON)
 ├── build.py           # 빌드 스크립트
