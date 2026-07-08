@@ -15,10 +15,12 @@
 ## 🚀 Quick Start (빠른 시작)
 
 ### 1. 요구사항
+
 - Python 3.12+
 - [uv](https://docs.astral.sh/uv/) (패키지 매니저)
 
 ### 2. 설치 및 데이터 브랜치 연결
+
 본 저장소는 소스 코드(`main` 브랜치)와 데이터 파일(`output` 브랜치)이 독립적으로 분리되어 있습니다. 로컬 환경에서 두 브랜치를 동시에 다루기 위해 `git worktree`를 사용합니다.
 
 ```bash
@@ -27,20 +29,26 @@ git clone https://github.com/pinedance/quant-data-open.git
 cd quant-data-open
 uv sync
 
-# 중요: 데이터 전용 브랜치를 ./output 폴더에 연결 (최초 1회 실행)
+# 중요: 데이터 전용 'output' 브랜치를 ./output 폴더에 연결 (최초 1회 실행)
+# Code와 Data를 분리하기 위해, 관리 branch를 분리했기 때문 
+# Code: 'main' branch, Data: 'output' branch
 rm -rf output
 git worktree add output output
 ```
 
 ### 3. 로컬 환경 설정
+
 로컬에서 데이터 수집 스크립트를 직접 실행하려면 `.env` 파일을 생성하고 한국은행 ECOS API 키를 입력합니다.
+
 ```bash
 # .env
 ECOS_KEY="your_ecos_api_key_here"
 ```
+
 > **API 키 발급**: [한국은행 경제통계시스템(ECOS)](https://ecos.bok.or.kr/) 회원가입 후 발급받을 수 있습니다.
 
 ### 4. 사이트 빌드 및 서버 실행
+
 데이터 브랜치에서 최신 데이터를 내려받아 로컬 대시보드 웹사이트를 빌드하고 확인합니다.
 
 ```bash
@@ -56,6 +64,7 @@ python -m http.server 8000 --directory public
 ```
 
 ### 5. 데이터 수집 스크립트 수동 실행 (선택)
+
 직접 최신 데이터를 스크랩하여 `./output`에 갱신하려면 다음 명령어를 개별적으로 실행합니다.
 
 ```bash
@@ -80,6 +89,7 @@ uv run scripts/get_us_data_yh.py
 코드와 데이터를 분리 보관하는 구조의 빌드 파이프라인 아키텍처입니다.
 
 ### 1. 로컬 빌드 파이프라인 (Local Pipeline)
+
 ```text
 [Local Workspace (main branch)]
   ├── 로컬 소스 코드 & 빌드 스크립트 (build.py)
@@ -91,6 +101,7 @@ uv run scripts/get_us_data_yh.py
 ```
 
 ### 2. GitHub Actions 자동화 파이프라인 (Remote Pipeline)
+
 ```text
 [데이터 수집 및 동기화 단계 (Daily/Monthly Updates)]
   Checkout main (Code) ──> Checkout output (Data) to ./output
