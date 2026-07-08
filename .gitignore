@@ -15,7 +15,7 @@ logs/
 
 # Build output
 public/
-output/data/dashboard.json
+output/
 # .sass-cache/
 # .jekyll-metadata
 # .bundle/
