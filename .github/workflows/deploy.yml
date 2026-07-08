@@ -17,7 +17,14 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Checkout data
+      uses: actions/checkout@v4
+      with:
+        ref: output
+        path: output
     
     - uses: actions/setup-python@v5
       with:

@@ -18,7 +18,14 @@ jobs:
   update-data:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Checkout data
+      uses: actions/checkout@v4
+      with:
+        ref: output
+        path: output
 
     - name: Install system dependencies
       run: |
@@ -60,8 +67,9 @@ jobs:
 
     - name: Commit and push changes
       run: |
+        cd output
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
-        git add output/
+        git add .
         git diff --staged --quiet || git commit -m "get new data & update"
-        git push
+        git push origin output
