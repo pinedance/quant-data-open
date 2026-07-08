@@ -12,59 +12,51 @@
 
 ---
 
-## 🚀 시작하기
+## 🚀 Quick Start (빠른 시작)
 
-### 요구사항
-
+### 1. 요구사항
 - Python 3.12+
 - [uv](https://docs.astral.sh/uv/) (패키지 매니저)
 
-### 설치
+### 2. 설치 및 데이터 브랜치 연결
+본 저장소는 소스 코드(`main` 브랜치)와 데이터 파일(`output` 브랜치)이 독립적으로 분리되어 있습니다. 로컬 환경에서 두 브랜치를 동시에 다루기 위해 `git worktree`를 사용합니다.
 
 ```bash
+# 저장소 복제 및 의존성 패키지 설치
 git clone https://github.com/pinedance/quant-data-open.git
 cd quant-data-open
 uv sync
 
-# 중요: 데이터 브랜치 연결 (최초 1회 실행)
+# 중요: 데이터 전용 브랜치를 ./output 폴더에 연결 (최초 1회 실행)
 rm -rf output
 git worktree add output output
 ```
 
-### 환경 설정
-
-`.env` 파일을 생성하고 API 키를 입력합니다:
-
+### 3. 로컬 환경 설정
+로컬에서 데이터 수집 스크립트를 직접 실행하려면 `.env` 파일을 생성하고 한국은행 ECOS API 키를 입력합니다.
 ```bash
 # .env
 ECOS_KEY="your_ecos_api_key_here"
 ```
+> **API 키 발급**: [한국은행 경제통계시스템(ECOS)](https://ecos.bok.or.kr/) 회원가입 후 발급받을 수 있습니다.
 
-**API 키 발급**:
-- `ECOS_KEY`: [한국은행 경제통계시스템](https://ecos.bok.or.kr/) 회원가입 후 발급
-
-### 빌드
-
-`output` 브랜치의 데이터(`git worktree`로 마운트됨)로 바로 사이트를 빌드할 수 있습니다:
+### 4. 사이트 빌드 및 서버 실행
+데이터 브랜치에서 최신 데이터를 내려받아 로컬 대시보드 웹사이트를 빌드하고 확인합니다.
 
 ```bash
-# 빌드 전 최신 데이터 가져오기 (필요시)
+# 최신 데이터 동기화 (필요시)
 cd output && git pull && cd ..
 
-# 빌드 실행
+# 대시보드 사이트 빌드 (Jinja2) -> 결과물은 public/dist/ 에 생성됨
 uv run build.py
-```
 
-빌드 결과는 `public/dist/`에 생성됩니다. 로컬에서 확인하려면:
-
-```bash
+# 로컬 테스트 서버 실행
 python -m http.server 8000 --directory public
-# http://localhost:8000/dist/ 에서 확인
+# 브라우저에서 http://localhost:8000/dist/ 접속 후 확인
 ```
 
-### 데이터 수집 (선택)
-
-최신 데이터를 직접 수집하려면 각 스크립트를 실행합니다:
+### 5. 데이터 수집 스크립트 수동 실행 (선택)
+직접 최신 데이터를 스크랩하여 `./output`에 갱신하려면 다음 명령어를 개별적으로 실행합니다.
 
 ```bash
 # 국내 ETF 가격
@@ -74,7 +66,7 @@ uv run scripts/get_kr_price_nv.py
 # 해외 ETF 가격
 uv run scripts/get_us_price_yh.py
 
-# 경기 지표
+# 경기 및 시장 지표
 uv run scripts/get_kr_data_ecos_daily.py   # ECOS_KEY 필요
 uv run scripts/get_kr_data_ecos_monthly.py  # ECOS_KEY 필요
 uv run scripts/get_kr_data_nv.py
@@ -83,7 +75,48 @@ uv run scripts/get_us_data_yh.py
 
 ---
 
-## 📊 제공 데이터
+## ⚙️ Build Pipeline (빌드 파이프라인)
+
+코드와 데이터를 분리 보관하는 구조의 빌드 파이프라인 아키텍처입니다.
+
+### 1. 로컬 빌드 파이프라인 (Local Pipeline)
+```text
+[Local Workspace (main branch)]
+  ├── 로컬 소스 코드 & 빌드 스크립트 (build.py)
+  │
+  └── [./output (output branch)]  <─── git worktree로 연동 (데이터 읽기/쓰기)
+              │
+              ▼ (빌드 실행)
+  └── [./public (git 제외)]  ───> 로컬 서버(localhost:8000)로 빌드 결과 확인
+```
+
+### 2. GitHub Actions 자동화 파이프라인 (Remote Pipeline)
+```text
+[데이터 수집 및 동기화 단계 (Daily/Monthly Updates)]
+  Checkout main (Code) ──> Checkout output (Data) to ./output
+                                │
+                                ▼
+                           스크립트 실행 (데이터 수집 및 갱신)
+                                │
+                                ▼
+                       git push origin HEAD:output (데이터 브랜치만 업데이트)
+
+                                │ (수집 완료 시 배포 트리거)
+                                ▼
+
+[웹 대시보드 빌드 및 배포 단계 (Deploy)]
+  Checkout main (Code) ──> Checkout output (Data) to ./output
+                                │
+                                ▼
+                           build.py 실행 (정적 페이지 및 JSON 빌드)
+                                │
+                                ▼
+                       public/ 폴더 빌드 결과 배포 ──> origin/gh-pages 브랜치
+```
+
+---
+
+## 📊 제공 데이터 상세 (Doc Detail)
 
 ### 상장 주식
 
@@ -155,59 +188,18 @@ uv run scripts/get_us_data_yh.py
 ## 📈 실시간 지표 링크 (외부)
 
 ### 채권
-
 - [금리 | 미국국채 10년](https://m.stock.naver.com/marketindex/bond/US10YT=RR)
 - [금리 | 한국국채 10년](https://m.stock.naver.com/marketindex/bond/KR10YT=RR)
 
 ### 주식
-
 - 미국: [S&P500](https://m.stock.naver.com/worldstock/index/.INX/total) | [NASDAQ100](https://m.stock.naver.com/worldstock/index/.NDX/total) | [VIX](https://m.stock.naver.com/worldstock/index/.VIX/total)
 - 한국: [KOSPI](https://m.stock.naver.com/domestic/index/KOSPI/total) | [KOSDAQ](https://m.stock.naver.com/domestic/index/KOSDAQ/total)
 
 ### 원자재 & 환율
-
 - [골드 (원)](https://m.stock.naver.com/marketindex/metals/CMDT_GD)
 - [원유 (WTI)](https://m.stock.naver.com/marketindex/energy/CLcv1)
 - [환율 | 달러](https://m.stock.naver.com/marketindex/exchange/FX_USDKRW)
 - [환율 | 일본엔](https://m.stock.naver.com/marketindex/exchange/FX_JPYKRW)
-
----
-
-## 📚 데이터 출처 및 참고 링크
-
-### 공공 데이터
-
-**e-나라지표**
-- [메인](http://www.index.go.kr) | [수출입동향](http://www.index.go.kr/potal/main/EachDtlPageDetail.do?idx_cd=1066)
-
-**국가통계포털**
-- [KOSIS](https://kosis.kr/)
-
-**한국은행**
-- [경제통계시스템 (ECOS)](https://ecos.bok.or.kr/): 통화량M2, 물가지수, 경제심리지수, 뉴스심리지수(예정)
-
-**산업통상자원부**
-- [수출입 동향](https://www.motie.go.kr/)
-- [산업통계 분석시스템 (ISTANS)](https://www.istans.or.kr/mainMenu.do): [경기종합지수](https://www.istans.or.kr/su/newSuTab.do?scode=S99)
-- [무역통계 (K-STAT)](https://stat.kita.net/stat/kts/sum/SumImpExpTotalList.screen)
-
-**한국거래소 (KRX)**
-- [정보데이터 시스템](http://data.krx.co.kr/)
-- [보도자료](http://open.krx.co.kr/contents/OPN/05/05000000/OPN05000000.jsp)
-
-**금융투자협회**
-- [전자공시 시스템](https://dis.kofia.or.kr/)
-- [펀드 다모아](https://dis.kofia.or.kr/websquare/index.jsp?w2xPath=/wq/damoa/DISFundAnnFundUnit.xml&divisionId=MDIS08006000000000&serviceId=SDIS08006000000)
-
-### 민간 데이터
-
-**FnGuide**
-- [Company Guide](https://comp.fnguide.com)
-- [FnIndex](http://www.fnindex.co.kr/overview/I/MIS) | [WiseIndex](https://www.wiseindex.com/Index/Index#/WMI500)
-
-**기타**
-- [네이버 금융](https://finance.naver.com/)
-- [Yahoo Finance](https://finance.yahoo.com/)
 
 ---
 
@@ -283,6 +275,44 @@ uv run build.py
 # .env
 ECOS_KEY="your_ecos_api_key_here"
 ```
+
+---
+
+## 📚 데이터 출처 및 참고 링크
+
+### 공공 데이터
+
+**e-나라지표**
+- [메인](http://www.index.go.kr) | [수출입동향](http://www.index.go.kr/potal/main/EachDtlPageDetail.do?idx_cd=1066)
+
+**국가통계포털**
+- [KOSIS](https://kosis.kr/)
+
+**한국은행**
+- [경제통계시스템 (ECOS)](https://ecos.bok.or.kr/): 통화량M2, 물가지수, 경제심리지수, 뉴스심리지수(예정)
+
+**산업통상자원부**
+- [수출입 동향](https://www.motie.go.kr/)
+- [산업통계 분석시스템 (ISTANS)](https://www.istans.or.kr/mainMenu.do): [경기종합지수](https://www.istans.or.kr/su/newSuTab.do?scode=S99)
+- [무역통계 (K-STAT)](https://stat.kita.net/stat/kita/sum/SumImpExpTotalList.screen)
+
+**한국거래소 (KRX)**
+- [정보데이터 시스템](http://data.krx.co.kr/)
+- [보도자료](http://open.krx.co.kr/contents/OPN/05/05000000/OPN05000000.jsp)
+
+**금융투자협회**
+- [전자공시 시스템](https://dis.kofia.or.kr/)
+- [펀드 다모아](https://dis.kofia.or.kr/websquare/index.jsp?w2xPath=/wq/damoa/DISFundAnnFundUnit.xml&divisionId=MDIS08006000000000&serviceId=SDIS08006000000)
+
+### 민간 데이터
+
+**FnGuide**
+- [Company Guide](https://comp.fnguide.com)
+- [FnIndex](http://www.fnindex.co.kr/overview/I/MIS) | [WiseIndex](https://www.wiseindex.com/Index/Index#/WMI500)
+
+### 기타
+- [네이버 금융](https://finance.naver.com/)
+- [Yahoo Finance](https://finance.yahoo.com/)
 
 ---
 
