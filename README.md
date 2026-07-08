@@ -52,7 +52,8 @@ ECOS_KEY="your_ecos_api_key_here"
 데이터 브랜치에서 최신 데이터를 내려받아 로컬 대시보드 웹사이트를 빌드하고 확인합니다.
 
 ```bash
-# 최신 데이터 동기화 (필요시)
+# GitHub Actions 자동화 스크립트가 원격 output 브랜치에 매일 적재하는 최신 데이터를 로컬로 동기화합니다.
+# 로컬 빌드 시 최신 데이터가 필요하다면 반드시 실행해야 합니다.
 cd output && git pull && cd ..
 
 # 대시보드 사이트 빌드 (Jinja2) -> 결과물은 public/dist/ 에 생성됨
