@@ -25,6 +25,7 @@ jobs:
       with:
         ref: output
         path: output
+        depth: 1
     
     - uses: actions/setup-python@v5
       with:

@@ -26,6 +26,7 @@ jobs:
       with:
         ref: output
         path: output
+        depth: 1
 
     - name: Install system dependencies
       run: |
