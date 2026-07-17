@@ -2,7 +2,7 @@
   "Co": [
     {
       "cd": "AGG",
-      "nm": "AGG",
+      "nm": "iShares Core U.S. Aggregate Bond ETF",
       "gb": "US"
     },
     {
@@ -32,7 +32,7 @@
     },
     {
       "cd": "EDV",
-      "nm": "EDV",
+      "nm": "Vanguard Extended Duration Treasury Index Fund ETF Shares",
       "gb": "US"
     },
     {
@@ -152,7 +152,7 @@
     },
     {
       "cd": "IWY",
-      "nm": "IWY",
+      "nm": "iShares Russell Top 200 Growth ETF",
       "gb": "US"
     },
     {
@@ -162,7 +162,7 @@
     },
     {
       "cd": "IXG",
-      "nm": "iShares Global Financials ETF",
+      "nm": "IXG",
       "gb": "US"
     },
     {
@@ -172,7 +172,7 @@
     },
     {
       "cd": "IXN",
-      "nm": "iShares Global Tech ETF",
+      "nm": "IXN",
       "gb": "US"
     },
     {
@@ -212,7 +212,7 @@
     },
     {
       "cd": "MXI",
-      "nm": "MXI",
+      "nm": "iShares Global Materials ETF",
       "gb": "US"
     },
     {
@@ -282,7 +282,7 @@
     },
     {
       "cd": "SLV",
-      "nm": "iShares Silver Trust",
+      "nm": "SLV",
       "gb": "US"
     },
     {
@@ -347,7 +347,7 @@
     },
     {
       "cd": "VEU",
-      "nm": "Vanguard FTSE All-World ex-US Index Fund ETF Shares",
+      "nm": "VEU",
       "gb": "US"
     },
     {
@@ -362,7 +362,7 @@
     },
     {
       "cd": "VGK",
-      "nm": "VGK",
+      "nm": "Vanguard FTSE Europe ETF",
       "gb": "US"
     },
     {
@@ -387,12 +387,12 @@
     },
     {
       "cd": "VOO",
-      "nm": "Vanguard S&P 500 ETF",
+      "nm": "VOO",
       "gb": "US"
     },
     {
       "cd": "VOX",
-      "nm": "Vanguard Communication Services Index Fund ETF Shares",
+      "nm": "VOX",
       "gb": "US"
     },
     {
@@ -422,7 +422,7 @@
     },
     {
       "cd": "VUG",
-      "nm": "Vanguard Growth Index Fund ETF Shares",
+      "nm": "VUG",
       "gb": "US"
     },
     {
@@ -467,7 +467,7 @@
     },
     {
       "cd": "XLK",
-      "nm": "XLK",
+      "nm": "State Street Technology Select Sector SPDR ETF",
       "gb": "US"
     },
     {
