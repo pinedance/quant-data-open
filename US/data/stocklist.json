@@ -22,7 +22,7 @@
     },
     {
       "cd": "BWX",
-      "nm": "BWX",
+      "nm": "State Street SPDR Bloomberg International Treasury Bond ETF",
       "gb": "US"
     },
     {
@@ -42,7 +42,7 @@
     },
     {
       "cd": "EMB",
-      "nm": "EMB",
+      "nm": "iShares J.P. Morgan USD Emerging Markets Bond ETF",
       "gb": "US"
     },
     {
@@ -72,7 +72,7 @@
     },
     {
       "cd": "HYG",
-      "nm": "HYG",
+      "nm": "iShares iBoxx $ High Yield Corporate Bond ETF",
       "gb": "US"
     },
     {
@@ -97,7 +97,7 @@
     },
     {
       "cd": "IEF",
-      "nm": "IEF",
+      "nm": "iShares 7-10 Year Treasury Bond ETF",
       "gb": "US"
     },
     {
@@ -162,7 +162,7 @@
     },
     {
       "cd": "IXG",
-      "nm": "IXG",
+      "nm": "iShares Global Financials ETF",
       "gb": "US"
     },
     {
@@ -172,12 +172,12 @@
     },
     {
       "cd": "IXN",
-      "nm": "IXN",
+      "nm": "iShares Global Tech ETF",
       "gb": "US"
     },
     {
       "cd": "IXP",
-      "nm": "IXP",
+      "nm": "iShares Global Comm Services ETF",
       "gb": "US"
     },
     {
@@ -187,17 +187,17 @@
     },
     {
       "cd": "JXI",
-      "nm": "JXI",
+      "nm": "iShares Global Utilities ETF",
       "gb": "US"
     },
     {
       "cd": "KXI",
-      "nm": "KXI",
+      "nm": "iShares Global Consumer Staples ETF",
       "gb": "US"
     },
     {
       "cd": "LQD",
-      "nm": "LQD",
+      "nm": "iShares iBoxx $ Investment Grade Corporate Bond ETF",
       "gb": "US"
     },
     {
@@ -247,7 +247,7 @@
     },
     {
       "cd": "RXI",
-      "nm": "RXI",
+      "nm": "iShares Global Consumer Discretionary ETF",
       "gb": "US"
     },
     {
@@ -267,7 +267,7 @@
     },
     {
       "cd": "SCZ",
-      "nm": "SCZ",
+      "nm": "iShares MSCI EAFE Small-Cap ETF",
       "gb": "US"
     },
     {
@@ -277,12 +277,12 @@
     },
     {
       "cd": "SHY",
-      "nm": "SHY",
+      "nm": "iShares 1-3 Year Treasury Bond ETF",
       "gb": "US"
     },
     {
       "cd": "SLV",
-      "nm": "SLV",
+      "nm": "iShares Silver Trust",
       "gb": "US"
     },
     {
@@ -302,7 +302,7 @@
     },
     {
       "cd": "TIP",
-      "nm": "TIP",
+      "nm": "iShares TIPS Bond ETF",
       "gb": "US"
     },
     {
@@ -347,7 +347,7 @@
     },
     {
       "cd": "VEU",
-      "nm": "VEU",
+      "nm": "Vanguard FTSE All-World ex-US Index Fund ETF Shares",
       "gb": "US"
     },
     {
@@ -387,12 +387,12 @@
     },
     {
       "cd": "VOO",
-      "nm": "VOO",
+      "nm": "Vanguard S&P 500 ETF",
       "gb": "US"
     },
     {
       "cd": "VOX",
-      "nm": "VOX",
+      "nm": "Vanguard Communication Services Index Fund ETF Shares",
       "gb": "US"
     },
     {
@@ -422,7 +422,7 @@
     },
     {
       "cd": "VUG",
-      "nm": "VUG",
+      "nm": "Vanguard Growth Index Fund ETF Shares",
       "gb": "US"
     },
     {
@@ -487,7 +487,7 @@
     },
     {
       "cd": "XLY",
-      "nm": "XLY",
+      "nm": "State Street Consumer Discretionary Select Sector SPDR ETF",
       "gb": "US"
     },
     {
