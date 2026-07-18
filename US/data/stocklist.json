@@ -2,17 +2,17 @@
   "Co": [
     {
       "cd": "AGG",
-      "nm": "iShares Core U.S. Aggregate Bond ETF",
+      "nm": "AGG",
       "gb": "US"
     },
     {
       "cd": "BIL",
-      "nm": "State Street SPDR Bloomberg 1-3 Month T-Bill ETF",
+      "nm": "BIL",
       "gb": "US"
     },
     {
       "cd": "BND",
-      "nm": "Vanguard Total Bond Market Index Fund",
+      "nm": "BND",
       "gb": "US"
     },
     {
@@ -22,7 +22,7 @@
     },
     {
       "cd": "BWX",
-      "nm": "State Street SPDR Bloomberg International Treasury Bond ETF",
+      "nm": "BWX",
       "gb": "US"
     },
     {
@@ -42,7 +42,7 @@
     },
     {
       "cd": "EMB",
-      "nm": "iShares J.P. Morgan USD Emerging Markets Bond ETF",
+      "nm": "EMB",
       "gb": "US"
     },
     {
@@ -72,7 +72,7 @@
     },
     {
       "cd": "HYG",
-      "nm": "iShares iBoxx $ High Yield Corporate Bond ETF",
+      "nm": "HYG",
       "gb": "US"
     },
     {
@@ -97,7 +97,7 @@
     },
     {
       "cd": "IEF",
-      "nm": "iShares 7-10 Year Treasury Bond ETF",
+      "nm": "IEF",
       "gb": "US"
     },
     {
@@ -152,7 +152,7 @@
     },
     {
       "cd": "IWY",
-      "nm": "iShares Russell Top 200 Growth ETF",
+      "nm": "IWY",
       "gb": "US"
     },
     {
@@ -162,7 +162,7 @@
     },
     {
       "cd": "IXG",
-      "nm": "iShares Global Financials ETF",
+      "nm": "IXG",
       "gb": "US"
     },
     {
@@ -172,12 +172,12 @@
     },
     {
       "cd": "IXN",
-      "nm": "iShares Global Tech ETF",
+      "nm": "IXN",
       "gb": "US"
     },
     {
       "cd": "IXP",
-      "nm": "iShares Global Comm Services ETF",
+      "nm": "IXP",
       "gb": "US"
     },
     {
@@ -187,17 +187,17 @@
     },
     {
       "cd": "JXI",
-      "nm": "iShares Global Utilities ETF",
+      "nm": "JXI",
       "gb": "US"
     },
     {
       "cd": "KXI",
-      "nm": "iShares Global Consumer Staples ETF",
+      "nm": "KXI",
       "gb": "US"
     },
     {
       "cd": "LQD",
-      "nm": "iShares iBoxx $ Investment Grade Corporate Bond ETF",
+      "nm": "LQD",
       "gb": "US"
     },
     {
@@ -212,7 +212,7 @@
     },
     {
       "cd": "MXI",
-      "nm": "iShares Global Materials ETF",
+      "nm": "MXI",
       "gb": "US"
     },
     {
@@ -247,7 +247,7 @@
     },
     {
       "cd": "RXI",
-      "nm": "iShares Global Consumer Discretionary ETF",
+      "nm": "RXI",
       "gb": "US"
     },
     {
@@ -267,7 +267,7 @@
     },
     {
       "cd": "SCZ",
-      "nm": "iShares MSCI EAFE Small-Cap ETF",
+      "nm": "SCZ",
       "gb": "US"
     },
     {
@@ -277,12 +277,12 @@
     },
     {
       "cd": "SHY",
-      "nm": "iShares 1-3 Year Treasury Bond ETF",
+      "nm": "SHY",
       "gb": "US"
     },
     {
       "cd": "SLV",
-      "nm": "iShares Silver Trust",
+      "nm": "SLV",
       "gb": "US"
     },
     {
@@ -302,7 +302,7 @@
     },
     {
       "cd": "TIP",
-      "nm": "iShares TIPS Bond ETF",
+      "nm": "TIP",
       "gb": "US"
     },
     {
@@ -322,7 +322,7 @@
     },
     {
       "cd": "USO",
-      "nm": "United States Oil Fund, LP",
+      "nm": "USO",
       "gb": "US"
     },
     {
@@ -347,7 +347,7 @@
     },
     {
       "cd": "VEU",
-      "nm": "Vanguard FTSE All-World ex-US Index Fund ETF Shares",
+      "nm": "VEU",
       "gb": "US"
     },
     {
@@ -362,7 +362,7 @@
     },
     {
       "cd": "VGK",
-      "nm": "Vanguard FTSE Europe ETF",
+      "nm": "VGK",
       "gb": "US"
     },
     {
@@ -377,7 +377,7 @@
     },
     {
       "cd": "VNQ",
-      "nm": "Vanguard Real Estate Index Fund ETF Shares",
+      "nm": "VNQ",
       "gb": "US"
     },
     {
@@ -387,12 +387,12 @@
     },
     {
       "cd": "VOO",
-      "nm": "Vanguard S&P 500 ETF",
+      "nm": "VOO",
       "gb": "US"
     },
     {
       "cd": "VOX",
-      "nm": "Vanguard Communication Services Index Fund ETF Shares",
+      "nm": "VOX",
       "gb": "US"
     },
     {
@@ -407,7 +407,7 @@
     },
     {
       "cd": "VTI",
-      "nm": "Vanguard Total Stock Market Index Fund ETF Shares",
+      "nm": "VTI",
       "gb": "US"
     },
     {
@@ -422,7 +422,7 @@
     },
     {
       "cd": "VUG",
-      "nm": "Vanguard Growth Index Fund ETF Shares",
+      "nm": "VUG",
       "gb": "US"
     },
     {
@@ -467,7 +467,7 @@
     },
     {
       "cd": "XLK",
-      "nm": "State Street Technology Select Sector SPDR ETF",
+      "nm": "XLK",
       "gb": "US"
     },
     {
@@ -482,12 +482,12 @@
     },
     {
       "cd": "XLV",
-      "nm": "State Street Health Care Select Sector SPDR ETF",
+      "nm": "XLV",
       "gb": "US"
     },
     {
       "cd": "XLY",
-      "nm": "State Street Consumer Discretionary Select Sector SPDR ETF",
+      "nm": "XLY",
       "gb": "US"
     },
     {
