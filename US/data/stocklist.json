@@ -97,7 +97,7 @@
     },
     {
       "cd": "IEF",
-      "nm": "iShares 7-10 Year Treasury Bond ETF",
+      "nm": "iShares 7-10 Year Treasury Bond",
       "gb": "US"
     },
     {
@@ -177,7 +177,7 @@
     },
     {
       "cd": "IXP",
-      "nm": "iShares Global Comm Services ETF",
+      "nm": "iShares Global Comm Services ET",
       "gb": "US"
     },
     {
@@ -377,7 +377,7 @@
     },
     {
       "cd": "VNQ",
-      "nm": "Vanguard Real Estate Index Fund ETF Shares",
+      "nm": "Vanguard Real Estate ETF",
       "gb": "US"
     },
     {
@@ -392,7 +392,7 @@
     },
     {
       "cd": "VOX",
-      "nm": "Vanguard Communication Services Index Fund ETF Shares",
+      "nm": "Vanguard Communication Services",
       "gb": "US"
     },
     {
