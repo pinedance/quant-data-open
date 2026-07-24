@@ -559,6 +559,17 @@
       chart.setOption({
         backgroundColor: 'transparent',
         grid: { left: 55, right: 25, top: 40, bottom: 50 },
+        legend: {
+          show: true,
+          top: 0,
+          left: 10,
+          textStyle: { color: '#94a3b8', fontSize: 11 },
+          selected: {
+            'Current Month': true,
+            'Previous Month': false,
+            'Vectors': false
+          }
+        },
         toolbox: {
           show: true,
           top: 0,
