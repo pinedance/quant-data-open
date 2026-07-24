@@ -12,6 +12,8 @@ from core.tFinance import (
     calculate_rsi,
     calculate_win_rate,
     calculate_win_loss_ratio,
+    calculate_bollinger_percent_b,
+    calculate_rolling_percentile_rank,
 )
 from core.tFinance import calculate_ema_crossovers as tf_ema
 from core.tFinance import calculate_macd_z as tf_macd_z
@@ -232,6 +234,43 @@ class DashboardAnalyzer:
         calculate_rsi_metrics(self.df_kr_d, self.df_kr_m, "KR")
         rsi_extremes.sort(key=lambda x: x["rsi"], reverse=True)
 
+        macro_rotation = []
+        import numpy as np
+
+        def compute_macro_rotation(df_m, region):
+            if len(df_m) < 13:
+                return
+            mom_curr = calculate_average_momentum(df_m)
+            mom_prev = calculate_average_momentum(df_m.iloc[:-1])
+
+            pct_b = calculate_bollinger_percent_b(df_m, window=5, num_std=2.0)
+            pct_rank = calculate_rolling_percentile_rank(pct_b, window=12) - 0.5
+
+            y_curr = pct_rank.iloc[-1]
+            y_prev = pct_rank.iloc[-2]
+
+            for col in df_m.columns:
+                ticker = col[1:] if (region == "KR" and col.startswith('A')) else col
+                name = self.names_dict.get(ticker, ticker)
+
+                val_x = mom_curr[col] * 100 if isinstance(mom_curr, pd.Series) else 0.0
+                val_prev_x = mom_prev[col] * 100 if isinstance(mom_prev, pd.Series) else 0.0
+                val_y = y_curr[col] if isinstance(y_curr, pd.Series) else 0.0
+                val_prev_y = y_prev[col] if isinstance(y_prev, pd.Series) else 0.0
+
+                macro_rotation.append({
+                    "ticker": ticker,
+                    "name": name,
+                    "region": region,
+                    "x": round(float(val_x), 2) if not np.isnan(val_x) else 0.0,
+                    "y": round(float(val_y), 4) if not np.isnan(val_y) else 0.0,
+                    "prev_x": round(float(val_prev_x), 2) if not np.isnan(val_prev_x) else 0.0,
+                    "prev_y": round(float(val_prev_y), 4) if not np.isnan(val_prev_y) else 0.0
+                })
+
+        compute_macro_rotation(self.df_us_m, "US")
+        compute_macro_rotation(self.df_kr_m, "KR")
+
         return {
             "market_regime": {
                 "tip_momentum": round(tip_momentum * 100, 2),
@@ -244,6 +283,8 @@ class DashboardAnalyzer:
             "monthly_momentum": macd_positive,
             "valuation_extremes": ticker_stats,
             "rsi_extremes": rsi_extremes,
+            "macro_rotation": macro_rotation,
             "data_quality_status": [],
             "last_updated": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }
+
