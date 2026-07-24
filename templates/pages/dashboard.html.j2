@@ -559,13 +559,39 @@
       chart.setOption({
         backgroundColor: 'transparent',
         grid: { left: 55, right: 25, top: 40, bottom: 50 },
+        toolbox: {
+          show: true,
+          top: 0,
+          right: 10,
+          feature: {
+            restore: { show: true, title: 'Reset' }
+          },
+          iconStyle: { borderColor: '#94a3b8' },
+          emphasis: { iconStyle: { borderColor: '#ffffff' } }
+        },
+        dataZoom: [
+          { type: 'inside', xAxisIndex: 0, filterMode: 'none', moveOnMouseMove: true, zoomOnMouseWheel: true },
+          { type: 'inside', yAxisIndex: 0, filterMode: 'none', moveOnMouseMove: true, zoomOnMouseWheel: true }
+        ],
         tooltip: {
           trigger: 'item',
+          backgroundColor: 'rgba(30, 41, 59, 0.95)',
+          borderColor: '#475569',
+          borderWidth: 1,
+          padding: [10, 14],
+          textStyle: { color: '#f1f5f9', fontSize: 12 },
           formatter: function(params) {
             if (params.data && params.data.ticker) {
-              return '<b>' + params.data.ticker + '</b> (' + params.data.name + ')<br/>' +
-                     'Momentum Blend (X): ' + params.data.value[0] + '%<br/>' +
-                     '%B Rank (Y): ' + params.data.value[1];
+              var nameHeader = {{ region | tojson }} === 'KR' ? (params.data.name + ' <span style="font-size:10px;color:#94a3b8;">' + params.data.ticker + '</span>') : (params.data.ticker + ' <span style="font-size:10px;color:#94a3b8;">' + params.data.name + '</span>');
+              return '<div style="font-weight:700;margin-bottom:6px;border-bottom:1px solid #334155;padding-bottom:4px;">' + nameHeader + '</div>'
+                + '<div style="display:flex;justify-content:space-between;gap:15px;margin-bottom:2px;">'
+                + '<span style="color:#94a3b8;">Momentum Blend (X):</span>'
+                + '<span style="font-weight:600;color:' + (params.data.value[0] > 0 ? '#10b981' : '#ef4444') + '">' + (params.data.value[0] > 0 ? '+' : '') + params.data.value[0].toFixed(2) + '%</span>'
+                + '</div>'
+                + '<div style="display:flex;justify-content:space-between;gap:15px;">'
+                + '<span style="color:#94a3b8;">%B Rank (Y):</span>'
+                + '<span style="font-weight:600;color:' + (params.data.value[1] > 0 ? '#10b981' : '#ef4444') + '">' + (params.data.value[1] > 0 ? '+' : '') + params.data.value[1].toFixed(4) + '</span>'
+                + '</div>';
             }
             return '';
           }
@@ -575,8 +601,10 @@
           name: 'Momentum Blend (%)',
           nameLocation: 'middle',
           nameGap: 30,
-          splitLine: { lineStyle: { color: 'rgba(255,255,255,0.05)' } },
-          axisLine: { lineStyle: { color: '#64748b' } }
+          nameTextStyle: { color: '#94a3b8', fontSize: 11, fontWeight: 600 },
+          splitLine: { lineStyle: { color: '#334155', type: 'dashed' } },
+          axisLine: { lineStyle: { color: '#475569', width: 1.5 } },
+          axisLabel: { color: '#cbd5e1', fontSize: 10, formatter: '{value}%' }
         },
         yAxis: {
           type: 'value',
@@ -585,44 +613,23 @@
           nameGap: 40,
           min: -0.6,
           max: 0.6,
-          splitLine: { lineStyle: { color: 'rgba(255,255,255,0.05)' } },
-          axisLine: { lineStyle: { color: '#64748b' } }
+          nameTextStyle: { color: '#94a3b8', fontSize: 11, fontWeight: 600 },
+          splitLine: { lineStyle: { color: '#334155', type: 'dashed' } },
+          axisLine: { lineStyle: { color: '#475569', width: 1.5 } },
+          axisLabel: { color: '#cbd5e1', fontSize: 10 }
         },
         series: [
           {
-            name: 'Quadrants & Axes',
+            name: 'Axes',
             type: 'scatter',
             data: [],
             markLine: {
               silent: true,
-              symbol: ['none', 'none'],
+              symbol: 'none',
               label: { show: false },
-              lineStyle: { color: '#475569', type: 'dashed', width: 1 },
               data: [
-                { xAxis: 0 },
-                { yAxis: 0 }
-              ]
-            },
-            markArea: {
-              silent: true,
-              label: { fontSize: 11, color: 'rgba(148, 163, 184, 0.4)', fontWeight: 'bold' },
-              data: [
-                [
-                  { name: 'Q2: Deteriorating\n(Take Profit / Short)', yAxis: 0 },
-                  { yAxis: 0.6 }
-                ],
-                [
-                  { name: 'Q1: Leading / Overstretched\n(Hold / Prepare Exit)', xAxis: 0, yAxis: 0 },
-                  { yAxis: 0.6 }
-                ],
-                [
-                  { name: 'Q3: Lagging\n(Avoid / Cash)', yAxis: -0.6 },
-                  { yAxis: 0 }
-                ],
-                [
-                  { name: 'Q4: Improving\n(Tactical Long Entry)', xAxis: 0, yAxis: -0.6 },
-                  { yAxis: 0 }
-                ]
+                { xAxis: 0, lineStyle: { type: 'solid', color: '#64748b', width: 1.5 } },
+                { yAxis: 0, lineStyle: { type: 'solid', color: '#64748b', width: 1.5 } }
               ]
             }
           },
@@ -661,9 +668,63 @@
           }
         ]
       });
+
+      chart.getZr().on('dblclick', function() {
+        chart.dispatchAction({ type: 'restore' });
+      });
+
       window.addEventListener('resize', function() { chart.resize(); });
     })();
     </script>
+
+    <!-- Toggle: Macro Rotation Table -->
+    <details class="toggle-section" {% if not data.macro_rotation %}style="display:none;"{% endif %}>
+      <summary class="toggle-summary">Macro Rotation Table</summary>
+      <div class="val-table-wrap">
+        <table class="val-table">
+          <thead>
+            <tr>
+              {% if region == 'KR' %}
+                <th>Name</th>
+                <th>Ticker</th>
+              {% else %}
+                <th>Ticker</th>
+                <th>Name</th>
+              {% endif %}
+              <th>Momentum Blend (X)</th>
+              <th>%B Rank (Y)</th>
+              <th>Prev Momentum (X)</th>
+              <th>Prev %B Rank (Y)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in data.macro_rotation %}
+              <tr>
+                {% if region == 'KR' %}
+                  <td class="ticker-name-cell">{{ item.name }}</td>
+                  <td class="ticker-symbol-cell">{{ item.ticker }}</td>
+                {% else %}
+                  <td class="ticker-symbol-cell">{{ item.ticker }}</td>
+                  <td class="ticker-name-cell">{{ item.name }}</td>
+                {% endif %}
+                <td class="{{ 'text-green' if item.x > 0 else 'text-red' }}" style="font-weight:600;">
+                  {{ '+' if item.x > 0 else '' }}{{ "%.2f"|format(item.x) }}%
+                </td>
+                <td class="{{ 'text-green' if item.y > 0 else 'text-red' }}" style="font-weight:600;">
+                  {{ '+' if item.y > 0 else '' }}{{ "%.4f"|format(item.y) }}
+                </td>
+                <td style="color:#94a3b8;">
+                  {{ '+' if item.prev_x > 0 else '' }}{{ "%.2f"|format(item.prev_x) }}%
+                </td>
+                <td style="color:#94a3b8;">
+                  {{ '+' if item.prev_y > 0 else '' }}{{ "%.4f"|format(item.prev_y) }}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </details>
   </div>
 
   <!-- ① Market Landscape with Win Rate & Win/Loss Ratio -->
