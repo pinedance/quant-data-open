@@ -201,3 +201,35 @@ def calculate_win_loss_ratio(prices_df: pd.DataFrame, lookback: int = 240) -> pd
     avg_loss = returns_df.where(returns_df < 0).mean().abs()
     ratio = avg_gain / avg_loss
     return ratio.fillna(1.0).replace([np.inf, -np.inf], 1.0)
+
+
+def calculate_bollinger_percent_b(data, window: int = 5, num_std: float = 2.0):
+    """
+    Calculate Bollinger %B for a Series or DataFrame.
+    %B = (Price - Lower Band) / (Upper Band - Lower Band)
+    """
+    sma = data.rolling(window=window).mean()
+    std = data.rolling(window=window).std(ddof=0)
+    upper = sma + num_std * std
+    lower = sma - num_std * std
+    band_width = upper - lower
+    percent_b = (data - lower) / band_width.replace(0, np.nan)
+    return percent_b
+
+
+def calculate_rolling_percentile_rank(data, window: int = 12):
+    """
+    Calculate rolling percentile rank (0.0 to 1.0) over specified window.
+    Works for Series or DataFrame.
+    """
+    def _rank_last(arr):
+        if np.isnan(arr).any():
+            valid = arr[~np.isnan(arr)]
+            if len(valid) == 0:
+                return np.nan
+            arr = valid
+        last_val = arr[-1]
+        return (arr <= last_val).sum() / float(len(arr))
+
+    return data.rolling(window=window).apply(_rank_last, raw=True)
+
