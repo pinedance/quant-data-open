@@ -327,17 +327,17 @@
     },
     {
       "cd": "VB",
-      "nm": "Vanguard Small-Cap Index Fund ETF Shares",
+      "nm": "Vanguard Morningstar Small-Cap ETF",
       "gb": "US"
     },
     {
       "cd": "VBK",
-      "nm": "Vanguard Small-Cap Growth Index Fund ETF Shares",
+      "nm": "Vanguard Morningstar Small-Cap Growth ETF",
       "gb": "US"
     },
     {
       "cd": "VBR",
-      "nm": "Vanguard Small-Cap Value Index Fund ETF Shares",
+      "nm": "Vanguard Morningstar Small-Cap Value ETF",
       "gb": "US"
     },
     {
@@ -407,7 +407,7 @@
     },
     {
       "cd": "VTI",
-      "nm": "Vanguard Total Stock Market Index Fund ETF Shares",
+      "nm": "Vanguard Morningstar Total Stock Market ETF",
       "gb": "US"
     },
     {
@@ -417,12 +417,12 @@
     },
     {
       "cd": "VTV",
-      "nm": "Vanguard Value Index Fund ETF Shares",
+      "nm": "Vanguard Morningstar Value ETF",
       "gb": "US"
     },
     {
       "cd": "VUG",
-      "nm": "Vanguard Growth Index Fund ETF Shares",
+      "nm": "Vanguard Morningstar Growth ETF",
       "gb": "US"
     },
     {
