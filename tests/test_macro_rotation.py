@@ -18,10 +18,10 @@ class TestMacroRotation(unittest.TestCase):
 
     def test_dashboard_analyzer_macro_rotation(self):
         from core.dashboard_analyzer import DashboardAnalyzer
-        dates = pd.date_range("2020-01-01", periods=25, freq="M")
+        dates = pd.date_range("2019-01-01", periods=60, freq="ME")
         df_us_m = pd.DataFrame({
-            "SPY": np.linspace(100, 200, 25),
-            "QQQ": np.linspace(200, 300, 25)
+            "SPY": np.linspace(100, 200, 60),
+            "QQQ": np.linspace(200, 300, 60)
         }, index=dates)
         df_us_d = pd.DataFrame({"SPY": np.linspace(100, 200, 250), "QQQ": np.linspace(200, 300, 250)}, index=pd.date_range("2020-01-01", periods=250))
         df_us_hist = df_us_d.copy()

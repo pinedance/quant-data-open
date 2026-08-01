@@ -238,13 +238,13 @@ class DashboardAnalyzer:
         import numpy as np
 
         def compute_macro_rotation(df_m, region):
-            if len(df_m) < 13:
+            if len(df_m) < 50:
                 return
             mom_curr = calculate_average_momentum(df_m)
             mom_prev = calculate_average_momentum(df_m.iloc[:-1])
 
             pct_b = calculate_bollinger_percent_b(df_m, window=5, num_std=2.0)
-            pct_rank = calculate_rolling_percentile_rank(pct_b, window=12) - 0.5
+            pct_rank = (calculate_rolling_percentile_rank(pct_b, window=50) - 0.5) * 2.0
 
             y_curr = pct_rank.iloc[-1]
             y_prev = pct_rank.iloc[-2]

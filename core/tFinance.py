@@ -217,7 +217,7 @@ def calculate_bollinger_percent_b(data, window: int = 5, num_std: float = 2.0):
     return percent_b
 
 
-def calculate_rolling_percentile_rank(data, window: int = 12):
+def calculate_rolling_percentile_rank(data, window: int = 50, min_periods: int = None):
     """
     Calculate rolling percentile rank (0.0 to 1.0) over specified window.
     Works for Series or DataFrame.
@@ -231,5 +231,5 @@ def calculate_rolling_percentile_rank(data, window: int = 12):
         last_val = arr[-1]
         return (arr <= last_val).sum() / float(len(arr))
 
-    return data.rolling(window=window).apply(_rank_last, raw=True)
+    return data.rolling(window=window, min_periods=min_periods).apply(_rank_last, raw=True)
 
