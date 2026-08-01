@@ -444,6 +444,93 @@
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<script>
+window.CHART_CONSTANTS = {
+  COLORS: {
+    MUTED: '#94a3b8',
+    LABEL: '#cbd5e1',
+    BRIGHT: '#f8fafc',
+    WHITE: '#ffffff',
+    BORDER: '#475569',
+    SPLIT_LINE: '#334155',
+    MARK_LINE: '#64748b',
+    TOOLTIP_BG: 'rgba(30, 41, 59, 0.95)',
+    CYAN: '#38bdf8',
+    GREEN: '#10b981',
+    RED: '#ef4444',
+    SOFT_RED: '#f87171',
+    SOFT_BLUE: '#60a5fa',
+    INDIGO: '#6366f1'
+  },
+  THRESHOLDS: {
+    RSI_HIGH: 70,
+    RSI_LOW: 30,
+    TSIGMA_HIGH: 2.5,
+    TSIGMA_LOW: -2.5,
+    WIN_RATE_MID: 50,
+    WIN_LOSS_MID: 1.0
+  },
+  BOUNDS: {
+    MACRO_ROTATION_Y_MIN: -1.1,
+    MACRO_ROTATION_Y_MAX: 1.1
+  }
+};
+
+window.DashboardChartUtils = {
+  grid: { left: 50, right: 20, top: 40, bottom: 50 },
+  toolbox: {
+    show: true,
+    top: 0,
+    right: 10,
+    feature: { restore: { show: true, title: 'Reset' } },
+    iconStyle: { borderColor: window.CHART_CONSTANTS.COLORS.MUTED },
+    emphasis: { iconStyle: { borderColor: window.CHART_CONSTANTS.COLORS.WHITE } }
+  },
+  dataZoom: [
+    { type: 'inside', xAxisIndex: 0, filterMode: 'none', moveOnMouseMove: true, zoomOnMouseWheel: true },
+    { type: 'inside', yAxisIndex: 0, filterMode: 'none', moveOnMouseMove: true, zoomOnMouseWheel: true }
+  ],
+  symAxisBound: function(v, pad) {
+    return -(Math.max(Math.abs(v.min), Math.abs(v.max)) + pad);
+  },
+  formatHeader: function(d, region) {
+    var c = window.CHART_CONSTANTS.COLORS;
+    return region === 'KR'
+      ? (d.name + ' <span style="font-size:10px;color:' + c.MUTED + ';">' + d.ticker + '</span>')
+      : (d.ticker + ' <span style="font-size:10px;color:' + c.MUTED + ';">' + d.name + '</span>');
+  },
+  tooltipBase: {
+    trigger: 'item',
+    backgroundColor: window.CHART_CONSTANTS.COLORS.TOOLTIP_BG,
+    borderColor: window.CHART_CONSTANTS.COLORS.BORDER,
+    borderWidth: 1,
+    padding: [10, 14],
+    textStyle: { color: window.CHART_CONSTANTS.COLORS.BRIGHT, fontSize: 12 }
+  },
+  commonSeriesConfig: {
+    labelLayout: { hideOverlap: true },
+    emphasis: {
+      scale: true,
+      itemStyle: {
+        shadowBlur: 15,
+        shadowColor: 'rgba(255, 255, 255, 0.6)',
+        opacity: 1
+      },
+      label: {
+        color: window.CHART_CONSTANTS.COLORS.WHITE,
+        fontSize: 10,
+        fontWeight: 700
+      }
+    }
+  },
+  bindEvents: function(chart) {
+    chart.getZr().on('dblclick', function() {
+      chart.dispatchAction({ type: 'restore' });
+    });
+    window.addEventListener('resize', function() { chart.resize(); });
+  }
+};
+</script>
 
 <div class="dashboard-container">
   <!-- ① Market Regime -->
@@ -555,79 +642,64 @@
         };
       });
 
+      var C = window.CHART_CONSTANTS.COLORS;
+      var B = window.CHART_CONSTANTS.BOUNDS;
+
       var chart = echarts.init(document.getElementById('macro-rotation-chart'));
       chart.setOption({
         backgroundColor: 'transparent',
-        grid: { left: 55, right: 25, top: 40, bottom: 50 },
+        grid: DashboardChartUtils.grid,
         legend: {
           show: true,
           top: 0,
           left: 10,
-          textStyle: { color: '#94a3b8', fontSize: 11 },
+          textStyle: { color: C.MUTED, fontSize: 11 },
           selected: {
             'Current Month': true,
             'Previous Month': false,
             'Vectors': false
           }
         },
-        toolbox: {
-          show: true,
-          top: 0,
-          right: 10,
-          feature: {
-            restore: { show: true, title: 'Reset' }
-          },
-          iconStyle: { borderColor: '#94a3b8' },
-          emphasis: { iconStyle: { borderColor: '#ffffff' } }
-        },
-        dataZoom: [
-          { type: 'inside', xAxisIndex: 0, filterMode: 'none', moveOnMouseMove: true, zoomOnMouseWheel: true },
-          { type: 'inside', yAxisIndex: 0, filterMode: 'none', moveOnMouseMove: true, zoomOnMouseWheel: true }
-        ],
-        tooltip: {
-          trigger: 'item',
-          backgroundColor: 'rgba(30, 41, 59, 0.95)',
-          borderColor: '#475569',
-          borderWidth: 1,
-          padding: [10, 14],
-          textStyle: { color: '#f1f5f9', fontSize: 12 },
+        toolbox: DashboardChartUtils.toolbox,
+        dataZoom: DashboardChartUtils.dataZoom,
+        tooltip: Object.assign({}, DashboardChartUtils.tooltipBase, {
           formatter: function(params) {
             if (params.data && params.data.ticker) {
-              var nameHeader = {{ region | tojson }} === 'KR' ? (params.data.name + ' <span style="font-size:10px;color:#94a3b8;">' + params.data.ticker + '</span>') : (params.data.ticker + ' <span style="font-size:10px;color:#94a3b8;">' + params.data.name + '</span>');
-              return '<div style="font-weight:700;margin-bottom:6px;border-bottom:1px solid #334155;padding-bottom:4px;">' + nameHeader + '</div>'
+              var nameHeader = DashboardChartUtils.formatHeader(params.data, {{ region | tojson }});
+              return '<div style="font-weight:700;margin-bottom:6px;border-bottom:1px solid ' + C.SPLIT_LINE + ';padding-bottom:4px;">' + nameHeader + '</div>'
                 + '<div style="display:flex;justify-content:space-between;gap:15px;margin-bottom:2px;">'
-                + '<span style="color:#94a3b8;">Momentum Blend (X):</span>'
-                + '<span style="font-weight:600;color:' + (params.data.value[0] > 0 ? '#10b981' : '#ef4444') + '">' + (params.data.value[0] > 0 ? '+' : '') + params.data.value[0].toFixed(2) + '%</span>'
+                + '<span style="color:' + C.MUTED + ';">Momentum Blend (X):</span>'
+                + '<span style="font-weight:600;color:' + (params.data.value[0] > 0 ? C.GREEN : C.RED) + '">' + (params.data.value[0] > 0 ? '+' : '') + params.data.value[0].toFixed(2) + '%</span>'
                 + '</div>'
                 + '<div style="display:flex;justify-content:space-between;gap:15px;">'
-                + '<span style="color:#94a3b8;">%B Rank (Y):</span>'
-                + '<span style="font-weight:600;color:' + (params.data.value[1] > 0 ? '#10b981' : '#ef4444') + '">' + (params.data.value[1] > 0 ? '+' : '') + params.data.value[1].toFixed(4) + '</span>'
+                + '<span style="color:' + C.MUTED + ';">%B Rank (Y):</span>'
+                + '<span style="font-weight:600;color:' + (params.data.value[1] > 0 ? C.GREEN : C.RED) + '">' + (params.data.value[1] > 0 ? '+' : '') + params.data.value[1].toFixed(4) + '</span>'
                 + '</div>';
             }
             return '';
           }
-        },
+        }),
         xAxis: {
           type: 'value',
           name: 'Momentum Blend (%)',
           nameLocation: 'middle',
           nameGap: 30,
-          nameTextStyle: { color: '#94a3b8', fontSize: 11, fontWeight: 600 },
-          splitLine: { lineStyle: { color: '#334155', type: 'dashed' } },
-          axisLine: { lineStyle: { color: '#475569', width: 1.5 } },
-          axisLabel: { color: '#cbd5e1', fontSize: 10, formatter: '{value}%' }
+          nameTextStyle: { color: C.MUTED, fontSize: 11, fontWeight: 600 },
+          splitLine: { lineStyle: { color: C.SPLIT_LINE, type: 'dashed' } },
+          axisLine: { lineStyle: { color: C.BORDER, width: 1.5 } },
+          axisLabel: { color: C.LABEL, fontSize: 10, formatter: '{value}%' }
         },
         yAxis: {
           type: 'value',
-          name: '%B Rank (-0.5 ~ +0.5)',
+          name: '%B Rank (-1.0 ~ +1.0)',
           nameLocation: 'middle',
           nameGap: 40,
-          min: -0.6,
-          max: 0.6,
-          nameTextStyle: { color: '#94a3b8', fontSize: 11, fontWeight: 600 },
-          splitLine: { lineStyle: { color: '#334155', type: 'dashed' } },
-          axisLine: { lineStyle: { color: '#475569', width: 1.5 } },
-          axisLabel: { color: '#cbd5e1', fontSize: 10 }
+          min: B.MACRO_ROTATION_Y_MIN,
+          max: B.MACRO_ROTATION_Y_MAX,
+          nameTextStyle: { color: C.MUTED, fontSize: 11, fontWeight: 600 },
+          splitLine: { lineStyle: { color: C.SPLIT_LINE, type: 'dashed' } },
+          axisLine: { lineStyle: { color: C.BORDER, width: 1.5 } },
+          axisLabel: { color: C.LABEL, fontSize: 10 }
         },
         series: [
           {
@@ -639,8 +711,8 @@
               symbol: 'none',
               label: { show: false },
               data: [
-                { xAxis: 0, lineStyle: { type: 'solid', color: '#64748b', width: 1.5 } },
-                { yAxis: 0, lineStyle: { type: 'solid', color: '#64748b', width: 1.5 } }
+                { xAxis: 0, lineStyle: { type: 'solid', color: C.MARK_LINE, width: 1.5 } },
+                { yAxis: 0, lineStyle: { type: 'solid', color: C.MARK_LINE, width: 1.5 } }
               ]
             }
           },
@@ -648,22 +720,24 @@
             name: 'Previous Month',
             type: 'scatter',
             symbolSize: 6,
-            itemStyle: { color: '#94a3b8', opacity: 0.4 },
+            itemStyle: { color: C.MUTED, opacity: 0.4 },
             data: prevPoints
           },
           {
             name: 'Current Month',
             type: 'scatter',
             symbolSize: 12,
-            itemStyle: { color: '#38bdf8' },
+            itemStyle: { color: C.CYAN },
             label: {
               show: true,
               formatter: function(p) { return p.data.ticker; },
               position: 'top',
-              color: '#f8fafc',
+              color: C.BRIGHT,
               fontSize: 10,
               fontWeight: 'bold'
             },
+            labelLayout: DashboardChartUtils.commonSeriesConfig.labelLayout,
+            emphasis: DashboardChartUtils.commonSeriesConfig.emphasis,
             data: currPoints
           },
           {
@@ -671,7 +745,7 @@
             type: 'lines',
             coordinateSystem: 'cartesian2d',
             effect: { show: false },
-            lineStyle: { color: '#38bdf8', width: 1.5, opacity: 0.6, type: 'solid' },
+            lineStyle: { color: C.CYAN, width: 1.5, opacity: 0.6, type: 'solid' },
             polyline: false,
             symbol: ['none', 'arrow'],
             symbolSize: 6,
@@ -680,11 +754,7 @@
         ]
       });
 
-      chart.getZr().on('dblclick', function() {
-        chart.dispatchAction({ type: 'restore' });
-      });
-
-      window.addEventListener('resize', function() { chart.resize(); });
+      DashboardChartUtils.bindEvents(chart);
     })();
     </script>
 
@@ -768,24 +838,15 @@
       var maxVal = Math.max.apply(null, values);
       var maxAbs = Math.max(Math.abs(minVal), Math.abs(maxVal));
 
+      var C = window.CHART_CONSTANTS.COLORS;
+      var T = window.CHART_CONSTANTS.THRESHOLDS;
+
       var chart = echarts.init(document.getElementById('factor-chart'));
       chart.setOption({
         backgroundColor: 'transparent',
-        grid: { left: 48, right: 16, top: 35, bottom: 48 },
-        toolbox: {
-          show: true,
-          top: 0,
-          right: 10,
-          feature: {
-            restore: { show: true, title: 'Reset' }
-          },
-          iconStyle: { borderColor: '#94a3b8' },
-          emphasis: { iconStyle: { borderColor: '#ffffff' } }
-        },
-        dataZoom: [
-          { type: 'inside', xAxisIndex: 0, filterMode: 'none' },
-          { type: 'inside', yAxisIndex: 0, filterMode: 'none' }
-        ],
+        grid: DashboardChartUtils.grid,
+        toolbox: DashboardChartUtils.toolbox,
+        dataZoom: DashboardChartUtils.dataZoom,
         xAxis: {
           type: 'value',
           min: 0,
@@ -793,10 +854,10 @@
           name: 'Win Rate (%)',
           nameLocation: 'middle',
           nameGap: 28,
-          nameTextStyle: { color: '#94a3b8', fontSize: 11, fontWeight: 600 },
-          axisLine: { lineStyle: { color: '#475569', width: 1.5 } },
-          splitLine: { lineStyle: { color: '#334155', type: 'dashed' } },
-          axisLabel: { color: '#cbd5e1', fontSize: 10, formatter: '{value}%' }
+          nameTextStyle: { color: C.MUTED, fontSize: 11, fontWeight: 600 },
+          axisLine: { lineStyle: { color: C.BORDER, width: 1.5 } },
+          splitLine: { lineStyle: { color: C.SPLIT_LINE, type: 'dashed' } },
+          axisLabel: { color: C.LABEL, fontSize: 10, formatter: '{value}%' }
         },
         yAxis: {
           type: 'value',
@@ -805,36 +866,30 @@
           name: 'Win/Loss Ratio',
           nameLocation: 'middle',
           nameGap: 32,
-          nameTextStyle: { color: '#94a3b8', fontSize: 11, fontWeight: 600 },
-          axisLine: { lineStyle: { color: '#475569', width: 1.5 } },
-          splitLine: { lineStyle: { color: '#334155', type: 'dashed' } },
-          axisLabel: { color: '#cbd5e1', fontSize: 10 }
+          nameTextStyle: { color: C.MUTED, fontSize: 11, fontWeight: 600 },
+          axisLine: { lineStyle: { color: C.BORDER, width: 1.5 } },
+          splitLine: { lineStyle: { color: C.SPLIT_LINE, type: 'dashed' } },
+          axisLabel: { color: C.LABEL, fontSize: 10 }
         },
-        tooltip: {
-          trigger: 'item',
-          backgroundColor: 'rgba(30, 41, 59, 0.95)',
-          borderColor: '#475569',
-          borderWidth: 1,
-          padding: [10, 14],
-          textStyle: { color: '#f1f5f9', fontSize: 12 },
+        tooltip: Object.assign({}, DashboardChartUtils.tooltipBase, {
           formatter: function(params) {
             var d = params.data;
-            var header = {{ region | tojson }} === 'KR' ? (d.name + ' <span style="font-size:10px;color:#94a3b8;">' + d.ticker + '</span>') : (d.ticker + ' <span style="font-size:10px;color:#94a3b8;">' + d.name + '</span>');
-            return '<div style="font-weight:700;margin-bottom:6px;border-bottom:1px solid #334155;padding-bottom:4px;">' + header + '</div>'
+            var header = DashboardChartUtils.formatHeader(d, {{ region | tojson }});
+            return '<div style="font-weight:700;margin-bottom:6px;border-bottom:1px solid ' + C.SPLIT_LINE + ';padding-bottom:4px;">' + header + '</div>'
               + '<div style="display:flex;justify-content:space-between;gap:15px;margin-bottom:2px;">'
-              + '<span style="color:#94a3b8;">Win Rate:</span>'
-              + '<span style="font-weight:600;color:' + (d.win_rate > 0.5 ? '#10b981' : '#ef4444') + '">' + (d.win_rate * 100).toFixed(2) + '%</span>'
+              + '<span style="color:' + C.MUTED + ';">Win Rate:</span>'
+              + '<span style="font-weight:600;color:' + (d.win_rate > 0.5 ? C.GREEN : C.RED) + '">' + (d.win_rate * 100).toFixed(2) + '%</span>'
               + '</div>'
               + '<div style="display:flex;justify-content:space-between;gap:15px;margin-bottom:2px;">'
-              + '<span style="color:#94a3b8;">Win/Loss Ratio:</span>'
-              + '<span style="font-weight:600;color:' + (d.win_loss_ratio > 1.0 ? '#10b981' : '#ef4444') + '">' + d.win_loss_ratio.toFixed(4) + '</span>'
+              + '<span style="color:' + C.MUTED + ';">Win/Loss Ratio:</span>'
+              + '<span style="font-weight:600;color:' + (d.win_loss_ratio > T.WIN_LOSS_MID ? C.GREEN : C.RED) + '">' + d.win_loss_ratio.toFixed(4) + '</span>'
               + '</div>'
               + '<div style="display:flex;justify-content:space-between;gap:15px;">'
-              + '<span style="color:#94a3b8;">Avg Momentum:</span>'
-              + '<span style="font-weight:600;color:' + (d.avg_mom > 0 ? '#10b981' : (d.avg_mom < 0 ? '#ef4444' : '#cbd5e1')) + '">' + d.avg_mom.toFixed(2) + '%</span>'
+              + '<span style="color:' + C.MUTED + ';">Avg Momentum:</span>'
+              + '<span style="font-weight:600;color:' + (d.avg_mom > 0 ? C.GREEN : (d.avg_mom < 0 ? C.RED : C.LABEL)) + '">' + d.avg_mom.toFixed(2) + '%</span>'
               + '</div>';
           }
-        },
+        }),
         visualMap: [{
           show: true,
           left: 'right',
@@ -846,9 +901,9 @@
           calculable: true,
           precision: 2,
           text: ['High', 'Low'],
-          textStyle: { color: '#cbd5e1' },
+          textStyle: { color: C.LABEL },
           inRange: {
-            color: ['#60a5fa', '#334155', '#f87171']
+            color: [C.SOFT_BLUE, C.SPLIT_LINE, C.SOFT_RED]
           }
         }],
         series: [{
@@ -871,41 +926,25 @@
             formatter: function(params) { return params.data.ticker; },
             position: 'top',
             fontSize: 9,
-            color: '#cbd5e1',
+            color: C.LABEL,
             fontWeight: 600,
             distance: 5
           },
-          labelLayout: { hideOverlap: true },
-          emphasis: {
-            scale: true,
-            itemStyle: {
-              shadowBlur: 15,
-              shadowColor: 'rgba(255, 255, 255, 0.6)',
-              opacity: 1
-            },
-            label: {
-              color: '#ffffff',
-              fontSize: 10,
-              fontWeight: 700
-            }
-          },
+          labelLayout: DashboardChartUtils.commonSeriesConfig.labelLayout,
+          emphasis: DashboardChartUtils.commonSeriesConfig.emphasis,
           markLine: {
             silent: true,
             symbol: 'none',
             label: { show: false },
             data: [
-              { xAxis: 50, lineStyle: { type: 'solid', color: '#64748b', width: 1.5 } },
-              { yAxis: 1.0, lineStyle: { type: 'solid', color: '#64748b', width: 1.5 } }
+              { xAxis: T.WIN_RATE_MID, lineStyle: { type: 'solid', color: C.MARK_LINE, width: 1.5 } },
+              { yAxis: T.WIN_LOSS_MID, lineStyle: { type: 'solid', color: C.MARK_LINE, width: 1.5 } }
             ]
           }
         }]
       });
 
-      chart.getZr().on('dblclick', function() {
-        chart.dispatchAction({ type: 'restore' });
-      });
-
-      window.addEventListener('resize', function() { chart.resize(); });
+      DashboardChartUtils.bindEvents(chart);
     })();
     </script>
 
@@ -980,48 +1019,26 @@
         {% endfor %}
       ];
 
-      function symAxisBound(v, pad) {
-        return -(Math.max(Math.abs(v.min), Math.abs(v.max)) + pad);
-      }
+      var C = window.CHART_CONSTANTS.COLORS;
+      var T = window.CHART_CONSTANTS.THRESHOLDS;
 
       var chart = echarts.init(document.getElementById('rsi-chart'));
       chart.setOption({
         backgroundColor: 'transparent',
-        grid: { left: 48, right: 16, top: 35, bottom: 48 },
-        toolbox: {
-          show: true,
-          top: 0,
-          right: 10,
-          feature: {
-            restore: {
-              show: true,
-              title: 'Reset'
-            }
-          },
-          iconStyle: {
-            borderColor: '#94a3b8'
-          },
-          emphasis: {
-            iconStyle: {
-              borderColor: '#ffffff'
-            }
-          }
-        },
-        dataZoom: [
-          { type: 'inside', xAxisIndex: 0, filterMode: 'none' },
-          { type: 'inside', yAxisIndex: 0, filterMode: 'none' }
-        ],
+        grid: DashboardChartUtils.grid,
+        toolbox: DashboardChartUtils.toolbox,
+        dataZoom: DashboardChartUtils.dataZoom,
         xAxis: {
           type: 'value',
-          min: function(v) { return  symAxisBound(v, 5); },
-          max: function(v) { return -symAxisBound(v, 5); },
+          min: function(v) { return  DashboardChartUtils.symAxisBound(v, 5); },
+          max: function(v) { return -DashboardChartUtils.symAxisBound(v, 5); },
           name: 'RSI Diff (RSI - Signal)',
           nameLocation: 'middle',
           nameGap: 28,
-          nameTextStyle: { color: '#94a3b8', fontSize: 11, fontWeight: 600 },
-          axisLine: { lineStyle: { color: '#475569', width: 1.5 } },
-          splitLine: { lineStyle: { color: '#334155', type: 'dashed' } },
-          axisLabel: { color: '#cbd5e1', fontSize: 10 }
+          nameTextStyle: { color: C.MUTED, fontSize: 11, fontWeight: 600 },
+          axisLine: { lineStyle: { color: C.BORDER, width: 1.5 } },
+          splitLine: { lineStyle: { color: C.SPLIT_LINE, type: 'dashed' } },
+          axisLabel: { color: C.LABEL, fontSize: 10 }
         },
         yAxis: {
           type: 'value',
@@ -1030,36 +1047,30 @@
           name: 'RSI',
           nameLocation: 'middle',
           nameGap: 32,
-          nameTextStyle: { color: '#94a3b8', fontSize: 11, fontWeight: 600 },
-          axisLine: { lineStyle: { color: '#475569', width: 1.5 } },
-          splitLine: { lineStyle: { color: '#334155', type: 'dashed' } },
-          axisLabel: { color: '#cbd5e1', fontSize: 10 }
+          nameTextStyle: { color: C.MUTED, fontSize: 11, fontWeight: 600 },
+          axisLine: { lineStyle: { color: C.BORDER, width: 1.5 } },
+          splitLine: { lineStyle: { color: C.SPLIT_LINE, type: 'dashed' } },
+          axisLabel: { color: C.LABEL, fontSize: 10 }
         },
-        tooltip: {
-          trigger: 'item',
-          backgroundColor: 'rgba(30, 41, 59, 0.95)',
-          borderColor: '#475569',
-          borderWidth: 1,
-          padding: [10, 14],
-          textStyle: { color: '#f1f5f9', fontSize: 12 },
+        tooltip: Object.assign({}, DashboardChartUtils.tooltipBase, {
           formatter: function(params) {
             var d = params.data;
-            var header = {{ region | tojson }} === 'KR' ? (d.name + ' <span style="font-size:10px;color:#94a3b8;">' + d.ticker + '</span>') : (d.ticker + ' <span style="font-size:10px;color:#94a3b8;">' + d.name + '</span>');
-            return '<div style="font-weight:700;margin-bottom:6px;border-bottom:1px solid #334155;padding-bottom:4px;">' + header + '</div>'
+            var header = DashboardChartUtils.formatHeader(d, {{ region | tojson }});
+            return '<div style="font-weight:700;margin-bottom:6px;border-bottom:1px solid ' + C.SPLIT_LINE + ';padding-bottom:4px;">' + header + '</div>'
               + '<div style="display:flex;justify-content:space-between;gap:15px;margin-bottom:2px;">'
-              + '<span style="color:#94a3b8;">RSI:</span>'
-              + '<span style="font-weight:600;color:' + (d.rsi > 70 ? '#f87171' : (d.rsi < 30 ? '#60a5fa' : '#cbd5e1')) + '">' + d.rsi.toFixed(2) + '</span>'
+              + '<span style="color:' + C.MUTED + ';">RSI:</span>'
+              + '<span style="font-weight:600;color:' + (d.rsi > T.RSI_HIGH ? C.SOFT_RED : (d.rsi < T.RSI_LOW ? C.SOFT_BLUE : C.LABEL)) + '">' + d.rsi.toFixed(2) + '</span>'
               + '</div>'
               + '<div style="display:flex;justify-content:space-between;gap:15px;margin-bottom:2px;">'
-              + '<span style="color:#94a3b8;">RSI Signal:</span>'
-              + '<span style="font-weight:600;color:#cbd5e1">' + d.rsi_signal.toFixed(2) + '</span>'
+              + '<span style="color:' + C.MUTED + ';">RSI Signal:</span>'
+              + '<span style="font-weight:600;color:' + C.LABEL + '">' + d.rsi_signal.toFixed(2) + '</span>'
               + '</div>'
               + '<div style="display:flex;justify-content:space-between;gap:15px;">'
-              + '<span style="color:#94a3b8;">RSI Diff:</span>'
-              + '<span style="font-weight:600;color:' + (d.rsi_diff > 0 ? '#10b981' : (d.rsi_diff < 0 ? '#ef4444' : '#cbd5e1')) + '">' + d.rsi_diff.toFixed(2) + '</span>'
+              + '<span style="color:' + C.MUTED + ';">RSI Diff:</span>'
+              + '<span style="font-weight:600;color:' + (d.rsi_diff > 0 ? C.GREEN : (d.rsi_diff < 0 ? C.RED : C.LABEL)) + '">' + d.rsi_diff.toFixed(2) + '</span>'
               + '</div>';
           }
-        },
+        }),
         series: [{
           type: 'scatter',
           data: chartData,
@@ -1067,9 +1078,9 @@
           itemStyle: {
             color: function(params) {
               var r = params.data.rsi;
-              if (r > 70) return '#f87171'; // soft red
-              if (r < 30) return '#60a5fa'; // soft blue
-              return '#6366f1'; // indigo
+              if (r > T.RSI_HIGH) return C.SOFT_RED;
+              if (r < T.RSI_LOW) return C.SOFT_BLUE;
+              return C.INDIGO;
             },
             shadowBlur: 8,
             shadowColor: 'rgba(99, 102, 241, 0.4)',
@@ -1082,47 +1093,27 @@
             },
             position: 'top',
             fontSize: 9,
-            color: '#cbd5e1',
+            color: C.LABEL,
             fontWeight: 600,
             distance: 5
           },
-          labelLayout: {
-            hideOverlap: true
-          },
-          emphasis: {
-            scale: true,
-            itemStyle: {
-              shadowBlur: 15,
-              shadowColor: 'rgba(255, 255, 255, 0.6)',
-              opacity: 1
-            },
-            label: {
-              color: '#ffffff',
-              fontSize: 10,
-              fontWeight: 700
-            }
-          },
+          labelLayout: DashboardChartUtils.commonSeriesConfig.labelLayout,
+          emphasis: DashboardChartUtils.commonSeriesConfig.emphasis,
           markLine: {
             silent: true,
             symbol: 'none',
             label: { show: false },
             data: [
-              { xAxis: 0, lineStyle: { type: 'solid', color: '#64748b', width: 1.5 } },
-              { yAxis: 30, lineStyle: { type: 'solid', color: '#475569', width: 1.2 } },
-              { yAxis: 50, lineStyle: { type: 'solid', color: '#475569', width: 1.2 } },
-              { yAxis: 70, lineStyle: { type: 'solid', color: '#475569', width: 1.2 } }
+              { xAxis: 0, lineStyle: { type: 'solid', color: C.MARK_LINE, width: 1.5 } },
+              { yAxis: T.RSI_LOW, lineStyle: { type: 'solid', color: C.BORDER, width: 1.2 } },
+              { yAxis: 50, lineStyle: { type: 'solid', color: C.BORDER, width: 1.2 } },
+              { yAxis: T.RSI_HIGH, lineStyle: { type: 'solid', color: C.BORDER, width: 1.2 } }
             ]
           }
         }]
       });
 
-      chart.getZr().on('dblclick', function() {
-        chart.dispatchAction({
-          type: 'restore'
-        });
-      });
-
-      window.addEventListener('resize', function() { chart.resize(); });
+      DashboardChartUtils.bindEvents(chart);
     })();
     </script>
 
@@ -1205,86 +1196,58 @@
         {% endfor %}
       ];
 
-      function symAxisBound(v, pad) {
-        return -(Math.max(Math.abs(v.min), Math.abs(v.max)) + pad);
-      }
+      var C = window.CHART_CONSTANTS.COLORS;
+      var T = window.CHART_CONSTANTS.THRESHOLDS;
 
       var chart = echarts.init(document.getElementById('landscape-chart'));
       chart.setOption({
         backgroundColor: 'transparent',
-        grid: { left: 48, right: 16, top: 35, bottom: 48 },
-        toolbox: {
-          show: true,
-          top: 0,
-          right: 10,
-          feature: {
-            restore: {
-              show: true,
-              title: 'Reset'
-            }
-          },
-          iconStyle: {
-            borderColor: '#94a3b8'
-          },
-          emphasis: {
-            iconStyle: {
-              borderColor: '#ffffff'
-            }
-          }
-        },
-        dataZoom: [
-          { type: 'inside', xAxisIndex: 0, filterMode: 'none' },
-          { type: 'inside', yAxisIndex: 0, filterMode: 'none' }
-        ],
+        grid: DashboardChartUtils.grid,
+        toolbox: DashboardChartUtils.toolbox,
+        dataZoom: DashboardChartUtils.dataZoom,
         xAxis: {
           type: 'value',
-          min: function(v) { return  symAxisBound(v, 0.5); },
-          max: function(v) { return -symAxisBound(v, 0.5); },
+          min: function(v) { return  DashboardChartUtils.symAxisBound(v, 0.5); },
+          max: function(v) { return -DashboardChartUtils.symAxisBound(v, 0.5); },
           name: 'MACD Z',
           nameLocation: 'middle',
           nameGap: 28,
-          nameTextStyle: { color: '#94a3b8', fontSize: 11, fontWeight: 600 },
-          axisLine: { lineStyle: { color: '#475569', width: 1.5 } },
-          splitLine: { lineStyle: { color: '#334155', type: 'dashed' } },
-          axisLabel: { color: '#cbd5e1', fontSize: 10 }
+          nameTextStyle: { color: C.MUTED, fontSize: 11, fontWeight: 600 },
+          axisLine: { lineStyle: { color: C.BORDER, width: 1.5 } },
+          splitLine: { lineStyle: { color: C.SPLIT_LINE, type: 'dashed' } },
+          axisLabel: { color: C.LABEL, fontSize: 10 }
         },
         yAxis: {
           type: 'value',
-          min: function(v) { return  symAxisBound(v, 0.5); },
-          max: function(v) { return -symAxisBound(v, 0.5); },
+          min: function(v) { return  DashboardChartUtils.symAxisBound(v, 0.5); },
+          max: function(v) { return -DashboardChartUtils.symAxisBound(v, 0.5); },
           name: 'T-Sigma',
           nameLocation: 'middle',
           nameGap: 32,
-          nameTextStyle: { color: '#94a3b8', fontSize: 11, fontWeight: 600 },
-          axisLine: { lineStyle: { color: '#475569', width: 1.5 } },
-          splitLine: { lineStyle: { color: '#334155', type: 'dashed' } },
-          axisLabel: { color: '#cbd5e1', fontSize: 10 }
+          nameTextStyle: { color: C.MUTED, fontSize: 11, fontWeight: 600 },
+          axisLine: { lineStyle: { color: C.BORDER, width: 1.5 } },
+          splitLine: { lineStyle: { color: C.SPLIT_LINE, type: 'dashed' } },
+          axisLabel: { color: C.LABEL, fontSize: 10 }
         },
-        tooltip: {
-          trigger: 'item',
-          backgroundColor: 'rgba(30, 41, 59, 0.95)',
-          borderColor: '#475569',
-          borderWidth: 1,
-          padding: [10, 14],
-          textStyle: { color: '#f1f5f9', fontSize: 12 },
+        tooltip: Object.assign({}, DashboardChartUtils.tooltipBase, {
           formatter: function(params) {
             var d = params.data;
-            var header = {{ region | tojson }} === 'KR' ? (d.name + ' <span style="font-size:10px;color:#94a3b8;">' + d.ticker + '</span>') : (d.ticker + ' <span style="font-size:10px;color:#94a3b8;">' + d.name + '</span>');
-            return '<div style="font-weight:700;margin-bottom:6px;border-bottom:1px solid #334155;padding-bottom:4px;">' + header + '</div>'
+            var header = DashboardChartUtils.formatHeader(d, {{ region | tojson }});
+            return '<div style="font-weight:700;margin-bottom:6px;border-bottom:1px solid ' + C.SPLIT_LINE + ';padding-bottom:4px;">' + header + '</div>'
               + '<div style="display:flex;justify-content:space-between;gap:15px;margin-bottom:2px;">'
-              + '<span style="color:#94a3b8;">T-Sigma:</span>'
-              + '<span style="font-weight:600;color:' + (d.t_sigma > 2.5 ? '#f87171' : (d.t_sigma < -2.5 ? '#60a5fa' : '#cbd5e1')) + '">' + d.t_sigma.toFixed(2) + '</span>'
+              + '<span style="color:' + C.MUTED + ';">T-Sigma:</span>'
+              + '<span style="font-weight:600;color:' + (d.t_sigma > T.TSIGMA_HIGH ? C.SOFT_RED : (d.t_sigma < T.TSIGMA_LOW ? C.SOFT_BLUE : C.LABEL)) + '">' + d.t_sigma.toFixed(2) + '</span>'
               + '</div>'
               + '<div style="display:flex;justify-content:space-between;gap:15px;margin-bottom:2px;">'
-              + '<span style="color:#94a3b8;">MACD Z-score:</span>'
-              + '<span style="font-weight:600;color:' + (d.macd_z > 0 ? '#10b981' : (d.macd_z < 0 ? '#ef4444' : '#cbd5e1')) + '">' + d.macd_z.toFixed(2) + '</span>'
+              + '<span style="color:' + C.MUTED + ';">MACD Z-score:</span>'
+              + '<span style="font-weight:600;color:' + (d.macd_z > 0 ? C.GREEN : (d.macd_z < 0 ? C.RED : C.LABEL)) + '">' + d.macd_z.toFixed(2) + '</span>'
               + '</div>'
               + '<div style="display:flex;justify-content:space-between;gap:15px;">'
-              + '<span style="color:#94a3b8;">MACD Hist:</span>'
-              + '<span style="font-weight:600;color:' + (d.macd_hist > 0 ? '#10b981' : (d.macd_hist < 0 ? '#ef4444' : '#cbd5e1')) + '">' + d.macd_hist.toFixed(2) + '</span>'
+              + '<span style="color:' + C.MUTED + ';">MACD Hist:</span>'
+              + '<span style="font-weight:600;color:' + (d.macd_hist > 0 ? C.GREEN : (d.macd_hist < 0 ? C.RED : C.LABEL)) + '">' + d.macd_hist.toFixed(2) + '</span>'
               + '</div>';
           }
-        },
+        }),
         series: [{
           type: 'scatter',
           data: chartData,
@@ -1292,9 +1255,9 @@
           itemStyle: {
             color: function(params) {
               var t = params.data.t_sigma;
-              if (t > 2.5) return '#f87171'; // soft red
-              if (t < -2.5) return '#60a5fa'; // soft blue
-              return '#6366f1'; // indigo
+              if (t > T.TSIGMA_HIGH) return C.SOFT_RED;
+              if (t < T.TSIGMA_LOW) return C.SOFT_BLUE;
+              return C.INDIGO;
             },
             shadowBlur: 8,
             shadowColor: 'rgba(99, 102, 241, 0.4)',
@@ -1307,50 +1270,29 @@
             },
             position: 'top',
             fontSize: 9,
-            color: '#cbd5e1',
+            color: C.LABEL,
             fontWeight: 600,
             distance: 5
           },
-          labelLayout: {
-            hideOverlap: true
-          },
-          emphasis: {
-            scale: true,
-            itemStyle: {
-              shadowBlur: 15,
-              shadowColor: 'rgba(255, 255, 255, 0.6)',
-              opacity: 1
-            },
-            label: {
-              color: '#ffffff',
-              fontSize: 10,
-              fontWeight: 700
-            }
-          },
+          labelLayout: DashboardChartUtils.commonSeriesConfig.labelLayout,
+          emphasis: DashboardChartUtils.commonSeriesConfig.emphasis,
           markLine: {
             silent: true,
             symbol: 'none',
             label: { show: false },
             data: [
-              { xAxis: 0, lineStyle: { type: 'solid', color: '#64748b', width: 1.5 } },
-              { yAxis: 0, lineStyle: { type: 'solid', color: '#64748b', width: 1.5 } },
-              { xAxis: 2, lineStyle: { type: 'dashed', color: '#475569', width: 1 } },
-              { xAxis: -2, lineStyle: { type: 'dashed', color: '#475569', width: 1 } },
-              { yAxis: 2.5, lineStyle: { type: 'dashed', color: '#475569', width: 1 } },
-              { yAxis: -2.5, lineStyle: { type: 'dashed', color: '#475569', width: 1 } }
+              { xAxis: 0, lineStyle: { type: 'solid', color: C.MARK_LINE, width: 1.5 } },
+              { yAxis: 0, lineStyle: { type: 'solid', color: C.MARK_LINE, width: 1.5 } },
+              { xAxis: 2, lineStyle: { type: 'dashed', color: C.BORDER, width: 1 } },
+              { xAxis: -2, lineStyle: { type: 'dashed', color: C.BORDER, width: 1 } },
+              { yAxis: T.TSIGMA_HIGH, lineStyle: { type: 'dashed', color: C.BORDER, width: 1 } },
+              { yAxis: T.TSIGMA_LOW, lineStyle: { type: 'dashed', color: C.BORDER, width: 1 } }
             ]
           }
         }]
       });
 
-      // Double-click to restore zoom
-      chart.getZr().on('dblclick', function() {
-        chart.dispatchAction({
-          type: 'restore'
-        });
-      });
-
-      window.addEventListener('resize', function() { chart.resize(); });
+      DashboardChartUtils.bindEvents(chart);
     })();
     </script>
 
