@@ -630,7 +630,16 @@ window.DashboardChartUtils = {
       });
 
       var currPoints = rawData.map(function(d) {
-        return { value: [d.x, d.y], ticker: d.ticker, name: d.name };
+        var isYUp = d.y > d.prev_y;
+        var isXUp = d.x > d.prev_x;
+        return {
+          value: [d.x, d.y],
+          ticker: d.ticker,
+          name: d.name,
+          symbol: 'triangle',
+          symbolRotate: isYUp ? 0 : 180,
+          itemStyle: { color: isXUp ? C.RED : C.SOFT_BLUE }
+        };
       });
 
       var arrowLines = rawData.map(function(d) {
@@ -727,7 +736,6 @@ window.DashboardChartUtils = {
             name: 'Current Month',
             type: 'scatter',
             symbolSize: 12,
-            itemStyle: { color: C.CYAN },
             label: {
               show: true,
               formatter: function(p) { return p.data.ticker; },
