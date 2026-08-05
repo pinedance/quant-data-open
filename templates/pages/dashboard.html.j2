@@ -625,6 +625,9 @@ window.DashboardChartUtils = {
         {% endfor %}
       ];
 
+      var C = window.CHART_CONSTANTS.COLORS;
+      var B = window.CHART_CONSTANTS.BOUNDS;
+
       var prevPoints = rawData.map(function(d) {
         return { value: [d.prev_x, d.prev_y], ticker: d.ticker, name: d.name };
       });
@@ -650,9 +653,6 @@ window.DashboardChartUtils = {
           ]
         };
       });
-
-      var C = window.CHART_CONSTANTS.COLORS;
-      var B = window.CHART_CONSTANTS.BOUNDS;
 
       var chart = echarts.init(document.getElementById('macro-rotation-chart'));
       chart.setOption({
