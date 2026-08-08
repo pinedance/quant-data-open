@@ -45,6 +45,23 @@
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.15), 0 2px 4px -1px rgba(0, 0, 0, 0.08);
   }
 
+  .dash-card:fullscreen,
+  .dash-card:-webkit-full-screen {
+    background: #0f172a !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    padding: 1.5rem !important;
+    box-sizing: border-box !important;
+    overflow: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  .dash-card:fullscreen div[id$="-chart"],
+  .dash-card:-webkit-full-screen div[id$="-chart"] {
+    height: calc(100vh - 100px) !important;
+    flex: 1 !important;
+  }
+
   .dash-card-title {
     font-size: 0.8rem;
     font-weight: 700;
@@ -460,7 +477,8 @@ window.CHART_CONSTANTS = {
     RED: '#ef4444',
     SOFT_RED: '#f87171',
     SOFT_BLUE: '#60a5fa',
-    INDIGO: '#6366f1'
+    INDIGO: '#6366f1',
+    ORANGE: '#f97316'
   },
   THRESHOLDS: {
     RSI_HIGH: 70,
@@ -482,7 +500,26 @@ window.DashboardChartUtils = {
     show: true,
     top: 0,
     right: 10,
-    feature: { restore: { show: true, title: 'Reset' } },
+    feature: {
+      myFull: {
+        show: true,
+        title: 'Full Screen',
+        icon: 'path://M4 4h6v2H6v4H4V4zm10 0h6v6h-2V6h-4V4zM4 14h2v4h4v2H4v-6zm14 4h-4v2h6v-6h-2v4z',
+        onclick: function(model, api) {
+          var el = api && api.getDom ? api.getDom() : null;
+          var card = el ? (el.closest('.dash-card') || el) : null;
+          if (!card) return;
+          if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+            if (card.requestFullscreen) { card.requestFullscreen(); }
+            else if (card.webkitRequestFullscreen) { card.webkitRequestFullscreen(); }
+          } else {
+            if (document.exitFullscreen) { document.exitFullscreen(); }
+            else if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); }
+          }
+        }
+      },
+      restore: { show: true, title: 'Reset' }
+    },
     iconStyle: { borderColor: window.CHART_CONSTANTS.COLORS.MUTED },
     emphasis: { iconStyle: { borderColor: window.CHART_CONSTANTS.COLORS.WHITE } }
   },
@@ -528,6 +565,9 @@ window.DashboardChartUtils = {
       chart.dispatchAction({ type: 'restore' });
     });
     window.addEventListener('resize', function() { chart.resize(); });
+    var handleFs = function() { setTimeout(function() { chart.resize(); }, 100); };
+    document.addEventListener('fullscreenchange', handleFs);
+    document.addEventListener('webkitfullscreenchange', handleFs);
   }
 };
 </script>
@@ -632,17 +672,28 @@ window.DashboardChartUtils = {
         return { value: [d.prev_x, d.prev_y], ticker: d.ticker, name: d.name };
       });
 
-      var currPoints = rawData.map(function(d) {
-        var isYUp = d.y > d.prev_y;
-        var isXUp = d.x > d.prev_x;
-        return {
+      var pointsUpRight = [];   // ↗: X_current >= X_prev, Y_current >= Y_prev (Red)
+      var pointsDownLeft = [];  // ↙: X_current < X_prev, Y_current < Y_prev (Blue)
+      var pointsDownRight = []; // ↘: X_current >= X_prev, Y_current < Y_prev (Green)
+      var pointsUpLeft = [];    // ↖: X_current < X_prev, Y_current >= Y_prev (Orange)
+
+      rawData.forEach(function(d) {
+        var isXUp = d.x >= d.prev_x;
+        var isYUp = d.y >= d.prev_y;
+        var item = {
           value: [d.x, d.y],
           ticker: d.ticker,
-          name: d.name,
-          symbol: 'triangle',
-          symbolRotate: isYUp ? 0 : 180,
-          itemStyle: { color: isXUp ? C.RED : C.SOFT_BLUE }
+          name: d.name
         };
+        if (isXUp && isYUp) {
+          pointsUpRight.push(item);
+        } else if (!isXUp && !isYUp) {
+          pointsDownLeft.push(item);
+        } else if (isXUp && !isYUp) {
+          pointsDownRight.push(item);
+        } else {
+          pointsUpLeft.push(item);
+        }
       });
 
       var arrowLines = rawData.map(function(d) {
@@ -664,7 +715,10 @@ window.DashboardChartUtils = {
           left: 10,
           textStyle: { color: C.MUTED, fontSize: 11 },
           selected: {
-            'Current Month': true,
+            '↗ (X↑ Y↑)': true,
+            '↙ (X↓ Y↓)': true,
+            '↘ (X↑ Y↓)': true,
+            '↖ (X↓ Y↑)': true,
             'Previous Month': false,
             'Vectors': false
           }
@@ -733,9 +787,12 @@ window.DashboardChartUtils = {
             data: prevPoints
           },
           {
-            name: 'Current Month',
+            name: '↗ (X↑ Y↑)',
             type: 'scatter',
+            symbol: 'arrow',
+            symbolRotate: -45,
             symbolSize: 12,
+            itemStyle: { color: C.RED },
             label: {
               show: true,
               formatter: function(p) { return p.data.ticker; },
@@ -746,7 +803,64 @@ window.DashboardChartUtils = {
             },
             labelLayout: DashboardChartUtils.commonSeriesConfig.labelLayout,
             emphasis: DashboardChartUtils.commonSeriesConfig.emphasis,
-            data: currPoints
+            data: pointsUpRight
+          },
+          {
+            name: '↙ (X↓ Y↓)',
+            type: 'scatter',
+            symbol: 'arrow',
+            symbolRotate: 135,
+            symbolSize: 12,
+            itemStyle: { color: C.SOFT_BLUE },
+            label: {
+              show: true,
+              formatter: function(p) { return p.data.ticker; },
+              position: 'top',
+              color: C.BRIGHT,
+              fontSize: 10,
+              fontWeight: 'bold'
+            },
+            labelLayout: DashboardChartUtils.commonSeriesConfig.labelLayout,
+            emphasis: DashboardChartUtils.commonSeriesConfig.emphasis,
+            data: pointsDownLeft
+          },
+          {
+            name: '↘ (X↑ Y↓)',
+            type: 'scatter',
+            symbol: 'arrow',
+            symbolRotate: -135,
+            symbolSize: 12,
+            itemStyle: { color: C.GREEN },
+            label: {
+              show: true,
+              formatter: function(p) { return p.data.ticker; },
+              position: 'top',
+              color: C.BRIGHT,
+              fontSize: 10,
+              fontWeight: 'bold'
+            },
+            labelLayout: DashboardChartUtils.commonSeriesConfig.labelLayout,
+            emphasis: DashboardChartUtils.commonSeriesConfig.emphasis,
+            data: pointsDownRight
+          },
+          {
+            name: '↖ (X↓ Y↑)',
+            type: 'scatter',
+            symbol: 'arrow',
+            symbolRotate: 45,
+            symbolSize: 12,
+            itemStyle: { color: C.ORANGE },
+            label: {
+              show: true,
+              formatter: function(p) { return p.data.ticker; },
+              position: 'top',
+              color: C.BRIGHT,
+              fontSize: 10,
+              fontWeight: 'bold'
+            },
+            labelLayout: DashboardChartUtils.commonSeriesConfig.labelLayout,
+            emphasis: DashboardChartUtils.commonSeriesConfig.emphasis,
+            data: pointsUpLeft
           },
           {
             name: 'Vectors',
