@@ -2,17 +2,17 @@
   "Co": [
     {
       "cd": "AGG",
-      "nm": "iShares Core U.S. Aggregate Bon",
+      "nm": "iShares Core U.S. Aggregate Bond ETF",
       "gb": "US"
     },
     {
       "cd": "BIL",
-      "nm": "State Street SPDR Bloomberg 1-3",
+      "nm": "State Street SPDR Bloomberg 1-3 Month T-Bill ETF",
       "gb": "US"
     },
     {
       "cd": "BND",
-      "nm": "Vanguard Total Bond Market ETF",
+      "nm": "Vanguard Total Bond Market Index Fund",
       "gb": "US"
     },
     {
@@ -22,7 +22,7 @@
     },
     {
       "cd": "BWX",
-      "nm": "State Street SPDR Bloomberg Int",
+      "nm": "State Street SPDR Bloomberg International Treasury Bond ETF",
       "gb": "US"
     },
     {
@@ -152,7 +152,7 @@
     },
     {
       "cd": "IWY",
-      "nm": "iShares Russell Top 200 Growth ",
+      "nm": "iShares Russell Top 200 Growth ETF",
       "gb": "US"
     },
     {
@@ -177,7 +177,7 @@
     },
     {
       "cd": "IXP",
-      "nm": "iShares Global Comm Services ET",
+      "nm": "iShares Global Comm Services ETF",
       "gb": "US"
     },
     {
@@ -322,7 +322,7 @@
     },
     {
       "cd": "USO",
-      "nm": "United States Oil Fund",
+      "nm": "United States Oil Fund, LP",
       "gb": "US"
     },
     {
@@ -467,7 +467,7 @@
     },
     {
       "cd": "XLK",
-      "nm": "State Street Technology Select ",
+      "nm": "State Street Technology Select Sector SPDR ETF",
       "gb": "US"
     },
     {
