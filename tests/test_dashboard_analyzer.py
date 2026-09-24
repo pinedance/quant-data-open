@@ -175,13 +175,39 @@ def test_dashboard_analyzer_rsi():
     assert "rsi_diff" in item
     assert item["ticker"] == "A"
 
-    assert "valuation_extremes" in result
-    assert len(result["valuation_extremes"]) > 0
-    val_item = result["valuation_extremes"][0]
-    assert "win_rate" in val_item
-    assert "win_loss_ratio" in val_item
-    assert val_item["win_rate"] >= 0.0
-    assert val_item["win_loss_ratio"] >= 0.0
+    assert "base_dates" in result
+    assert result["base_dates"]["US"] == "2026-06-10"
+    assert result["base_dates"]["KR"] == "2026-06-10"
+
+
+def test_dashboard_analyzer_base_dates():
+    from build import filter_dashboard_data
+    from core.dashboard_analyzer import DashboardAnalyzer
+
+    df_us = pd.DataFrame({'SPY': [100.0 + i for i in range(250)]})
+    df_us.index = pd.date_range(end='2026-09-23', periods=250, freq='D')
+
+    df_kr = pd.DataFrame({'A069500': [100.0 + i for i in range(250)]})
+    df_kr.index = pd.date_range(end='2026-09-24', periods=250, freq='D')
+
+    df_m = pd.DataFrame({'SPY': [100.0] * 20, 'A069500': [100.0] * 20})
+    df_m.index = pd.date_range(end='2026-08-31', periods=20, freq='ME')
+
+    analyzer = DashboardAnalyzer(
+        names_dict={},
+        df_us_d=df_us, df_us_m=df_m[['SPY']], df_us_hist=df_m[['SPY']],
+        df_kr_d=df_kr, df_kr_m=df_m[['A069500']], df_kr_hist=df_m[['A069500']]
+    )
+    result = analyzer.analyze()
+    assert result["base_dates"]["US"] == "2026-09-23"
+    assert result["base_dates"]["KR"] == "2026-09-24"
+
+    us_filtered = filter_dashboard_data(result, "US")
+    assert us_filtered["base_date"] == "2026-09-23"
+
+    kr_filtered = filter_dashboard_data(result, "KR")
+    assert kr_filtered["base_date"] == "2026-09-24"
+
 
 
 

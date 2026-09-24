@@ -27,7 +27,10 @@ BASE_DIR = Path(__file__).resolve().parent
 def filter_dashboard_data(data, region):
     if not data:
         return None
+    base_dates = data.get("base_dates", {})
     return {
+        "base_date": base_dates.get(region, ""),
+        "base_dates": base_dates,
         "market_regime": data["market_regime"],
         "trend_breakouts": {
             "up_breakouts":   [e for e in data["trend_breakouts"]["up_breakouts"]   if e["region"] == region],

@@ -271,7 +271,14 @@ class DashboardAnalyzer:
         compute_macro_rotation(self.df_us_m, "US")
         compute_macro_rotation(self.df_kr_m, "KR")
 
+        us_date = pd.to_datetime(self.df_us_d.index[-1]).strftime("%Y-%m-%d") if self.df_us_d is not None and not self.df_us_d.empty else ""
+        kr_date = pd.to_datetime(self.df_kr_d.index[-1]).strftime("%Y-%m-%d") if self.df_kr_d is not None and not self.df_kr_d.empty else ""
+
         return {
+            "base_dates": {
+                "US": us_date,
+                "KR": kr_date
+            },
             "market_regime": {
                 "tip_momentum": round(tip_momentum * 100, 2),
                 "status": "Bullish" if tip_momentum > 0 else "Bearish"

@@ -211,9 +211,19 @@ def send_telegram_dashboard_summary(data):
         f"<a href=\"{BASE}/KR/dashboard.html\">🇰🇷 KR Dashboard</a>"
     )
     
+    base_dates = data.get("base_dates", {})
+    us_date = base_dates.get("US", "N/A")
+    kr_date = base_dates.get("KR", "N/A")
+    base_date_lines = [
+        "📅 <b>Base Date</b>",
+        f"  •US: {us_date}",
+        f"  •KR: {kr_date}",
+    ]
+
     parts = [
         "<b>📊 [Quant Dashboard] 일간 업데이트</b>",
         "",
+        *base_date_lines,
         market_season_line,
         "──────────────────",
         "📈 <b>EMA200 상향 돌파</b>",

@@ -573,6 +573,11 @@ window.DashboardChartUtils = {
 </script>
 
 <div class="dashboard-container">
+  {% if data.base_date %}
+  <div style="font-size: 0.95rem; color: #94a3b8; margin-top: -0.75rem; margin-bottom: -0.5rem; display: flex; align-items: center; gap: 0.4rem;">
+    <span>📅 <b>Base Date</b>: <strong style="color: #f1f5f9;">{{ data.base_date }}</strong></span>
+  </div>
+  {% endif %}
   <!-- ① Market Regime -->
   <div class="dash-card">
     <div class="dash-card-title">
@@ -1514,6 +1519,6 @@ window.DashboardChartUtils = {
   </details>
 
   <div style="text-align: right; font-size: 0.7rem; color: #475569;">
-    Last updated: {{ data.last_updated }}
+    {% if data.base_date %}Base Date: {{ data.base_date }} | {% endif %}Last updated: {{ data.last_updated }}
   </div>
 </div>
