@@ -220,6 +220,26 @@ def send_telegram_dashboard_summary(data):
         f"  •KR: {kr_date}",
     ]
 
+    dq_status = data.get("data_quality_status", [])
+    us_dq = [e for e in dq_status if e.get("region") == "US"]
+    kr_dq = [e for e in dq_status if e.get("region") == "KR"]
+    us_ticker_cnt = len(us_dq)
+    us_nan_sum = sum(e.get("count", 0) for e in us_dq)
+    kr_ticker_cnt = len(kr_dq)
+    kr_nan_sum = sum(e.get("count", 0) for e in kr_dq)
+
+    dq_lines = []
+    if us_ticker_cnt > 0 or kr_ticker_cnt > 0:
+        dq_lines.append("⚠️ <b>데이터 품질 주의 (결측치)</b>")
+        if us_ticker_cnt > 0:
+            dq_lines.append(f"  • 🇺🇸 {us_ticker_cnt}개 종목 (총 {us_nan_sum}일 결측)")
+        else:
+            dq_lines.append("  • 🇺🇸 0개 종목")
+        if kr_ticker_cnt > 0:
+            dq_lines.append(f"  • 🇰🇷 {kr_ticker_cnt}개 종목 (총 {kr_nan_sum}일 결측)")
+        else:
+            dq_lines.append("  • 🇰🇷 0개 종목")
+
     parts = [
         "<b>📊 [Quant Dashboard] 일간 업데이트</b>",
         "",
@@ -237,9 +257,15 @@ def send_telegram_dashboard_summary(data):
         "",
         "❄️ <b>침체 (T-Sigma &lt; -2.5)</b>",
         format_extremes(depressed),
+    ]
+
+    if dq_lines:
+        parts.extend(["", *dq_lines])
+
+    parts.extend([
         "──────────────────",
         link_line
-    ]
+    ])
     
     msg = "\n".join(parts)
     send_telegram_message(msg, parse_mode='HTML')

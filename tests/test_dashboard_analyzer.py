@@ -209,6 +209,64 @@ def test_dashboard_analyzer_base_dates():
     assert kr_filtered["base_date"] == "2026-09-24"
 
 
+def test_load_and_clean_dataset_preserves_tickers_with_nans(tmp_path):
+    import numpy as np
+    from build import load_and_clean_dataset
+
+    paths = {'source': tmp_path}
+    (tmp_path / "US/stocks/price/D").mkdir(parents=True)
+    (tmp_path / "US/stocks/price/M").mkdir(parents=True)
+    (tmp_path / "US/stocks/signals/MACD/M").mkdir(parents=True)
+    (tmp_path / "KR/stocks/price/D").mkdir(parents=True)
+    (tmp_path / "KR/stocks/price/M").mkdir(parents=True)
+    (tmp_path / "KR/stocks/signals/MACD/M").mkdir(parents=True)
+
+    dates = pd.date_range("2025-01-01", periods=250, freq="D")
+    df_us_d = pd.DataFrame({
+        "SPY": [100.0 + i for i in range(250)],
+        "QQQ": [200.0 + i for i in range(248)] + [np.nan, np.nan],  # trailing 2 days NaN
+        "SHORT_HISTORY": [np.nan] * 100 + [50.0] * 150              # only 150 valid points (< 200)
+    }, index=dates)
+
+    df_us_m = pd.DataFrame({
+        "SPY": [100.0] * 20,
+        "QQQ": [200.0] * 20,
+        "SHORT_HISTORY": [50.0] * 20
+    }, index=pd.date_range("2024-01-01", periods=20, freq="ME"))
+
+    df_us_hist = df_us_m.copy()
+
+    df_kr_d = pd.DataFrame({
+        "A069500": [1000.0 + i for i in range(250)]
+    }, index=dates)
+    df_kr_m = pd.DataFrame({"A069500": [1000.0] * 20}, index=pd.date_range("2024-01-01", periods=20, freq="ME"))
+    df_kr_hist = df_kr_m.copy()
+
+    df_us_d.to_csv(tmp_path / "US/stocks/price/D/raw.tsv", sep="\t")
+    df_us_m.to_csv(tmp_path / "US/stocks/price/M/raw-eom.tsv", sep="\t")
+    df_us_hist.to_csv(tmp_path / "US/stocks/signals/MACD/M/raw-eom-histogram.tsv", sep="\t")
+
+    df_kr_d.to_csv(tmp_path / "KR/stocks/price/D/raw.tsv", sep="\t")
+    df_kr_m.to_csv(tmp_path / "KR/stocks/price/M/raw-eom.tsv", sep="\t")
+    df_kr_hist.to_csv(tmp_path / "KR/stocks/signals/MACD/M/raw-eom-histogram.tsv", sep="\t")
+
+    df_us_d_clean, df_us_m_clean, df_us_hist_clean, df_kr_d_clean, df_kr_m_clean, df_kr_hist_clean, df_us_d_raw, df_kr_d_raw = load_and_clean_dataset(paths)
+
+    # QQQ should be preserved because it has 248 >= 200 valid points
+    assert "QQQ" in df_us_d_clean.columns
+    assert "SPY" in df_us_d_clean.columns
+    # SHORT_HISTORY has only 150 valid points (< 200), so it should be excluded
+    assert "SHORT_HISTORY" not in df_us_d_clean.columns
+
+    # Clean DataFrame should have ffill applied (no NaNs in QQQ)
+    assert df_us_d_clean["QQQ"].isna().sum() == 0
+    assert df_us_d_clean["QQQ"].iloc[-1] == 200.0 + 247
+
+    # Raw DataFrame should keep original NaNs intact
+    assert df_us_d_raw["QQQ"].isna().sum() == 2
+
+
+
 
 
 

@@ -1499,6 +1499,9 @@ window.DashboardChartUtils = {
     </summary>
     <div class="dq-content">
       {% if data.data_quality_status %}
+        <div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 0.5rem;">
+          ※ 결측치가 발생한 종목의 지표 계산에는 직전 유효 종가(Forward Fill)가 적용되었습니다.
+        </div>
         <div class="dq-list">
           {% for item in data.data_quality_status %}
             <div class="dq-item">

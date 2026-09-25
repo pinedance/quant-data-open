@@ -204,22 +204,25 @@ def load_and_clean_dataset(paths):
     df_us_d_raw = df_us_d.copy()
     df_kr_d_raw = df_kr_d.copy()
 
-    clean_us_cols = df_us_d.iloc[-MIN_REQUIRED_DAYS:, :].dropna(axis=1).columns
+    # Filter out tickers with insufficient valid history (< MIN_REQUIRED_DAYS non-null points)
+    valid_us_counts = df_us_d.notna().sum()
+    clean_us_cols = valid_us_counts[valid_us_counts >= MIN_REQUIRED_DAYS].index
     us_excluded = df_us_d.columns.difference(clean_us_cols)
     if not us_excluded.empty:
-        print(f"⚠️  Excluding US tickers (insufficient/NaN in last {MIN_REQUIRED_DAYS} days): {list(us_excluded)}")
-    df_us_d = df_us_d[clean_us_cols]
-    df_us_m = df_us_m[clean_us_cols]
-    df_us_hist = df_us_hist[clean_us_cols]
+        print(f"⚠️  Excluding US tickers (insufficient history < {MIN_REQUIRED_DAYS} days): {list(us_excluded)}")
+    df_us_d = df_us_d[clean_us_cols].ffill().bfill()
+    df_us_m = df_us_m[clean_us_cols].ffill().bfill()
+    df_us_hist = df_us_hist[clean_us_cols].ffill().bfill()
 
-    clean_kr_cols = df_kr_d.iloc[-MIN_REQUIRED_DAYS:, :].dropna(axis=1).columns
+    valid_kr_counts = df_kr_d.notna().sum()
+    clean_kr_cols = valid_kr_counts[valid_kr_counts >= MIN_REQUIRED_DAYS].index
     kr_excluded = df_kr_d.columns.difference(clean_kr_cols)
     if not kr_excluded.empty:
         clean_names = [c[1:] if c.startswith('A') else c for c in kr_excluded]
-        print(f"⚠️  Excluding KR tickers (insufficient/NaN in last {MIN_REQUIRED_DAYS} days): {clean_names}")
-    df_kr_d = df_kr_d[clean_kr_cols]
-    df_kr_m = df_kr_m[clean_kr_cols]
-    df_kr_hist = df_kr_hist[clean_kr_cols]
+        print(f"⚠️  Excluding KR tickers (insufficient history < {MIN_REQUIRED_DAYS} days): {clean_names}")
+    df_kr_d = df_kr_d[clean_kr_cols].ffill().bfill()
+    df_kr_m = df_kr_m[clean_kr_cols].ffill().bfill()
+    df_kr_hist = df_kr_hist[clean_kr_cols].ffill().bfill()
 
     return df_us_d, df_us_m, df_us_hist, df_kr_d, df_kr_m, df_kr_hist, df_us_d_raw, df_kr_d_raw
 
