@@ -15,7 +15,10 @@ def test_telegram_dashboard_summary(mock_send):
     send_telegram_dashboard_summary(mock_data)
     assert mock_send.called
     sent_msg = mock_send.call_args[0][0]
-    assert "📅 <b>Base Date</b>\n  •US: 2026-09-23\n  •KR: 2026-09-23" in sent_msg
+    assert "<b>📊 [Quant Data] Dashboard Summary</b>" in sent_msg
+    assert ' 🇺🇸 2026-09-23 | <a href="https://pinedance.github.io/quant-data-open/dist/US/dashboard.html">Dashboard</a>' in sent_msg
+    assert ' 🇰🇷 2026-09-23 | <a href="https://pinedance.github.io/quant-data-open/dist/KR/dashboard.html">Dashboard</a>' in sent_msg
+    assert "🌤️ <b>Market Regime</b>\n •TIP Mom: +1.2%" in sent_msg
 
 
 @patch('core.message.send_telegram_message')
@@ -29,7 +32,8 @@ def test_telegram_dashboard_summary_fallback_base_dates(mock_send):
     send_telegram_dashboard_summary(mock_data)
     assert mock_send.called
     sent_msg = mock_send.call_args[0][0]
-    assert "📅 <b>Base Date</b>\n  •US: N/A\n  •KR: N/A" in sent_msg
+    assert ' 🇺🇸 N/A | <a href="https://pinedance.github.io/quant-data-open/dist/US/dashboard.html">Dashboard</a>' in sent_msg
+    assert ' 🇰🇷 N/A | <a href="https://pinedance.github.io/quant-data-open/dist/KR/dashboard.html">Dashboard</a>' in sent_msg
 
 
 @patch('core.message.send_telegram_message')
@@ -49,9 +53,9 @@ def test_telegram_dashboard_summary_with_data_quality_status(mock_send):
     send_telegram_dashboard_summary(mock_data)
     assert mock_send.called
     sent_msg = mock_send.call_args[0][0]
-    assert "⚠️ <b>데이터 품질 주의 (결측치)</b>" in sent_msg
-    assert "• 🇺🇸 2개 종목 (총 3일 결측)" in sent_msg
-    assert "• 🇰🇷 1개 종목 (총 3일 결측)" in sent_msg
+    assert "⚠️ <b>NaN data</b>" in sent_msg
+    assert " 🇺🇸 2 종목 (3일)" in sent_msg
+    assert " 🇰🇷 1 종목 (3일)" in sent_msg
 
 
 @patch('core.message.send_telegram_message')
@@ -67,5 +71,6 @@ def test_telegram_dashboard_summary_without_data_quality_status(mock_send):
     send_telegram_dashboard_summary(mock_data)
     assert mock_send.called
     sent_msg = mock_send.call_args[0][0]
-    assert "⚠️ <b>데이터 품질 주의 (결측치)</b>" not in sent_msg
+    assert "⚠️ <b>NaN data</b>" not in sent_msg
+
 

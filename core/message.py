@@ -135,10 +135,12 @@ def notice_price_status_batch(status_results, tickers=None):
 
 
 def send_telegram_dashboard_summary(data):
-    
     regime = data["market_regime"]
     sign = "+" if regime["tip_momentum"] > 0 else ""
-    market_season_line = f"🌤️ <b>Market Regime</b>: TIP Mom ({sign}{regime['tip_momentum']:.1f}%)"
+    market_regime_lines = [
+        "🌤️ <b>Market Regime</b>",
+        f" •TIP Mom: {sign}{regime['tip_momentum']:.1f}%",
+    ]
     
     def get_ticker_link(ticker, region):
         if region == "KR":
@@ -152,24 +154,24 @@ def send_telegram_dashboard_summary(data):
         
         lines = []
         if us_ticks:
-            prefix = "  🇺🇸 "
+            prefix = " 🇺🇸 "
             if len(us_ticks) > 5:
                 prefix += ", ".join(us_ticks[:5]) + f" (외 {len(us_ticks) - 5}개)"
             else:
                 prefix += ", ".join(us_ticks)
             lines.append(prefix)
         else:
-            lines.append("  🇺🇸 None")
+            lines.append(" 🇺🇸 None")
             
         if kr_ticks:
-            prefix = "  🇰🇷 "
+            prefix = " 🇰🇷 "
             if len(kr_ticks) > 5:
                 prefix += ", ".join(kr_ticks[:5]) + f" (외 {len(kr_ticks) - 5}개)"
             else:
                 prefix += ", ".join(kr_ticks)
             lines.append(prefix)
         else:
-            lines.append("  🇰🇷 None")
+            lines.append(" 🇰🇷 None")
             
         return "\n".join(lines)
     
@@ -179,24 +181,24 @@ def send_telegram_dashboard_summary(data):
         
         lines = []
         if us_parts:
-            prefix = "  🇺🇸 "
+            prefix = " 🇺🇸 "
             if len(us_parts) > 5:
                 prefix += ", ".join(us_parts[:5]) + f" (외 {len(us_parts) - 5}개)"
             else:
                 prefix += ", ".join(us_parts)
             lines.append(prefix)
         else:
-            lines.append("  🇺🇸 None")
+            lines.append(" 🇺🇸 None")
             
         if kr_parts:
-            prefix = "  🇰🇷 "
+            prefix = " 🇰🇷 "
             if len(kr_parts) > 5:
                 prefix += ", ".join(kr_parts[:5]) + f" (외 {len(kr_parts) - 5}개)"
             else:
                 prefix += ", ".join(kr_parts)
             lines.append(prefix)
         else:
-            lines.append("  🇰🇷 None")
+            lines.append(" 🇰🇷 None")
             
         return "\n".join(lines)
 
@@ -206,18 +208,12 @@ def send_telegram_dashboard_summary(data):
     depressed = [e for e in data["valuation_extremes"] if e["t_sigma"] < -2.5]
     
     BASE = "https://pinedance.github.io/quant-data-open/dist"
-    link_line = (
-        f"🔗 <a href=\"{BASE}/US/dashboard.html\">🇺🇸 US Dashboard</a> | "
-        f"<a href=\"{BASE}/KR/dashboard.html\">🇰🇷 KR Dashboard</a>"
-    )
-    
     base_dates = data.get("base_dates", {})
     us_date = base_dates.get("US", "N/A")
     kr_date = base_dates.get("KR", "N/A")
-    base_date_lines = [
-        "📅 <b>Base Date</b>",
-        f"  •US: {us_date}",
-        f"  •KR: {kr_date}",
+    dashboard_lines = [
+        f' 🇺🇸 {us_date} | <a href="{BASE}/US/dashboard.html">Dashboard</a>',
+        f' 🇰🇷 {kr_date} | <a href="{BASE}/KR/dashboard.html">Dashboard</a>',
     ]
 
     dq_status = data.get("data_quality_status", [])
@@ -230,21 +226,17 @@ def send_telegram_dashboard_summary(data):
 
     dq_lines = []
     if us_ticker_cnt > 0 or kr_ticker_cnt > 0:
-        dq_lines.append("⚠️ <b>데이터 품질 주의 (결측치)</b>")
-        if us_ticker_cnt > 0:
-            dq_lines.append(f"  • 🇺🇸 {us_ticker_cnt}개 종목 (총 {us_nan_sum}일 결측)")
-        else:
-            dq_lines.append("  • 🇺🇸 0개 종목")
-        if kr_ticker_cnt > 0:
-            dq_lines.append(f"  • 🇰🇷 {kr_ticker_cnt}개 종목 (총 {kr_nan_sum}일 결측)")
-        else:
-            dq_lines.append("  • 🇰🇷 0개 종목")
+        dq_lines.append("──────────────────")
+        dq_lines.append("⚠️ <b>NaN data</b>")
+        dq_lines.append(f" 🇺🇸 {us_ticker_cnt} 종목 ({us_nan_sum}일)")
+        dq_lines.append(f" 🇰🇷 {kr_ticker_cnt} 종목 ({kr_nan_sum}일)")
 
     parts = [
-        "<b>📊 [Quant Dashboard] 일간 업데이트</b>",
+        "<b>📊 [Quant Data] Dashboard Summary</b>",
         "",
-        *base_date_lines,
-        market_season_line,
+        *dashboard_lines,
+        "",
+        *market_regime_lines,
         "──────────────────",
         "📈 <b>EMA200 상향 돌파</b>",
         format_tickers(up_ticks),
@@ -260,12 +252,7 @@ def send_telegram_dashboard_summary(data):
     ]
 
     if dq_lines:
-        parts.extend(["", *dq_lines])
-
-    parts.extend([
-        "──────────────────",
-        link_line
-    ])
+        parts.extend(dq_lines)
     
     msg = "\n".join(parts)
     send_telegram_message(msg, parse_mode='HTML')
