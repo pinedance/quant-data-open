@@ -26,10 +26,6 @@ jobs:
         ref: output
         path: output
         depth: 1
-    
-    - uses: actions/setup-python@v5
-      with:
-        allow-prereleases: true
 
     - name: Install uv
       uses: astral-sh/setup-uv@v5
