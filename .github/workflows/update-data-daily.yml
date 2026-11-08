@@ -34,7 +34,7 @@ jobs:
         sudo apt-get install libxml2-dev libxslt-dev -y
 
     - name: Install uv
-      uses: astral-sh/setup-uv@v5
+      uses: astral-sh/setup-uv@v7
       with:
         enable-cache: true
         cache-dependency-glob: "uv.lock"
