@@ -135,16 +135,17 @@ def notice_price_status_batch(status_results, tickers=None):
 
 
 def send_telegram_dashboard_summary(data):
+    BASE = "https://pinedance.github.io/quant-data-open/dist"
     regime = data["market_regime"]
     sign = "+" if regime["tip_momentum"] > 0 else ""
     market_regime_lines = [
         "🌤️ <b>Market Regime</b>",
-        f" •TIP Mom: {sign}{regime['tip_momentum']:.1f}%",
+        f' •<a href="{BASE}/US/market-regime.html">TIP Mom</a>: {sign}{regime["tip_momentum"]:.1f}%',
     ]
     
     def get_ticker_link(ticker, region):
         if region == "KR":
-            return f'<a href="https://finance.naver.com/item/main.naver?code={ticker}">{ticker}</a>'
+            return f'<a href="https://stock.naver.com/domestic/stock/{ticker}">{ticker}</a>'
         else:
             return f'<a href="https://finance.yahoo.com/quote/{ticker}">{ticker}</a>'
 
@@ -207,7 +208,6 @@ def send_telegram_dashboard_summary(data):
     overheated = [e for e in data["valuation_extremes"] if e["t_sigma"] > 2.5]
     depressed = [e for e in data["valuation_extremes"] if e["t_sigma"] < -2.5]
     
-    BASE = "https://pinedance.github.io/quant-data-open/dist"
     base_dates = data.get("base_dates", {})
     us_date = base_dates.get("US", "N/A")
     kr_date = base_dates.get("KR", "N/A")

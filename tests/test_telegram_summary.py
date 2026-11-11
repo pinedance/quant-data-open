@@ -8,9 +8,17 @@ def test_telegram_dashboard_summary(mock_send):
     mock_data = {
         "base_dates": {"US": "2026-09-23", "KR": "2026-09-23"},
         "market_regime": {"tip_momentum": 1.2, "status": "Bullish"},
-        "trend_breakouts": {"up_breakouts": [], "down_breakouts": []},
+        "trend_breakouts": {
+            "up_breakouts": [
+                {"region": "KR", "ticker": "0113D0"},
+                {"region": "US", "ticker": "SPY"},
+            ],
+            "down_breakouts": [],
+        },
         "monthly_momentum": [],
-        "valuation_extremes": []
+        "valuation_extremes": [
+            {"region": "KR", "ticker": "0113D0", "t_sigma": 2.8},
+        ]
     }
     send_telegram_dashboard_summary(mock_data)
     assert mock_send.called
@@ -18,7 +26,10 @@ def test_telegram_dashboard_summary(mock_send):
     assert "<b>📊 [Quant Data] Dashboard Summary</b>" in sent_msg
     assert ' 🇺🇸 2026-09-23 | <a href="https://pinedance.github.io/quant-data-open/dist/US/dashboard.html">Dashboard</a>' in sent_msg
     assert ' 🇰🇷 2026-09-23 | <a href="https://pinedance.github.io/quant-data-open/dist/KR/dashboard.html">Dashboard</a>' in sent_msg
-    assert "🌤️ <b>Market Regime</b>\n •TIP Mom: +1.2%" in sent_msg
+    assert '🌤️ <b>Market Regime</b>\n •<a href="https://pinedance.github.io/quant-data-open/dist/US/market-regime.html">TIP Mom</a>: +1.2%' in sent_msg
+    assert '<a href="https://stock.naver.com/domestic/stock/0113D0">0113D0</a>' in sent_msg
+    assert '<a href="https://finance.yahoo.com/quote/SPY">SPY</a>' in sent_msg
+    assert '<a href="https://stock.naver.com/domestic/stock/0113D0">0113D0</a>(2.8)' in sent_msg
 
 
 @patch('core.message.send_telegram_message')
