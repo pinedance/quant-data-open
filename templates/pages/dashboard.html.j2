@@ -582,7 +582,7 @@ window.DashboardChartUtils = {
   <div class="dash-card">
     <div class="dash-card-title">
       <span>Market Regime</span>
-      <span class="region-badge region-us">TIP</span>
+      <a href="../US/market-regime.html" class="region-badge region-us" title="View TIP Average Momentum Time Series">TIP ↗</a>
     </div>
     <div class="regime-body">
       {% if data.market_regime.status == 'Bullish' %}
@@ -592,7 +592,7 @@ window.DashboardChartUtils = {
       {% endif %}
       <div class="regime-stats">
         <span class="regime-val">{{ '+' if data.market_regime.tip_momentum > 0 else '' }}{{ "%.2f"|format(data.market_regime.tip_momentum) }}%</span>
-        <span class="regime-label">TIP Average Momentum (1, 3, 6, 12m)</span>
+        <span class="regime-label"><a href="../US/market-regime.html" style="color: inherit;">TIP Average Momentum (1, 3, 6, 12m) — Time Series ↗</a></span>
       </div>
     </div>
   </div>

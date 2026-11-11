@@ -43,6 +43,12 @@ pages:
     template: dashboard
     region: KR
 
+  - name: US/market-regime
+    title: "US Market Regime (TIP Average Momentum)"
+    data_file: US/market-regime.json
+    template: market_regime
+    region: US
+
 # Constants and Application settings (previously in core/cons.py)
 constants:
   delta_months: 61  # 5년 * 12 + 1 (5년 + buffer)

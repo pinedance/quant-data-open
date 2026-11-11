@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from core.cons import PRICE_EMA_SPAN, RECENT_DAYS_COUNT, data_url, delta_months
+from core.cons import data_url, delta_months
 from core.cons import config_gsheet_tickers_req_krx as config_tickers_req
 from core.message import send_telegram_message
 from core.tDate import setup_date_range
-from core.tFinance import calculate_macd
 from core.tIO import (
     fetch_prices,
     fetch_tickers,
@@ -12,35 +11,10 @@ from core.tIO import (
     load_prev_price,
     save_df_as_tsv,
 )
-from core.tTable import check_nans_for_cli, post_process_price, resample_monthly
+from core.tTable import check_nans_for_cli, post_process_price
 
 # ETF 데이터 수집 관련 설정
 OUTPUT_PATH_PRICE_D_RAW = get_output_path("KR/stocks/price/D", "raw.tsv")
-OUTPUT_PATH_PRICE_D_EMA3 = get_output_path("KR/stocks/price/D", "ema3.tsv")
-OUTPUT_PATH_PRICE_D_RAW_300 = get_output_path("KR/stocks/price/D", "raw-300.tsv")
-OUTPUT_PATH_PRICE_D_EMA3_300 = get_output_path("KR/stocks/price/D", "ema3-300.tsv")
-
-OUTPUT_PATH_PRICE_M_RAW_EOM = get_output_path("KR/stocks/price/M", "raw-eom.tsv")
-OUTPUT_PATH_PRICE_M_EMA3_EOM = get_output_path("KR/stocks/price/M", "ema3-eom.tsv")
-OUTPUT_PATH_PRICE_M_RAW_CURRENT = get_output_path("KR/stocks/price/M", "raw-current.tsv")
-OUTPUT_PATH_PRICE_M_EMA3_CURRENT = get_output_path("KR/stocks/price/M", "ema3-current.tsv")
-
-# MACD 출력 경로
-# daily close price -> monthly current price -> MACD line
-OUTPUT_PATH_MACD_LINE_M_RAW_CURRENT = get_output_path("KR/stocks/signals/MACD/M", "raw-current-line.tsv")
-# daily close price -> monthly current price -> MACD histogram
-OUTPUT_PATH_MACD_HIST_M_RAW_CURRENT = get_output_path("KR/stocks/signals/MACD/M", "raw-current-histogram.tsv")
-# daily close price -> daily EMA3 -> monthly current price -> MACD line
-OUTPUT_PATH_MACD_LINE_M_EMA3_CURRENT = get_output_path("KR/stocks/signals/MACD/M", "ema3-current-line.tsv")
-# daily close price -> daily EMA3 -> monthly current price -> MACD histogram
-OUTPUT_PATH_MACD_HIST_M_EMA3_CURRENT = get_output_path("KR/stocks/signals/MACD/M", "ema3-current-histogram.tsv")
-
-# daily close price -> monthly EOM price -> MACD line & histogram
-OUTPUT_PATH_MACD_LINE_M_RAW_EOM = get_output_path("KR/stocks/signals/MACD/M", "raw-eom-line.tsv")
-OUTPUT_PATH_MACD_HIST_M_RAW_EOM = get_output_path("KR/stocks/signals/MACD/M", "raw-eom-histogram.tsv")
-# daily close price -> daily EMA3 -> monthly EOM price -> MACD line & histogram
-OUTPUT_PATH_MACD_LINE_M_EMA3_EOM = get_output_path("KR/stocks/signals/MACD/M", "ema3-eom-line.tsv")
-OUTPUT_PATH_MACD_HIST_M_EMA3_EOM = get_output_path("KR/stocks/signals/MACD/M", "ema3-eom-histogram.tsv")
 
 
 def main():
@@ -82,63 +56,8 @@ def main():
         price_raw, nan_warnings = check_nans_for_cli(_price_raw)
         if nan_warnings:
             send_telegram_message("⚠️ [KRX] 데이터 결측치(NaN) 감지 (대시보드 참조)")
-        price_raw = price_raw.astype('float64')
-
-        # EMA3 데이터 생성 (datetime index 유지)
-        price_ema3 = price_raw.ewm(span=PRICE_EMA_SPAN).mean()
-
-        # 월간 데이터 생성
-        price_raw_monthly_eom = resample_monthly(price_raw, method='eom')
-        price_ema3_monthly_eom = resample_monthly(price_ema3, method='eom')
-        price_raw_monthly_current = resample_monthly(price_raw, method='current')
-        price_ema3_monthly_current = resample_monthly(price_ema3, method='current')
-
-        # MACD 계산
-        macd_line_raw, macd_hist_raw = calculate_macd(price_raw_monthly_current)
-        macd_line_ema3, macd_hist_ema3 = calculate_macd(price_ema3_monthly_current)
-        
-        # EOM MACD 계산
-        macd_line_raw_eom, macd_hist_raw_eom = calculate_macd(price_raw_monthly_eom)
-        macd_line_ema3_eom, macd_hist_ema3_eom = calculate_macd(price_ema3_monthly_eom)
-
-        # dataframe 후처리
-        price_raw = post_process_price(price_raw)
-        price_ema3 = post_process_price(price_ema3)
-        price_raw_monthly_eom = post_process_price(price_raw_monthly_eom)
-        price_ema3_monthly_eom = post_process_price(price_ema3_monthly_eom)
-        price_raw_monthly_current = post_process_price(price_raw_monthly_current)
-        price_ema3_monthly_current = post_process_price(price_ema3_monthly_current)
-        
-        macd_line_raw = post_process_price(macd_line_raw)
-        macd_hist_raw = post_process_price(macd_hist_raw)
-        macd_line_ema3 = post_process_price(macd_line_ema3)
-        macd_hist_ema3 = post_process_price(macd_hist_ema3)
-        
-        macd_line_raw_eom = post_process_price(macd_line_raw_eom)
-        macd_hist_raw_eom = post_process_price(macd_hist_raw_eom)
-        macd_line_ema3_eom = post_process_price(macd_line_ema3_eom)
-        macd_hist_ema3_eom = post_process_price(macd_hist_ema3_eom)
-
-        # 데이터 저장
+        price_raw = post_process_price(price_raw.astype('float64'))
         save_df_as_tsv(price_raw, OUTPUT_PATH_PRICE_D_RAW)
-        save_df_as_tsv(price_ema3, OUTPUT_PATH_PRICE_D_EMA3)
-        save_df_as_tsv(price_raw.tail(RECENT_DAYS_COUNT), OUTPUT_PATH_PRICE_D_RAW_300)
-        save_df_as_tsv(price_ema3.tail(RECENT_DAYS_COUNT), OUTPUT_PATH_PRICE_D_EMA3_300)
-
-        save_df_as_tsv(price_raw_monthly_eom, OUTPUT_PATH_PRICE_M_RAW_EOM)
-        save_df_as_tsv(price_ema3_monthly_eom, OUTPUT_PATH_PRICE_M_EMA3_EOM)
-        save_df_as_tsv(price_raw_monthly_current, OUTPUT_PATH_PRICE_M_RAW_CURRENT)
-        save_df_as_tsv(price_ema3_monthly_current, OUTPUT_PATH_PRICE_M_EMA3_CURRENT)
-
-        save_df_as_tsv(macd_line_raw, OUTPUT_PATH_MACD_LINE_M_RAW_CURRENT)
-        save_df_as_tsv(macd_hist_raw, OUTPUT_PATH_MACD_HIST_M_RAW_CURRENT)
-        save_df_as_tsv(macd_line_ema3, OUTPUT_PATH_MACD_LINE_M_EMA3_CURRENT)
-        save_df_as_tsv(macd_hist_ema3, OUTPUT_PATH_MACD_HIST_M_EMA3_CURRENT)
-
-        save_df_as_tsv(macd_line_raw_eom, OUTPUT_PATH_MACD_LINE_M_RAW_EOM)
-        save_df_as_tsv(macd_hist_raw_eom, OUTPUT_PATH_MACD_HIST_M_RAW_EOM)
-        save_df_as_tsv(macd_line_ema3_eom, OUTPUT_PATH_MACD_LINE_M_EMA3_EOM)
-        save_df_as_tsv(macd_hist_ema3_eom, OUTPUT_PATH_MACD_HIST_M_EMA3_EOM)
 
         send_telegram_message("✅ [KRX] 가격 업데이트 완료")
 

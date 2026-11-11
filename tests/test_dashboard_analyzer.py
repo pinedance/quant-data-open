@@ -215,11 +215,7 @@ def test_load_and_clean_dataset_preserves_tickers_with_nans(tmp_path):
 
     paths = {'source': tmp_path}
     (tmp_path / "US/stocks/price/D").mkdir(parents=True)
-    (tmp_path / "US/stocks/price/M").mkdir(parents=True)
-    (tmp_path / "US/stocks/signals/MACD/M").mkdir(parents=True)
     (tmp_path / "KR/stocks/price/D").mkdir(parents=True)
-    (tmp_path / "KR/stocks/price/M").mkdir(parents=True)
-    (tmp_path / "KR/stocks/signals/MACD/M").mkdir(parents=True)
 
     dates = pd.date_range("2025-01-01", periods=250, freq="D")
     df_us_d = pd.DataFrame({
@@ -228,27 +224,12 @@ def test_load_and_clean_dataset_preserves_tickers_with_nans(tmp_path):
         "SHORT_HISTORY": [np.nan] * 100 + [50.0] * 150              # only 150 valid points (< 200)
     }, index=dates)
 
-    df_us_m = pd.DataFrame({
-        "SPY": [100.0] * 20,
-        "QQQ": [200.0] * 20,
-        "SHORT_HISTORY": [50.0] * 20
-    }, index=pd.date_range("2024-01-01", periods=20, freq="ME"))
-
-    df_us_hist = df_us_m.copy()
-
     df_kr_d = pd.DataFrame({
         "A069500": [1000.0 + i for i in range(250)]
     }, index=dates)
-    df_kr_m = pd.DataFrame({"A069500": [1000.0] * 20}, index=pd.date_range("2024-01-01", periods=20, freq="ME"))
-    df_kr_hist = df_kr_m.copy()
 
     df_us_d.to_csv(tmp_path / "US/stocks/price/D/raw.tsv", sep="\t")
-    df_us_m.to_csv(tmp_path / "US/stocks/price/M/raw-eom.tsv", sep="\t")
-    df_us_hist.to_csv(tmp_path / "US/stocks/signals/MACD/M/raw-eom-histogram.tsv", sep="\t")
-
     df_kr_d.to_csv(tmp_path / "KR/stocks/price/D/raw.tsv", sep="\t")
-    df_kr_m.to_csv(tmp_path / "KR/stocks/price/M/raw-eom.tsv", sep="\t")
-    df_kr_hist.to_csv(tmp_path / "KR/stocks/signals/MACD/M/raw-eom-histogram.tsv", sep="\t")
 
     df_us_d_clean, df_us_m_clean, df_us_hist_clean, df_kr_d_clean, df_kr_m_clean, df_kr_hist_clean, df_us_d_raw, df_kr_d_raw = load_and_clean_dataset(paths)
 
@@ -264,6 +245,48 @@ def test_load_and_clean_dataset_preserves_tickers_with_nans(tmp_path):
 
     # Raw DataFrame should keep original NaNs intact
     assert df_us_d_raw["QQQ"].isna().sum() == 2
+
+
+def test_build_market_regime_data(tmp_path):
+    from build import build_market_regime_data
+
+    us_d_dir = tmp_path / "source/US/stocks/price/D"
+    us_d_dir.mkdir(parents=True)
+    out_dir = tmp_path / "public"
+
+    dates = pd.date_range("2024-01-01", "2025-06-30", freq="D")
+    df_raw = pd.DataFrame({"TIP": np.linspace(100.0, 110.0, len(dates))}, index=dates)
+    df_raw.to_csv(us_d_dir / "raw.tsv", sep="\t")
+
+    paths = {
+        "source": tmp_path / "source",
+        "output": out_dir,
+        "output_subdir": "dist",
+    }
+    payload = build_market_regime_data(paths)
+
+    assert payload["base_date"] == "2025-06-30"
+    assert payload["raw"]["status"] == "Bullish"
+    assert payload["ema3"]["status"] == "Bullish"
+    assert len(payload["raw"]["series"]) > 0
+    assert len(payload["ema3"]["series"]) > 0
+    assert (out_dir / "dist/US/market-regime.json").exists()
+
+
+def test_compute_region_derived_tables():
+    from build import compute_region_derived_tables
+
+    dates = pd.date_range("2024-01-01", "2025-06-30", freq="D")
+    df_raw = pd.DataFrame({"TIP": np.linspace(100.0, 110.0, len(dates))}, index=dates)
+    tables = compute_region_derived_tables(df_raw, "US")
+
+    assert len(tables) == 25
+    assert "US/stocks/price/D/ema3.html" in tables
+    assert "US/stocks/price/M/raw-eom.html" in tables
+    assert "US/stocks/signals/MACD/M/raw-eom-histogram.html" in tables
+    assert "US/stocks/signals/momentum/13612M/D/raw.html" in tables
+    assert "US/stocks/signals/momentum/13612M/D/ema3.html" in tables
+
 
 
 

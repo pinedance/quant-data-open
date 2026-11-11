@@ -1,0 +1,570 @@
+<style>
+  .table-wrapper {
+    border: none !important;
+    overflow-x: visible !important;
+  }
+
+  .dashboard-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    width: 100%;
+  }
+
+  @media (max-width: 640px) {
+    body {
+      padding: 0.5rem 0.25rem !important;
+    }
+    .container {
+      padding: 0.5rem !important;
+      border: none !important;
+      background: transparent !important;
+      box-shadow: none !important;
+      margin-bottom: 0 !important;
+    }
+    h1 {
+      font-size: 1.25rem !important;
+      margin-bottom: 1rem !important;
+      padding-left: 0.5rem !important;
+    }
+    .dash-card {
+      padding: 0.75rem 0.5rem !important;
+      border-radius: 8px !important;
+    }
+  }
+
+  .dash-card {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.15), 0 2px 4px -1px rgba(0, 0, 0, 0.08);
+  }
+
+  .dash-card:fullscreen,
+  .dash-card:-webkit-full-screen {
+    background: #0f172a !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    padding: 1.5rem !important;
+    box-sizing: border-box !important;
+    overflow: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .dash-card:fullscreen div[id$="-chart"],
+  .dash-card:-webkit-full-screen div[id$="-chart"] {
+    height: calc(100vh - 100px) !important;
+    flex: 1 !important;
+  }
+
+  .dash-card-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #94a3b8;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border-bottom: 1px solid #334155;
+    padding-bottom: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .regime-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+  }
+
+  @media (max-width: 640px) {
+    .regime-grid {
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+  }
+
+  .regime-subcard {
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .regime-subcard-header {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .regime-body {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+
+  .regime-badge {
+    font-size: 1.1rem;
+    font-weight: 800;
+    padding: 0.45rem 1.25rem;
+    border-radius: 9999px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    flex-shrink: 0;
+    text-align: center;
+  }
+
+  .regime-bullish {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.15);
+  }
+
+  .regime-bearish {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.15);
+  }
+
+  .regime-stats {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .regime-val {
+    font-size: 1.9rem;
+    font-weight: 800;
+    color: #f8fafc;
+    line-height: 1.1;
+  }
+
+  .regime-label {
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-top: 0.25rem;
+    font-weight: 500;
+  }
+
+  .region-badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    text-transform: uppercase;
+  }
+
+  .region-us {
+    background: rgba(139, 92, 246, 0.15);
+    color: #8b5cf6;
+    border: 1px solid rgba(139, 92, 246, 0.25);
+  }
+
+  .toggle-section {
+    border-top: 1px solid #334155;
+    margin-top: 1rem;
+    padding-top: 0.75rem;
+  }
+
+  .toggle-summary {
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    user-select: none;
+  }
+
+  .toggle-summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .toggle-summary::after {
+    content: "▶";
+    font-size: 0.6rem;
+    color: #64748b;
+    transition: transform 0.2s ease;
+  }
+
+  details[open] .toggle-summary::after {
+    content: "▼";
+  }
+
+  .val-table-wrap {
+    overflow-x: auto;
+    max-height: 360px;
+    overflow-y: auto;
+    margin-top: 0.75rem;
+    border-radius: 8px;
+    border: 1px solid #334155;
+    background: #0f172a;
+  }
+
+  .val-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+    white-space: nowrap;
+  }
+
+  .val-table th {
+    position: sticky;
+    top: 0;
+    background-color: #0f172a;
+    color: #64748b;
+    padding: 0.6rem 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.65rem;
+    letter-spacing: 0.05em;
+    border-bottom: 2px solid #334155;
+    z-index: 1;
+  }
+
+  .val-table td {
+    padding: 0.55rem 0.8rem;
+    border-bottom: 1px solid #1e293b;
+    color: #cbd5e1;
+  }
+
+  .val-table tbody tr:hover {
+    background-color: rgba(51, 65, 85, 0.2);
+  }
+
+  .text-green {
+    color: #10b981 !important;
+  }
+
+  .text-red {
+    color: #ef4444 !important;
+  }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<script>
+window.MARKET_REGIME_CONSTANTS = {
+  INITIAL_ZOOM_DAYS: 252,
+  COLORS: {
+    MUTED: '#94a3b8',
+    LABEL: '#cbd5e1',
+    BRIGHT: '#f8fafc',
+    WHITE: '#ffffff',
+    BORDER: '#475569',
+    SPLIT_LINE: '#334155',
+    MARK_LINE: '#94a3b8',
+    TOOLTIP_BG: 'rgba(30, 41, 59, 0.95)',
+    GREEN: '#10b981',
+    RED: '#ef4444'
+  }
+};
+
+window.renderMarketRegimeChart = function(domId, seriesName, rawSeries) {
+  var C = window.MARKET_REGIME_CONSTANTS.COLORS;
+  var initialDays = window.MARKET_REGIME_CONSTANTS.INITIAL_ZOOM_DAYS;
+  var dates = rawSeries.map(function(d) { return d.date; });
+  var values = rawSeries.map(function(d) { return d.momentum; });
+
+  var startValue = dates.length > initialDays ? dates[dates.length - initialDays] : (dates[0] || '');
+  var endValue = dates.length > 0 ? dates[dates.length - 1] : '';
+
+  var dom = document.getElementById(domId);
+  if (!dom) return;
+  var chart = echarts.init(dom);
+
+  chart.setOption({
+    backgroundColor: 'transparent',
+    grid: { left: 55, right: 25, top: 40, bottom: 75 },
+    toolbox: {
+      show: true,
+      top: 0,
+      right: 10,
+      feature: {
+        myFull: {
+          show: true,
+          title: 'Full Screen',
+          icon: 'path://M4 4h6v2H6v4H4V4zm10 0h6v6h-2V6h-4V4zM4 14h2v4h4v2H4v-6zm14 4h-4v2h6v-6h-2v4z',
+          onclick: function(model, api) {
+            var el = api && api.getDom ? api.getDom() : null;
+            var card = el ? (el.closest('.dash-card') || el) : null;
+            if (!card) return;
+            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+              if (card.requestFullscreen) { card.requestFullscreen(); }
+              else if (card.webkitRequestFullscreen) { card.webkitRequestFullscreen(); }
+            } else {
+              if (document.exitFullscreen) { document.exitFullscreen(); }
+              else if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); }
+            }
+          }
+        },
+        restore: { show: true, title: 'Reset' }
+      },
+      iconStyle: { borderColor: C.MUTED },
+      emphasis: { iconStyle: { borderColor: C.WHITE } }
+    },
+    tooltip: {
+      trigger: 'axis',
+      backgroundColor: C.TOOLTIP_BG,
+      borderColor: C.BORDER,
+      borderWidth: 1,
+      padding: [10, 14],
+      textStyle: { color: C.BRIGHT, fontSize: 12 },
+      formatter: function(params) {
+        if (!params || !params.length) return '';
+        var p = params[0];
+        var val = Number(p.value);
+        var sign = val > 0 ? '+' : '';
+        var color = val > 0 ? C.GREEN : (val < 0 ? C.RED : C.LABEL);
+        var regime = val > 0 ? 'Bullish' : 'Bearish';
+        return '<div style="font-weight:700;margin-bottom:6px;border-bottom:1px solid ' + C.SPLIT_LINE + ';padding-bottom:4px;">'
+          + p.axisValueLabel + ' <span style="font-size:10px;color:' + color + ';margin-left:6px;">[' + regime + ']</span></div>'
+          + '<div style="display:flex;justify-content:space-between;gap:15px;">'
+          + '<span style="color:' + C.MUTED + ';">' + seriesName + ':</span>'
+          + '<span style="font-weight:700;color:' + color + ';">' + sign + val.toFixed(2) + '%</span>'
+          + '</div>';
+      }
+    },
+    dataZoom: [
+      {
+        type: 'inside',
+        xAxisIndex: 0,
+        startValue: startValue,
+        endValue: endValue,
+        zoomOnMouseWheel: true,
+        moveOnMouseMove: true
+      },
+      {
+        type: 'slider',
+        xAxisIndex: 0,
+        startValue: startValue,
+        endValue: endValue,
+        bottom: 12,
+        height: 24,
+        borderColor: C.SPLIT_LINE,
+        backgroundColor: '#0f172a',
+        fillerColor: 'rgba(56, 189, 248, 0.15)',
+        handleStyle: { color: C.MUTED, borderColor: C.BORDER },
+        textStyle: { color: C.MUTED, fontSize: 10 }
+      }
+    ],
+    visualMap: {
+      show: false,
+      pieces: [
+        { gt: -1000, lte: 0, color: C.RED },
+        { gt: 0, lte: 1000, color: C.GREEN }
+      ],
+      outOfRange: { color: C.MUTED }
+    },
+    xAxis: {
+      type: 'category',
+      data: dates,
+      boundaryGap: false,
+      axisLine: { lineStyle: { color: C.BORDER, width: 1.5 } },
+      splitLine: { show: false },
+      axisLabel: { color: C.LABEL, fontSize: 10 }
+    },
+    yAxis: {
+      type: 'value',
+      name: 'Avg Momentum (%)',
+      nameLocation: 'middle',
+      nameGap: 42,
+      nameTextStyle: { color: C.MUTED, fontSize: 11, fontWeight: 600 },
+      axisLine: { lineStyle: { color: C.BORDER, width: 1.5 } },
+      splitLine: { lineStyle: { color: C.SPLIT_LINE, type: 'dashed' } },
+      axisLabel: { color: C.LABEL, fontSize: 10, formatter: '{value}%' }
+    },
+    series: [
+      {
+        name: seriesName,
+        type: 'line',
+        data: values,
+        showSymbol: false,
+        lineStyle: { width: 2 },
+        areaStyle: { opacity: 0.12 },
+        markLine: {
+          silent: true,
+          symbol: 'none',
+          label: {
+            show: true,
+            position: 'end',
+            formatter: '0%',
+            color: C.MUTED,
+            fontSize: 10
+          },
+          data: [
+            { yAxis: 0, lineStyle: { type: 'solid', color: C.MARK_LINE, width: 1.5 } }
+          ]
+        }
+      }
+    ]
+  });
+
+  chart.getZr().on('dblclick', function() {
+    chart.dispatchAction({ type: 'restore' });
+  });
+  window.addEventListener('resize', function() { chart.resize(); });
+  var handleFs = function() { setTimeout(function() { chart.resize(); }, 100); };
+  document.addEventListener('fullscreenchange', handleFs);
+  document.addEventListener('webkitfullscreenchange', handleFs);
+};
+</script>
+
+<div class="dashboard-container">
+  <div style="font-size: 0.95rem; color: #94a3b8; margin-top: -0.75rem; margin-bottom: -0.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+    {% if data.base_date %}
+    <span>📅 <b>Base Date</b>: <strong style="color: #f1f5f9;">{{ data.base_date }}</strong></span>
+    {% endif %}
+    <a href="dashboard.html" style="font-size: 0.8rem; color: #38bdf8;">← US Dashboard</a>
+  </div>
+
+  <!-- Summary Card -->
+  <div class="dash-card">
+    <div class="dash-card-title">
+      <span>Market Regime Summary (1M · 3M · 6M · 12M Average Momentum)</span>
+      <span class="region-badge region-us">{{ data.ticker | default('TIP') }}</span>
+    </div>
+    <div class="regime-grid">
+      <div class="regime-subcard">
+        <div class="regime-subcard-header">
+          <span>Daily EMA3 (D/ema3.tsv)</span>
+          <span style="color:#64748b;">EMA(3)</span>
+        </div>
+        <div class="regime-body">
+          {% if data.ema3.status == 'Bullish' %}
+            <div class="regime-badge regime-bullish">BULLISH</div>
+          {% else %}
+            <div class="regime-badge regime-bearish">BEARISH</div>
+          {% endif %}
+          <div class="regime-stats">
+            <span class="regime-val">{{ '+' if data.ema3.tip_momentum > 0 else '' }}{{ "%.2f"|format(data.ema3.tip_momentum) }}%</span>
+            <span class="regime-label">TIP Avg Momentum (EMA3)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="regime-subcard">
+        <div class="regime-subcard-header">
+          <span>Daily Raw (D/raw.tsv)</span>
+          <span style="color:#64748b;">Close</span>
+        </div>
+        <div class="regime-body">
+          {% if data.raw.status == 'Bullish' %}
+            <div class="regime-badge regime-bullish">BULLISH</div>
+          {% else %}
+            <div class="regime-badge regime-bearish">BEARISH</div>
+          {% endif %}
+          <div class="regime-stats">
+            <span class="regime-val">{{ '+' if data.raw.tip_momentum > 0 else '' }}{{ "%.2f"|format(data.raw.tip_momentum) }}%</span>
+            <span class="regime-label">TIP Avg Momentum (Raw)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Plot 1: D/ema3.tsv -->
+  <div class="dash-card">
+    <div class="dash-card-title">
+      <span>① TIP Average Momentum — Daily EMA3 (D/ema3.tsv)</span>
+      <span style="font-size:0.65rem;color:#475569;font-weight:normal;">1M · 3M · 6M · 12M Mean (%)</span>
+    </div>
+    <div id="tip-ema3-chart" style="width: 100%; height: 420px; margin-top: 0.5rem;"></div>
+    <script>
+    (function() {
+      var ema3Series = {{ data.ema3.series | tojson }};
+      window.renderMarketRegimeChart('tip-ema3-chart', 'TIP Avg Momentum (EMA3)', ema3Series);
+    })();
+    </script>
+
+    <details class="toggle-section" {% if not data.ema3.series %}style="display:none;"{% endif %}>
+      <summary class="toggle-summary">Daily EMA3 Momentum Table ({{ data.ema3.series | length }} days)</summary>
+      <div class="val-table-wrap">
+        <table class="val-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Avg Momentum (%)</th>
+              <th>Regime</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in data.ema3.series | reverse %}
+            <tr>
+              <td>{{ row.date }}</td>
+              <td class="{{ 'text-green' if row.momentum > 0 else 'text-red' }}" style="font-weight:600;">
+                {{ '+' if row.momentum > 0 else '' }}{{ "%.2f"|format(row.momentum) }}%
+              </td>
+              <td class="{{ 'text-green' if row.momentum > 0 else 'text-red' }}" style="font-weight:700;">
+                {{ 'Bullish' if row.momentum > 0 else 'Bearish' }}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </details>
+  </div>
+
+  <!-- Plot 2: D/raw.tsv -->
+  <div class="dash-card">
+    <div class="dash-card-title">
+      <span>② TIP Average Momentum — Daily Raw (D/raw.tsv)</span>
+      <span style="font-size:0.65rem;color:#475569;font-weight:normal;">1M · 3M · 6M · 12M Mean (%)</span>
+    </div>
+    <div id="tip-raw-chart" style="width: 100%; height: 420px; margin-top: 0.5rem;"></div>
+    <script>
+    (function() {
+      var rawSeries = {{ data.raw.series | tojson }};
+      window.renderMarketRegimeChart('tip-raw-chart', 'TIP Avg Momentum (Raw)', rawSeries);
+    })();
+    </script>
+
+    <details class="toggle-section" {% if not data.raw.series %}style="display:none;"{% endif %}>
+      <summary class="toggle-summary">Daily Raw Momentum Table ({{ data.raw.series | length }} days)</summary>
+      <div class="val-table-wrap">
+        <table class="val-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Avg Momentum (%)</th>
+              <th>Regime</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in data.raw.series | reverse %}
+            <tr>
+              <td>{{ row.date }}</td>
+              <td class="{{ 'text-green' if row.momentum > 0 else 'text-red' }}" style="font-weight:600;">
+                {{ '+' if row.momentum > 0 else '' }}{{ "%.2f"|format(row.momentum) }}%
+              </td>
+              <td class="{{ 'text-green' if row.momentum > 0 else 'text-red' }}" style="font-weight:700;">
+                {{ 'Bullish' if row.momentum > 0 else 'Bearish' }}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </details>
+  </div>
+
+  <div style="text-align: right; font-size: 0.7rem; color: #475569;">
+    {% if data.base_date %}Base Date: {{ data.base_date }} | {% endif %}Last updated: {{ data.last_updated }}
+  </div>
+</div>

@@ -152,6 +152,13 @@ uv run scripts/get_us_data_yh.py
 - EMA3 Histogram: [Table](https://pinedance.github.io/quant-data-open/dist/KR/stocks/signals/MACD/M/ema3-current-histogram.html)
 - EMA3 Line: [Table](https://pinedance.github.io/quant-data-open/dist/KR/stocks/signals/MACD/M/ema3-current-line.html)
 
+**국내 ETF 모멘텀 시그널** (일간, 1M·3M·6M·12M·13612M)
+- 1M: [Raw](https://pinedance.github.io/quant-data-open/dist/KR/stocks/signals/momentum/1M/D/raw.html) | [EMA3](https://pinedance.github.io/quant-data-open/dist/KR/stocks/signals/momentum/1M/D/ema3.html)
+- 3M: [Raw](https://pinedance.github.io/quant-data-open/dist/KR/stocks/signals/momentum/3M/D/raw.html) | [EMA3](https://pinedance.github.io/quant-data-open/dist/KR/stocks/signals/momentum/3M/D/ema3.html)
+- 6M: [Raw](https://pinedance.github.io/quant-data-open/dist/KR/stocks/signals/momentum/6M/D/raw.html) | [EMA3](https://pinedance.github.io/quant-data-open/dist/KR/stocks/signals/momentum/6M/D/ema3.html)
+- 12M: [Raw](https://pinedance.github.io/quant-data-open/dist/KR/stocks/signals/momentum/12M/D/raw.html) | [EMA3](https://pinedance.github.io/quant-data-open/dist/KR/stocks/signals/momentum/12M/D/ema3.html)
+- 13612M (평균): [Raw](https://pinedance.github.io/quant-data-open/dist/KR/stocks/signals/momentum/13612M/D/raw.html) | [EMA3](https://pinedance.github.io/quant-data-open/dist/KR/stocks/signals/momentum/13612M/D/ema3.html)
+
 **해외 ETF 가격** (종가, 약 1.5년)
 - 일간 (Yahoo Finance): [Table](https://pinedance.github.io/quant-data-open/dist/US/stocks/price/D/raw.html)
 - 일간 EMA3: [Table](https://pinedance.github.io/quant-data-open/dist/US/stocks/price/D/ema3.html)
@@ -165,6 +172,14 @@ uv run scripts/get_us_data_yh.py
 - Raw Line: [Table](https://pinedance.github.io/quant-data-open/dist/US/stocks/signals/MACD/M/raw-current-line.html)
 - EMA3 Histogram: [Table](https://pinedance.github.io/quant-data-open/dist/US/stocks/signals/MACD/M/ema3-current-histogram.html)
 - EMA3 Line: [Table](https://pinedance.github.io/quant-data-open/dist/US/stocks/signals/MACD/M/ema3-current-line.html)
+
+**해외 ETF 모멘텀 & Market Regime 시그널** (일간, 1M·3M·6M·12M·13612M)
+- 1M: [Raw](https://pinedance.github.io/quant-data-open/dist/US/stocks/signals/momentum/1M/D/raw.html) | [EMA3](https://pinedance.github.io/quant-data-open/dist/US/stocks/signals/momentum/1M/D/ema3.html)
+- 3M: [Raw](https://pinedance.github.io/quant-data-open/dist/US/stocks/signals/momentum/3M/D/raw.html) | [EMA3](https://pinedance.github.io/quant-data-open/dist/US/stocks/signals/momentum/3M/D/ema3.html)
+- 6M: [Raw](https://pinedance.github.io/quant-data-open/dist/US/stocks/signals/momentum/6M/D/raw.html) | [EMA3](https://pinedance.github.io/quant-data-open/dist/US/stocks/signals/momentum/6M/D/ema3.html)
+- 12M: [Raw](https://pinedance.github.io/quant-data-open/dist/US/stocks/signals/momentum/12M/D/raw.html) | [EMA3](https://pinedance.github.io/quant-data-open/dist/US/stocks/signals/momentum/12M/D/ema3.html)
+- 13612M (평균): [Raw](https://pinedance.github.io/quant-data-open/dist/US/stocks/signals/momentum/13612M/D/raw.html) | [EMA3](https://pinedance.github.io/quant-data-open/dist/US/stocks/signals/momentum/13612M/D/ema3.html)
+- TIP Market Regime: [Chart & Table](https://pinedance.github.io/quant-data-open/dist/US/market-regime.html) | [JSON](https://pinedance.github.io/quant-data-open/dist/US/market-regime.json)
 
 ### 경기 지표
 

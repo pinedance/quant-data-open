@@ -99,6 +99,11 @@ import numpy as np
 import scipy.stats as stats
 
 
+MOMENTUM_MONTH_OFFSETS = (1, 3, 6, 12)
+MOMENTUM_AVG_KEY = "13612M"
+MOMENTUM_KEYS = tuple(f"{m}M" for m in MOMENTUM_MONTH_OFFSETS) + (MOMENTUM_AVG_KEY,)
+
+
 def calculate_average_momentum(prices_df):
     if len(prices_df) < 13:
         return 0.0 if isinstance(prices_df, pd.Series) else pd.Series(0.0, index=prices_df.columns)
@@ -114,6 +119,40 @@ def calculate_average_momentum(prices_df):
     r12 = (P_curr / P_12m) - 1
     
     return (r1 + r3 + r6 + r12) / 4.0
+
+
+def calculate_daily_momentum(
+    daily_prices: pd.Series | pd.DataFrame, months: int
+) -> pd.Series | pd.DataFrame:
+    if not isinstance(daily_prices.index, pd.DatetimeIndex):
+        raise ValueError("daily_prices index must be a DatetimeIndex.")
+    if months <= 0:
+        raise ValueError("months must be a positive integer.")
+    if daily_prices.empty:
+        return daily_prices.copy()
+
+    sorted_prices = daily_prices.sort_index()
+    target_dates = sorted_prices.index - pd.DateOffset(months=months)
+    prev_prices = sorted_prices.reindex(target_dates, method="pad").to_numpy(dtype=float)
+    return (sorted_prices / prev_prices) - 1.0
+
+
+def calculate_daily_momentums(
+    daily_prices: pd.Series | pd.DataFrame,
+) -> dict[str, pd.Series | pd.DataFrame]:
+    results = {
+        f"{months}M": calculate_daily_momentum(daily_prices, months)
+        for months in MOMENTUM_MONTH_OFFSETS
+    }
+    results[MOMENTUM_AVG_KEY] = sum(results.values()) / float(len(MOMENTUM_MONTH_OFFSETS))
+    return results
+
+
+def calculate_daily_average_momentum(
+    daily_prices: pd.Series | pd.DataFrame,
+) -> pd.Series | pd.DataFrame:
+    return calculate_daily_momentums(daily_prices)[MOMENTUM_AVG_KEY]
+
 
 def calculate_ema_crossovers(prices_df):
     if len(prices_df) < 200:

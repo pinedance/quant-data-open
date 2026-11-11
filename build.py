@@ -4,6 +4,7 @@
 config.yaml만 수정하면 새 페이지가 자동으로 생성됩니다
 """
 
+import datetime
 import json
 import os
 import shutil
@@ -15,11 +16,21 @@ import pandas as pd
 from jinja2 import Environment, FileSystemLoader
 
 from core.config import ConfigManager
-from core.cons import MA_LONG_WINDOW as MIN_REQUIRED_DAYS
+from core.cons import (
+    MA_LONG_WINDOW as MIN_REQUIRED_DAYS,
+    PRICE_EMA_SPAN,
+    RECENT_DAYS_COUNT,
+)
 from core.dashboard_analyzer import DashboardAnalyzer
 from core.message import send_telegram_dashboard_summary
+from core.tFinance import (
+    MOMENTUM_KEYS,
+    calculate_daily_average_momentum,
+    calculate_daily_momentums,
+    calculate_macd,
+)
 from core.tIO import save_df_as_html_table
-from core.tTable import check_nans
+from core.tTable import check_nans, post_process_price, resample_monthly
 
 _config = ConfigManager()
 BASE_DIR = Path(__file__).resolve().parent
@@ -127,7 +138,7 @@ def render_page(env, page_config, paths):
     else:
         data = full_data
 
-    if template_type == 'table' or template_type == 'dashboard':
+    if template_type in ('table', 'dashboard', 'market_regime'):
         template_name = 'generic_table.html.j2' if template_type == 'table' else f'pages/{template_type}.html.j2'
         layout_name = 'data.html'
         output_path = paths['output'] / paths['output_subdir'] / f'{name}.html'
@@ -158,6 +169,59 @@ def render_page(env, page_config, paths):
         f.write(json_output)
     print(f"✓ {json_output_path}")
 
+def save_derived_df_to_html(df, html_path):
+    try:
+        save_df_as_html_table(df, html_path)
+        return True
+    except Exception as e:
+        print(f"⚠️  Error saving derived {html_path.name}: {e}")
+        return False
+
+
+def compute_region_derived_tables(price_raw: pd.DataFrame, region: str) -> dict[str, pd.DataFrame]:
+    price_raw = price_raw.sort_index().astype("float64")
+    price_ema3 = price_raw.ewm(span=PRICE_EMA_SPAN).mean()
+
+    price_raw_m_eom = resample_monthly(price_raw, method="eom")
+    price_ema3_m_eom = resample_monthly(price_ema3, method="eom")
+    price_raw_m_curr = resample_monthly(price_raw, method="current")
+    price_ema3_m_curr = resample_monthly(price_ema3, method="current")
+
+    macd_line_raw_curr, macd_hist_raw_curr = calculate_macd(price_raw_m_curr)
+    macd_line_ema3_curr, macd_hist_ema3_curr = calculate_macd(price_ema3_m_curr)
+    macd_line_raw_eom, macd_hist_raw_eom = calculate_macd(price_raw_m_eom)
+    macd_line_ema3_eom, macd_hist_ema3_eom = calculate_macd(price_ema3_m_eom)
+
+    moms_d_raw = calculate_daily_momentums(price_raw)
+    moms_d_ema3 = calculate_daily_momentums(price_ema3)
+
+    raw_proc = post_process_price(price_raw)
+    ema3_proc = post_process_price(price_ema3)
+
+    tables = {
+        f"{region}/stocks/price/D/ema3.html": ema3_proc,
+        f"{region}/stocks/price/D/raw-300.html": raw_proc.tail(RECENT_DAYS_COUNT),
+        f"{region}/stocks/price/D/ema3-300.html": ema3_proc.tail(RECENT_DAYS_COUNT),
+        f"{region}/stocks/price/M/raw-eom.html": post_process_price(price_raw_m_eom),
+        f"{region}/stocks/price/M/ema3-eom.html": post_process_price(price_ema3_m_eom),
+        f"{region}/stocks/price/M/raw-current.html": post_process_price(price_raw_m_curr),
+        f"{region}/stocks/price/M/ema3-current.html": post_process_price(price_ema3_m_curr),
+        f"{region}/stocks/signals/MACD/M/raw-current-line.html": post_process_price(macd_line_raw_curr),
+        f"{region}/stocks/signals/MACD/M/raw-current-histogram.html": post_process_price(macd_hist_raw_curr),
+        f"{region}/stocks/signals/MACD/M/ema3-current-line.html": post_process_price(macd_line_ema3_curr),
+        f"{region}/stocks/signals/MACD/M/ema3-current-histogram.html": post_process_price(macd_hist_ema3_curr),
+        f"{region}/stocks/signals/MACD/M/raw-eom-line.html": post_process_price(macd_line_raw_eom),
+        f"{region}/stocks/signals/MACD/M/raw-eom-histogram.html": post_process_price(macd_hist_raw_eom),
+        f"{region}/stocks/signals/MACD/M/ema3-eom-line.html": post_process_price(macd_line_ema3_eom),
+        f"{region}/stocks/signals/MACD/M/ema3-eom-histogram.html": post_process_price(macd_hist_ema3_eom),
+    }
+    for k in MOMENTUM_KEYS:
+        tables[f"{region}/stocks/signals/momentum/{k}/D/raw.html"] = post_process_price(moms_d_raw[k])
+        tables[f"{region}/stocks/signals/momentum/{k}/D/ema3.html"] = post_process_price(moms_d_ema3[k])
+
+    return tables
+
+
 def process_dist_files(paths):
     source_dir = paths['source']
     output_dir = paths['output'] / paths['output_subdir']
@@ -167,39 +231,64 @@ def process_dist_files(paths):
 
     converted_count = 0
     failed_count = 0
-    tasks = []
+    tsv_tasks = []
     for tsv_file in source_dir.rglob("*.tsv"):
         relative_path = tsv_file.relative_to(source_dir)
         html_path = output_dir / relative_path.with_suffix('.html')
-        tasks.append((tsv_file, html_path))
+        tsv_tasks.append((tsv_file, html_path))
+
+    derived_tasks = []
+    for region in ("US", "KR"):
+        raw_path = source_dir / f"{region}/stocks/price/D/raw.tsv"
+        if raw_path.exists():
+            df_raw = pd.read_csv(raw_path, sep='\t', index_col=0, header=0, parse_dates=True).sort_index()
+            for rel_html, df_derived in compute_region_derived_tables(df_raw, region).items():
+                derived_tasks.append((rel_html, df_derived, output_dir / rel_html))
 
     max_workers = os.cpu_count() or 4
     with ProcessPoolExecutor(max_workers=max_workers) as executor:
-        futures = {executor.submit(convert_tsv_to_html, tsv, html): (tsv, html) for tsv, html in tasks}
+        futures = {}
+        for tsv, html in tsv_tasks:
+            futures[executor.submit(convert_tsv_to_html, tsv, html)] = (str(tsv.relative_to(source_dir)), html)
+        for rel_html, df_derived, html in derived_tasks:
+            futures[executor.submit(save_derived_df_to_html, df_derived, html)] = (rel_html, html)
+
         for future in futures:
-            tsv_file, html_path = futures[future]
+            label, html_path = futures[future]
             try:
                 if future.result():
                     converted_count += 1
-                    print(f"✓ Converted {tsv_file.name} → {html_path.name}")
+                    print(f"✓ Generated {label} → {html_path.name}")
                 else:
                     failed_count += 1
             except Exception as e:
-                print(f"❌ Error converting {tsv_file.name}: {e}")
+                print(f"❌ Error generating {label}: {e}")
                 failed_count += 1
-    print(f"   Total: {converted_count} converted, {failed_count} failed")
+    print(f"   Total: {converted_count} generated, {failed_count} failed")
 
 def load_and_clean_dataset(paths):
-    df_us_d = pd.read_csv(paths['source'] / "US/stocks/price/D/raw.tsv", sep='\t', index_col=0, header=0)
-    df_us_m = pd.read_csv(paths['source'] / "US/stocks/price/M/raw-eom.tsv", sep='\t', index_col=0, header=0)
-    df_us_hist = pd.read_csv(paths['source'] / "US/stocks/signals/MACD/M/raw-eom-histogram.tsv", sep='\t', index_col=0, header=0)
-    
-    df_kr_d = pd.read_csv(paths['source'] / "KR/stocks/price/D/raw.tsv", sep='\t', index_col=0, header=0)
-    df_kr_m = pd.read_csv(paths['source'] / "KR/stocks/price/M/raw-eom.tsv", sep='\t', index_col=0, header=0)
-    df_kr_hist = pd.read_csv(paths['source'] / "KR/stocks/signals/MACD/M/raw-eom-histogram.tsv", sep='\t', index_col=0, header=0)
+    df_us_raw_dt = pd.read_csv(
+        paths['source'] / "US/stocks/price/D/raw.tsv", sep='\t', index_col=0, header=0, parse_dates=True
+    ).sort_index()
+    df_kr_raw_dt = pd.read_csv(
+        paths['source'] / "KR/stocks/price/D/raw.tsv", sep='\t', index_col=0, header=0, parse_dates=True
+    ).sort_index()
 
-    if len(df_us_d) < MIN_REQUIRED_DAYS or len(df_kr_d) < MIN_REQUIRED_DAYS:
+    if len(df_us_raw_dt) < MIN_REQUIRED_DAYS or len(df_kr_raw_dt) < MIN_REQUIRED_DAYS:
         raise ValueError(f"Total price history is shorter than required window ({MIN_REQUIRED_DAYS} days).")
+
+    us_m_eom_dt = resample_monthly(df_us_raw_dt, method='eom')
+    _, us_hist_eom_dt = calculate_macd(us_m_eom_dt)
+    kr_m_eom_dt = resample_monthly(df_kr_raw_dt, method='eom')
+    _, kr_hist_eom_dt = calculate_macd(kr_m_eom_dt)
+
+    df_us_d = post_process_price(df_us_raw_dt)
+    df_us_m = post_process_price(us_m_eom_dt)
+    df_us_hist = post_process_price(us_hist_eom_dt)
+
+    df_kr_d = post_process_price(df_kr_raw_dt)
+    df_kr_m = post_process_price(kr_m_eom_dt)
+    df_kr_hist = post_process_price(kr_hist_eom_dt)
 
     df_us_d_raw = df_us_d.copy()
     df_kr_d_raw = df_kr_d.copy()
@@ -225,6 +314,58 @@ def load_and_clean_dataset(paths):
     df_kr_hist = df_kr_hist[clean_kr_cols].ffill().bfill()
 
     return df_us_d, df_us_m, df_us_hist, df_kr_d, df_kr_m, df_kr_hist, df_us_d_raw, df_kr_d_raw
+
+
+def _format_momentum_series(mom_series: pd.Series) -> dict:
+    valid_series = mom_series.dropna()
+    if valid_series.empty:
+        return {"tip_momentum": 0.0, "status": "Bearish", "series": []}
+
+    pct_series = (valid_series * 100.0).round(2)
+    last_val = float(pct_series.iloc[-1])
+    dates = valid_series.index.strftime("%Y-%m-%d").tolist()
+    values = pct_series.tolist()
+
+    return {
+        "tip_momentum": last_val,
+        "status": "Bullish" if last_val > 0 else "Bearish",
+        "series": [{"date": d, "momentum": v} for d, v in zip(dates, values)],
+    }
+
+
+def _serialize_momentum_series(prices_df: pd.DataFrame, ticker: str = "TIP") -> dict:
+    if ticker not in prices_df.columns:
+        return {"tip_momentum": 0.0, "status": "Bearish", "series": []}
+
+    mom_series = calculate_daily_average_momentum(prices_df[[ticker]])[ticker]
+    return _format_momentum_series(mom_series)
+
+
+def build_market_regime_data(paths: dict) -> dict:
+    price_path = paths['source'] / "US/stocks/price/D/raw.tsv"
+    df_raw = pd.read_csv(price_path, sep='\t', index_col=0, header=0, parse_dates=True).sort_index()
+    df_ema3 = df_raw.ewm(span=PRICE_EMA_SPAN).mean()
+    base_date = df_raw.index[-1].strftime("%Y-%m-%d") if not df_raw.empty else ""
+
+    raw_data = _serialize_momentum_series(df_raw, "TIP")
+    ema3_data = _serialize_momentum_series(df_ema3, "TIP")
+
+    payload = {
+        "base_date": base_date,
+        "ticker": "TIP",
+        "raw": raw_data,
+        "ema3": ema3_data,
+        "last_updated": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+    }
+
+    us_dir = paths['output'] / paths['output_subdir'] / "US"
+    ensure_dir(us_dir)
+    out_path = us_dir / "market-regime.json"
+    with open(out_path, "w", encoding="utf-8") as f:
+        json.dump(payload, f, ensure_ascii=False, indent=2)
+    print(f"✓ Saved US market regime data -> {out_path}")
+    return payload
+
 
 def build():
     print("🔨 Building site with Jinja2...")
@@ -284,6 +425,11 @@ def build():
     except Exception as e:
         print(f"❌ Error during dashboard analysis: {e}")
         dashboard_data = None
+
+    try:
+        build_market_regime_data(paths)
+    except Exception as e:
+        print(f"❌ Error building market regime data: {e}")
 
     env = Environment(
         loader=FileSystemLoader(paths['templates']),
