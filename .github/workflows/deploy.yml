@@ -2,7 +2,11 @@ name: Build and Deploy
 
 on:
   workflow_dispatch:
-  
+
+  push:
+    branches:
+      - main
+
   workflow_run:
     workflows: ["Update price daily"]
     types:

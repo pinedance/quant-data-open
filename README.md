@@ -30,7 +30,7 @@ cd quant-data-open
 uv sync
 
 # 중요: 데이터 전용 'output' 브랜치를 ./output 폴더에 연결 (최초 1회 실행)
-# Code와 Data를 분리하기 위해, 관리 branch를 분리했기 때문 
+# Code와 Data를 분리하기 위해, 관리 branch를 분리했기 때문
 # Code: 'main' branch, Data: 'output' branch
 rm -rf output
 git worktree add output output
@@ -69,6 +69,10 @@ python -m http.server 8000 --directory public
 직접 최신 데이터를 스크랩하여 `./output`에 갱신하려면 다음 명령어를 개별적으로 실행합니다.
 
 ```bash
+# 종목 목록 (국내 상장사/ETF/ETN 및 해외 ETF)
+uv run scripts/get_kr_data_lists.py
+uv run scripts/get_us_data_lists.py
+
 # 국내 ETF 가격
 uv run scripts/get_kr_price_krx.py
 uv run scripts/get_kr_price_nv.py
@@ -77,10 +81,12 @@ uv run scripts/get_kr_price_nv.py
 uv run scripts/get_us_price_yh.py
 
 # 경기 및 시장 지표
-uv run scripts/get_kr_data_ecos_daily.py   # ECOS_KEY 필요
+uv run scripts/get_kr_data_ecos_daily.py    # ECOS_KEY 필요
 uv run scripts/get_kr_data_ecos_monthly.py  # ECOS_KEY 필요
+uv run scripts/get_kr_data_etc_monthly.py
 uv run scripts/get_kr_data_nv.py
 uv run scripts/get_us_data_yh.py
+uv run scripts/build_misc.py
 ```
 
 ---
@@ -120,60 +126,69 @@ uv run scripts/get_us_data_yh.py
   Checkout main (Code) ──> Checkout output (Data) to ./output
                                 │
                                 ▼
-                           build.py 실행 (정적 페이지 및 JSON 빌드)
+                           build.py 실행 (파생 시그널 계산, 정적 페이지 및 JSON 빌드)
                                 │
                                 ▼
-                       public/ 폴더 빌드 결과 배포 ──> origin/gh-pages 브랜치
+                       public/ 폴더 빌드 결과 배포 ──> GitHub Pages (actions/deploy-pages)
 ```
 
 ---
 
 ## 📊 제공 데이터 상세 (Doc Detail)
 
+### 마켓 대시보드 (Quant Dashboard)
+
+- **해외 (US) 마켓 대시보드**: [Dashboard](https://pinedance.github.io/quant-data-open/dist/US/dashboard.html) | [JSON](https://pinedance.github.io/quant-data-open/dist/US/dashboard.json)
+- **국내 (KR) 마켓 대시보드**: [Dashboard](https://pinedance.github.io/quant-data-open/dist/KR/dashboard.html) | [JSON](https://pinedance.github.io/quant-data-open/dist/KR/dashboard.json)
+- **US Market Regime (TIP 13612M 모멘텀)**: [Chart & Table](https://pinedance.github.io/quant-data-open/dist/US/market-regime.html) | [JSON](https://pinedance.github.io/quant-data-open/dist/US/market-regime.json)
+
 ### 상장 주식
 
 **국내 상장 주식 목록** (현재 기준)
+
 - 전체: [Table](https://pinedance.github.io/quant-data-open/dist/CompanyList.html) | [JSON](https://pinedance.github.io/quant-data-open/dist/CompanyList.json)
 
 ### ETF 가격 데이터
 
-**국내 ETF 가격** (종가, 약 1.5년)
-- 일간 (KRX): [Table](https://pinedance.github.io/quant-data-open/dist/KR/stocks/price/D/raw.html)
-- 일간 (Naver): [Table](https://pinedance.github.io/quant-data-open/dist/KR/stocks/price/D/raw-nv.html)
-- 일간 EMA3: [Table](https://pinedance.github.io/quant-data-open/dist/KR/stocks/price/D/ema3.html)
-- 월간 (현재): [Table](https://pinedance.github.io/quant-data-open/dist/KR/stocks/price/M/raw-current.html)
-- 월간 (월말): [Table](https://pinedance.github.io/quant-data-open/dist/KR/stocks/price/M/raw-eom.html)
-- 월간 EMA3 (현재): [Table](https://pinedance.github.io/quant-data-open/dist/KR/stocks/price/M/ema3-current.html)
-- 월간 EMA3 (월말): [Table](https://pinedance.github.io/quant-data-open/dist/KR/stocks/price/M/ema3-eom.html)
+**국내 ETF 가격** (종가, 약 5년)
+
+- 일간 (KRX): [전체](https://pinedance.github.io/quant-data-open/dist/KR/stocks/price/D/raw.html) | [최근 300일](https://pinedance.github.io/quant-data-open/dist/KR/stocks/price/D/raw-300.html)
+- 일간 (Naver, 최근 60일): [Table](https://pinedance.github.io/quant-data-open/dist/KR/stocks/price/D/raw-nv.html)
+- 일간 EMA3: [전체](https://pinedance.github.io/quant-data-open/dist/KR/stocks/price/D/ema3.html) | [최근 300일](https://pinedance.github.io/quant-data-open/dist/KR/stocks/price/D/ema3-300.html)
+- 월간 (현재): [Raw](https://pinedance.github.io/quant-data-open/dist/KR/stocks/price/M/raw-current.html) | [EMA3](https://pinedance.github.io/quant-data-open/dist/KR/stocks/price/M/ema3-current.html)
+- 월간 (월말): [Raw](https://pinedance.github.io/quant-data-open/dist/KR/stocks/price/M/raw-eom.html) | [EMA3](https://pinedance.github.io/quant-data-open/dist/KR/stocks/price/M/ema3-eom.html)
 
 **국내 ETF MACD 시그널** (월간)
-- Raw Histogram: [Table](https://pinedance.github.io/quant-data-open/dist/KR/stocks/signals/MACD/M/raw-current-histogram.html)
-- Raw Line: [Table](https://pinedance.github.io/quant-data-open/dist/KR/stocks/signals/MACD/M/raw-current-line.html)
-- EMA3 Histogram: [Table](https://pinedance.github.io/quant-data-open/dist/KR/stocks/signals/MACD/M/ema3-current-histogram.html)
-- EMA3 Line: [Table](https://pinedance.github.io/quant-data-open/dist/KR/stocks/signals/MACD/M/ema3-current-line.html)
+
+- Raw Histogram: [현재](https://pinedance.github.io/quant-data-open/dist/KR/stocks/signals/MACD/M/raw-current-histogram.html) | [월말](https://pinedance.github.io/quant-data-open/dist/KR/stocks/signals/MACD/M/raw-eom-histogram.html)
+- Raw Line: [현재](https://pinedance.github.io/quant-data-open/dist/KR/stocks/signals/MACD/M/raw-current-line.html) | [월말](https://pinedance.github.io/quant-data-open/dist/KR/stocks/signals/MACD/M/raw-eom-line.html)
+- EMA3 Histogram: [현재](https://pinedance.github.io/quant-data-open/dist/KR/stocks/signals/MACD/M/ema3-current-histogram.html) | [월말](https://pinedance.github.io/quant-data-open/dist/KR/stocks/signals/MACD/M/ema3-eom-histogram.html)
+- EMA3 Line: [현재](https://pinedance.github.io/quant-data-open/dist/KR/stocks/signals/MACD/M/ema3-current-line.html) | [월말](https://pinedance.github.io/quant-data-open/dist/KR/stocks/signals/MACD/M/ema3-eom-line.html)
 
 **국내 ETF 모멘텀 시그널** (일간, 1M·3M·6M·12M·13612M)
+
 - 1M: [Raw](https://pinedance.github.io/quant-data-open/dist/KR/stocks/signals/momentum/1M/D/raw.html) | [EMA3](https://pinedance.github.io/quant-data-open/dist/KR/stocks/signals/momentum/1M/D/ema3.html)
 - 3M: [Raw](https://pinedance.github.io/quant-data-open/dist/KR/stocks/signals/momentum/3M/D/raw.html) | [EMA3](https://pinedance.github.io/quant-data-open/dist/KR/stocks/signals/momentum/3M/D/ema3.html)
 - 6M: [Raw](https://pinedance.github.io/quant-data-open/dist/KR/stocks/signals/momentum/6M/D/raw.html) | [EMA3](https://pinedance.github.io/quant-data-open/dist/KR/stocks/signals/momentum/6M/D/ema3.html)
 - 12M: [Raw](https://pinedance.github.io/quant-data-open/dist/KR/stocks/signals/momentum/12M/D/raw.html) | [EMA3](https://pinedance.github.io/quant-data-open/dist/KR/stocks/signals/momentum/12M/D/ema3.html)
 - 13612M (평균): [Raw](https://pinedance.github.io/quant-data-open/dist/KR/stocks/signals/momentum/13612M/D/raw.html) | [EMA3](https://pinedance.github.io/quant-data-open/dist/KR/stocks/signals/momentum/13612M/D/ema3.html)
 
-**해외 ETF 가격** (종가, 약 1.5년)
-- 일간 (Yahoo Finance): [Table](https://pinedance.github.io/quant-data-open/dist/US/stocks/price/D/raw.html)
-- 일간 EMA3: [Table](https://pinedance.github.io/quant-data-open/dist/US/stocks/price/D/ema3.html)
-- 월간 (현재): [Table](https://pinedance.github.io/quant-data-open/dist/US/stocks/price/M/raw-current.html)
-- 월간 (월말): [Table](https://pinedance.github.io/quant-data-open/dist/US/stocks/price/M/raw-eom.html)
-- 월간 EMA3 (현재): [Table](https://pinedance.github.io/quant-data-open/dist/US/stocks/price/M/ema3-current.html)
-- 월간 EMA3 (월말): [Table](https://pinedance.github.io/quant-data-open/dist/US/stocks/price/M/ema3-eom.html)
+**해외 ETF 가격** (종가, 약 5년)
+
+- 일간 (Yahoo Finance): [전체](https://pinedance.github.io/quant-data-open/dist/US/stocks/price/D/raw.html) | [최근 300일](https://pinedance.github.io/quant-data-open/dist/US/stocks/price/D/raw-300.html)
+- 일간 EMA3: [전체](https://pinedance.github.io/quant-data-open/dist/US/stocks/price/D/ema3.html) | [최근 300일](https://pinedance.github.io/quant-data-open/dist/US/stocks/price/D/ema3-300.html)
+- 월간 (현재): [Raw](https://pinedance.github.io/quant-data-open/dist/US/stocks/price/M/raw-current.html) | [EMA3](https://pinedance.github.io/quant-data-open/dist/US/stocks/price/M/ema3-current.html)
+- 월간 (월말): [Raw](https://pinedance.github.io/quant-data-open/dist/US/stocks/price/M/raw-eom.html) | [EMA3](https://pinedance.github.io/quant-data-open/dist/US/stocks/price/M/ema3-eom.html)
 
 **해외 ETF MACD 시그널** (월간)
-- Raw Histogram: [Table](https://pinedance.github.io/quant-data-open/dist/US/stocks/signals/MACD/M/raw-current-histogram.html)
-- Raw Line: [Table](https://pinedance.github.io/quant-data-open/dist/US/stocks/signals/MACD/M/raw-current-line.html)
-- EMA3 Histogram: [Table](https://pinedance.github.io/quant-data-open/dist/US/stocks/signals/MACD/M/ema3-current-histogram.html)
-- EMA3 Line: [Table](https://pinedance.github.io/quant-data-open/dist/US/stocks/signals/MACD/M/ema3-current-line.html)
+
+- Raw Histogram: [현재](https://pinedance.github.io/quant-data-open/dist/US/stocks/signals/MACD/M/raw-current-histogram.html) | [월말](https://pinedance.github.io/quant-data-open/dist/US/stocks/signals/MACD/M/raw-eom-histogram.html)
+- Raw Line: [현재](https://pinedance.github.io/quant-data-open/dist/US/stocks/signals/MACD/M/raw-current-line.html) | [월말](https://pinedance.github.io/quant-data-open/dist/US/stocks/signals/MACD/M/raw-eom-line.html)
+- EMA3 Histogram: [현재](https://pinedance.github.io/quant-data-open/dist/US/stocks/signals/MACD/M/ema3-current-histogram.html) | [월말](https://pinedance.github.io/quant-data-open/dist/US/stocks/signals/MACD/M/ema3-eom-histogram.html)
+- EMA3 Line: [현재](https://pinedance.github.io/quant-data-open/dist/US/stocks/signals/MACD/M/ema3-current-line.html) | [월말](https://pinedance.github.io/quant-data-open/dist/US/stocks/signals/MACD/M/ema3-eom-line.html)
 
 **해외 ETF 모멘텀 & Market Regime 시그널** (일간, 1M·3M·6M·12M·13612M)
+
 - 1M: [Raw](https://pinedance.github.io/quant-data-open/dist/US/stocks/signals/momentum/1M/D/raw.html) | [EMA3](https://pinedance.github.io/quant-data-open/dist/US/stocks/signals/momentum/1M/D/ema3.html)
 - 3M: [Raw](https://pinedance.github.io/quant-data-open/dist/US/stocks/signals/momentum/3M/D/raw.html) | [EMA3](https://pinedance.github.io/quant-data-open/dist/US/stocks/signals/momentum/3M/D/ema3.html)
 - 6M: [Raw](https://pinedance.github.io/quant-data-open/dist/US/stocks/signals/momentum/6M/D/raw.html) | [EMA3](https://pinedance.github.io/quant-data-open/dist/US/stocks/signals/momentum/6M/D/ema3.html)
@@ -184,6 +199,7 @@ uv run scripts/get_us_data_yh.py
 ### 경기 지표
 
 **[월간 경기 지표](https://pinedance.github.io/quant-data-open/dist/KR/economy/M/ECOS.html)**
+
 - 국고채 잔액, 환율(달러), 통화량(M2)
 - KOSPI/KOSDAQ 종가 및 거래대금
 - 경기종합지수(동행/선행 순환변동치)
@@ -195,14 +211,17 @@ uv run scripts/get_us_data_yh.py
 - 소비자물가지수, 생산자물가지수
 
 **[일간 경기 지표 (ECOS)](https://pinedance.github.io/quant-data-open/dist/KR/economy/D/ECOS.html)** (약 1.5년)
+
 - 시장금리: MMF 7일, 국고채(1년/3년/5년/10년/20년/30년)
 
 **[일간 시장 지표](https://pinedance.github.io/quant-data-open/dist/KR/economy/D/markets.html)** (약 1년)
+
 - 환율(달러-원), 금리(한국/미국 국채 10년)
 - 골드(원), 원유(WTI)
 - 주식(S&P500, NASDAQ100, KOSPI, KOSDAQ)
 
 **[일간 미국 경제 지표](https://pinedance.github.io/quant-data-open/dist/US/economy/D/data.html)**
+
 - 달러 인덱스(DX-Y), 달러원 환율(KRW=X)
 
 ### 기타 데이터
@@ -215,14 +234,17 @@ uv run scripts/get_us_data_yh.py
 ## 📈 실시간 지표 링크 (외부)
 
 ### 채권
+
 - [금리 | 미국국채 10년](https://m.stock.naver.com/marketindex/bond/US10YT=RR)
 - [금리 | 한국국채 10년](https://m.stock.naver.com/marketindex/bond/KR10YT=RR)
 
 ### 주식
+
 - 미국: [S&P500](https://m.stock.naver.com/worldstock/index/.INX/total) | [NASDAQ100](https://m.stock.naver.com/worldstock/index/.NDX/total) | [VIX](https://m.stock.naver.com/worldstock/index/.VIX/total)
 - 한국: [KOSPI](https://m.stock.naver.com/domestic/index/KOSPI/total) | [KOSDAQ](https://m.stock.naver.com/domestic/index/KOSDAQ/total)
 
 ### 원자재 & 환율
+
 - [골드 (원)](https://m.stock.naver.com/marketindex/metals/CMDT_GD)
 - [원유 (WTI)](https://m.stock.naver.com/marketindex/energy/CLcv1)
 - [환율 | 달러](https://m.stock.naver.com/marketindex/exchange/FX_USDKRW)
@@ -252,11 +274,13 @@ quant-data-open/
 ### 빌드 시스템
 
 **템플릿 엔진**: Jinja2
+
 - 설정 기반 페이지 생성 시스템
 - `config.yaml` 수정만으로 새 페이지 추가 가능
 - 자세한 내용: [ADD_PAGE_GUIDE.md](./DOCS/ADD_PAGE_GUIDE.md)
 
 **빌드 명령**:
+
 ```bash
 uv run build.py
 ```
@@ -264,12 +288,14 @@ uv run build.py
 ### 자동화 (GitHub Actions)
 
 **데이터 수집 및 배포 자동화**
+
 - 월간 경기지표 업데이트 (매주 금요일)
 - 일간 데이터 업데이트 (매일)
 - 가격 데이터 업데이트 (매일)
 - GitHub Pages 자동 배포
 
 **주요 워크플로우**:
+
 - `.github/workflows/update-data-monthly.yml`: 월간 경기지표
 - `.github/workflows/update-data-daily.yml`: 일간 경기지표
 - `.github/workflows/update-price-daily.yml`: ETF 가격
@@ -277,21 +303,22 @@ uv run build.py
 
 **Fork 후 GitHub Actions 실행 시 필요한 Secrets**:
 
-| Secret | 필수 | 설명 |
-|---|---|---|
-| `ECOS_KEY` | 필수 | 한국은행 ECOS API 키 |
+| Secret               | 필수 | 설명                    |
+| -------------------- | ---- | ----------------------- |
+| `ECOS_KEY`           | 필수 | 한국은행 ECOS API 키    |
 | `TELEGRAM_BOT_TOKEN` | 선택 | Telegram 알림용 봇 토큰 |
-| `TELEGRAM_CHAT_ID` | 선택 | Telegram 알림용 채팅 ID |
+| `TELEGRAM_CHAT_ID`   | 선택 | Telegram 알림용 채팅 ID |
 
 > Secrets는 GitHub 저장소 Settings → Secrets and variables → Actions 에서 등록합니다.
 
 ### ETF Ticker 관리
 
-국내 ETF는 선별된 ticker만 수집합니다.
+국내 및 해외 ETF는 선별된 ticker만 수집합니다.
 
 **관리 방법**:
-- Google Sheets: [KOREA_ETF_TICKERS_FOR_DATA](https://docs.google.com/spreadsheets/d/1UqlIF8aXCsRhGYPHttIgtgVDNbyUJOtOmEsM4u3q5H0/)
-- 시트 이름: `TICKERS_REQ`
+
+- 국내 ETF (Google Sheets): [KR_ETF_TICKERS_FOR_DATA](https://docs.google.com/spreadsheets/d/1UqlIF8aXCsRhGYPHttIgtgVDNbyUJOtOmEsM4u3q5H0/) (`TICKERS_REQ` 시트)
+- 해외 ETF (Google Sheets): [US_ETF_TICKERS_FOR_DATA](https://docs.google.com/spreadsheets/d/12zl9KtKP2QaQYvykZ7ABk30jrjuqP4KrcRiWbzn7eII/) (`TICKERS_REQ` 시트)
 - Ticker 수정 후 [GitHub Actions](https://github.com/pinedance/quant-data-open/actions)에서 수동 실행 가능
 
 ### 환경 변수
@@ -310,34 +337,42 @@ ECOS_KEY="your_ecos_api_key_here"
 ### 공공 데이터
 
 **e-나라지표**
-- [메인](http://www.index.go.kr) | [수출입동향](http://www.index.go.kr/potal/main/EachDtlPageDetail.do?idx_cd=1066)
+
+- [메인](https://www.index.go.kr) | [수출입동향](https://www.index.go.kr/unity/potal/main/EachDtlPageDetail.do?idx_cd=1066)
 
 **국가통계포털**
+
 - [KOSIS](https://kosis.kr/)
 
 **한국은행**
+
 - [경제통계시스템 (ECOS)](https://ecos.bok.or.kr/): 통화량M2, 물가지수, 경제심리지수, 뉴스심리지수(예정)
 
 **산업통상자원부**
+
 - [수출입 동향](https://www.motie.go.kr/)
 - [산업통계 분석시스템 (ISTANS)](https://www.istans.or.kr/mainMenu.do): [경기종합지수](https://www.istans.or.kr/su/newSuTab.do?scode=S99)
 - [무역통계 (K-STAT)](https://stat.kita.net/stat/kita/sum/SumImpExpTotalList.screen)
 
 **한국거래소 (KRX)**
+
 - [정보데이터 시스템](http://data.krx.co.kr/)
-- [보도자료](http://open.krx.co.kr/contents/OPN/05/05000000/OPN05000000.jsp)
+- [보도자료](https://open.krx.co.kr/contents/OPN/05/05000000/OPN05000000.jsp)
 
 **금융투자협회**
+
 - [전자공시 시스템](https://dis.kofia.or.kr/)
 - [펀드 다모아](https://dis.kofia.or.kr/websquare/index.jsp?w2xPath=/wq/damoa/DISFundAnnFundUnit.xml&divisionId=MDIS08006000000000&serviceId=SDIS08006000000)
 
 ### 민간 데이터
 
 **FnGuide**
+
 - [Company Guide](https://comp.fnguide.com)
 - [FnIndex](http://www.fnindex.co.kr/overview/I/MIS) | [WiseIndex](https://www.wiseindex.com/Index/Index#/WMI500)
 
 ### 기타
+
 - [네이버 금융](https://finance.naver.com/)
 - [Yahoo Finance](https://finance.yahoo.com/)
 
